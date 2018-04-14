@@ -2753,12 +2753,14 @@ public class AdversaryModelExps {
 			
 			
 			double llh = -EquationGenerator.llval;//computeLogLikeliHoodValue(attackfrequency, attstrategy, naction);
+			
 			//double llh = -likeHoodValue(isets, attackfrequency, naction, defstrategy, root, dEPTH_LIMIT, depthinfoset, lambda[i]);
 			
 			if(llh<minllh)
 			{
 				minllh = llh;
 				minlambda = lambda[i];
+				System.out.println("min lambda : "+minlambda+", minllh : "+ minllh);
 			}
 		}
 		

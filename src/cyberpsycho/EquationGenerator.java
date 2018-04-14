@@ -2431,8 +2431,8 @@ public class EquationGenerator {
 			
 			double llvalsum = 0.0;
 			
-			System.out.println("seq : "+ key + "\n");
-			if(attackfrequency.containsKey(seq))
+			//System.out.println("seq : "+ key + "\n");
+			if(attackfrequency.containsKey(key))
 			{
 				int[] freq = attackfrequency.get(key);
 				//double[] attstrtgy = attackstrategy.get(seq);
@@ -2441,12 +2441,12 @@ public class EquationGenerator {
 					if(freq[a]>0 && recentattstrat[a]>0)
 					{
 						double tmpllval = freq[a]* Math.log(recentattstrat[a]);
-						System.out.println("llval : "+ tmpllval);
+						//System.out.println("llval : "+ tmpllval);
 						llvalsum += tmpllval;
 					}
 					
 				}
-				System.out.println("llvalsum : "+ llvalsum);
+				//System.out.println("llvalsum : "+ llvalsum);
 			}
 			else
 			{
@@ -2457,17 +2457,17 @@ public class EquationGenerator {
 
 
 				double tmpllval = freq[0]* Math.log(attstrtgy[0]);
-				System.out.println("llval : "+ tmpllval);
+				//System.out.println("llval : "+ tmpllval);
 				llvalsum += tmpllval;
 
 
 
-				System.out.println("llvalsum : "+ llvalsum);
+				//System.out.println("llvalsum : "+ llvalsum);
 			}
 			
 			
 			EquationGenerator.llval += llvalsum;
-
+			//System.out.println("llval : "+ (-EquationGenerator.llval));
 
 			/**
 			 * now compute create an empty array and return the expected payoff of attacker for the prev action
