@@ -2443,8 +2443,8 @@ public class AdversaryModelExps {
 		ArrayList<ArrayList<String>>  data_refined = refineData(data,1, users_refined);
 
 		//double[][] examples = prepareExamplesDTScorePoints(data_refined, users_refined);
-		double[][] examples = prepareExamplesNodeCostPoint(data_refined, users_refined);
-		//double [][] examples = prepareFrquencey(data_refined, users_refined, numberofnodes);
+		//double[][] examples = prepareExamplesNodeCostPoint(data_refined, users_refined);
+		double [][] examples = prepareFrquencey(data_refined, users_refined, numberofnodes);
 
 		printData(users_refined,examples);
 
@@ -2460,11 +2460,11 @@ public class AdversaryModelExps {
 
 
 
-		List<Integer>[] clusters = Weka.clusterUsers(k,normalizedexamples);
+		//List<Integer>[] clusters = Weka.clusterUsers(k,normalizedexamples);
 
 
 
-		//List<Integer>[] clusters = KmeanClustering.clusterUsersV2(k, normalizedexamples);
+		List<Integer>[] clusters = KmeanClustering.clusterUsersV2(k, normalizedexamples);
 
 
 		printClustersInt(clusters);
@@ -2513,7 +2513,9 @@ public class AdversaryModelExps {
 			int[][] gameplay = createGamePlay(users_groups, data_refined, 5);
 			int attackcount[] = getAttackFrequency(users_groups, data_refined, numberofnodes);
 			HashMap<String, int[]> attackfrequency = getAttackCountInData(gameplay, numberofnodes, 5);
-
+			// TODO remove sequence for which there is no action was played
+			
+			//refineAttackFrequency(attackfrequency);
 
 			//printAttackFreq(attackfrequency);
 
@@ -2521,11 +2523,11 @@ public class AdversaryModelExps {
 
 			// now compute the best response in the tree
 
-			int DEPTH_LIMIT = 6; // needs to be 10 for our experiment
+			int DEPTH_LIMIT = 10; // needs to be 10 for our experiment
 			int naction = 6;
-			int minlambda = 0;
-			int maxlambda = 2;
-			double step = .02;
+			double minlambda = 0;
+			double maxlambda = .4;
+			double step = .01;
 			double[] lambda = generateLambdaArray(minlambda, maxlambda, step);
 
 
@@ -2668,6 +2670,43 @@ public class AdversaryModelExps {
 
 	}
 
+	private static void refineAttackFrequency(HashMap<String, int[]> attackfrequency) {
+		
+		ArrayList<String> toberemoved = new ArrayList<String>();
+		
+		for(String key: attackfrequency.keySet())
+		{
+			int[] freq = attackfrequency.get(key);
+			
+			boolean flag = false;
+			for(int f: freq)
+			{
+				if(f>0)
+				{
+					flag = true;
+					break;
+				}
+			}
+			if(!flag)
+			{
+				toberemoved.add(key);
+			}
+			
+			
+		}
+		
+		
+		for(String key: toberemoved)
+		{
+			if(attackfrequency.containsKey(key))
+			{
+				attackfrequency.remove(key);
+			}
+		}
+		
+		
+	}
+
 	private static double estimateLambdaNaive(double[] lambda, HashMap<String, InfoSet> isets,
 			HashMap<String, int[]> attackfrequency, int naction, HashMap<String, HashMap<String, Double>> strategy,
 			DNode root, int dEPTH_LIMIT, HashMap<Integer, ArrayList<String>> depthinfoset, double step) throws Exception {
@@ -2707,9 +2746,13 @@ public class AdversaryModelExps {
 		for(int i=0; i<lambda.length; i++)
 		{
 		
+			EquationGenerator.llval = 0.0;
 			HashMap<String, double[]> attstrategy = new HashMap<String, double[]>();
-			DNode root1 = EquationGenerator.buildGameTreeRecur(dEPTH_LIMIT, naction, defstrategy, attstrategy, lambda[i]);
-			double llh = -computeLogLikeliHoodValue(attackfrequency, attstrategy, naction);
+			DNode root1 = EquationGenerator.buildGameTreeRecur(dEPTH_LIMIT, naction, defstrategy, attstrategy, lambda[i], attackfrequency);
+			
+			
+			
+			double llh = -EquationGenerator.llval;//computeLogLikeliHoodValue(attackfrequency, attstrategy, naction);
 			//double llh = -likeHoodValue(isets, attackfrequency, naction, defstrategy, root, dEPTH_LIMIT, depthinfoset, lambda[i]);
 			
 			if(llh<minllh)
@@ -2808,7 +2851,7 @@ public class AdversaryModelExps {
 		return loglikelihhoodvalue;
 	}
 
-	private static double[] generateLambdaArray(int minlambda, int maxlambda, double step) {
+	private static double[] generateLambdaArray(double minlambda, double maxlambda, double step) {
 		
 		
 		
@@ -2838,18 +2881,21 @@ public class AdversaryModelExps {
 		
 		double llvalsum = 0.0;
 		
-		for(String seq: attackstrategy.keySet())
+		for(String seq: attackfrequency.keySet())
 		{
 			System.out.println("seq : "+ seq + "\n");
-			if(attackfrequency.containsKey(seq))
+			if(attackstrategy.containsKey(seq))
 			{
 				int[] freq = attackfrequency.get(seq);
 				double[] attstrtgy = attackstrategy.get(seq);
 				for(int a=0; a<naction; a++)
 				{
-					double tmpllval = freq[a]* Math.log(attstrtgy[a]);
-					System.out.println("llval : "+ tmpllval);
-					llvalsum += tmpllval;
+					if(freq[a]>0 && attstrtgy[a]>0)
+					{
+						double tmpllval = freq[a]* Math.log(attstrtgy[a]);
+						System.out.println("llval : "+ tmpllval);
+						llvalsum += tmpllval;
+					}
 					
 				}
 				System.out.println("llvalsum : "+ llvalsum);
@@ -2858,8 +2904,22 @@ public class AdversaryModelExps {
 			{
 				System.out.println("DOes not have the sequence");
 				//throw new Exception("DOes not have the sequence");
+				int[] freq = attackfrequency.get(seq);
+				double[] attstrtgy = {1, 0, 0, 0, 0, 0};
+
+
+				double tmpllval = freq[0]* Math.log(attstrtgy[0]);
+				System.out.println("llval : "+ tmpllval);
+				llvalsum += tmpllval;
+
+
+
+				System.out.println("llvalsum : "+ llvalsum);
 			}
 		}
+		
+		
+		
 		
 		
 		

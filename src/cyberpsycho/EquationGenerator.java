@@ -12,7 +12,7 @@ public class EquationGenerator {
 
 	public static int treenodecount =0;
 
-
+	public static double llval = 0;
 
 
 
@@ -2161,12 +2161,12 @@ public class EquationGenerator {
 	}
 	
 	private static DNode createGameTreeRecur(int DEPTH_LIMIT, int naction, HashMap<Integer,
-			Integer[]> noderewards, HashMap<String,HashMap<String,Double>> defstrategy, HashMap<String, double[]> attstrategy, double lambda) 
+			Integer[]> noderewards, HashMap<String,HashMap<String,Double>> defstrategy, HashMap<String, double[]> attstrategy, double lambda, HashMap<String,int[]> attackfrequency) 
 	{
 
 		DNode root = new DNode(0, 0, 0);
 		treenodecount++;
-		genTreeRecur(0, naction, DEPTH_LIMIT, root, noderewards, "", defstrategy, attstrategy, lambda);
+		genTreeRecur(0, naction, DEPTH_LIMIT, root, noderewards, "", defstrategy, attstrategy, lambda, attackfrequency);
 		return root;
 
 	}
@@ -2254,12 +2254,12 @@ public class EquationGenerator {
 	
 	
 	private static double[] genTreeRecur(int depth, int naction, int DEPTH_LIMIT, DNode node, 
-			HashMap<Integer,Integer[]> noderewards, String seq, HashMap<String,HashMap<String,Double>> defstrategy, HashMap<String,double[]> attstrategy, double lambda) 
+			HashMap<Integer,Integer[]> noderewards, String seq, HashMap<String,HashMap<String,Double>> defstrategy, HashMap<String,double[]> attstrategy, double lambda, HashMap<String,int[]> attackfrequency) 
 	{
 
 		if(depth==DEPTH_LIMIT)
 		{
-			System.out.println("leaf Node " + node.nodeid + ", seq "+ seq);
+			//System.out.println("leaf Node " + node.nodeid + ", seq "+ seq);
 			int defreward = 99999;//computeDefenderReward(node, noderewards);
 			int reward = computeAttackerReward(seq, noderewards);
 			//System.out.println();
@@ -2269,12 +2269,12 @@ public class EquationGenerator {
 			node.leaf = true;
 			double[] rd = new double[naction];
 			rd[node.prevaction] = node.attacker_reward;
-			System.out.println("Leafndoe, returning attacker rewards ");
+			/*System.out.println("Leafndoe, returning attacker rewards ");
 			for(int i=0; i<naction; i++)
 			{
 				System.out.print(rd[i] + " ");
-			}
-			System.out.println("\n");
+			}*/
+			//System.out.println("\n");
 			return rd;
 		}
 
@@ -2282,7 +2282,7 @@ public class EquationGenerator {
 
 		if(node.player==1) // attacker
 		{
-			System.out.println("player 1 node, returning all reward from the childs(defnodes) ");
+			//System.out.println("player 1 node, returning all reward from the childs(defnodes) ");
 			double[] rwrds = new double[naction];
 			for(int action = 0; action<naction; action++)
 			{
@@ -2295,26 +2295,27 @@ public class EquationGenerator {
 				{
 					tmpseq =  action +"";
 				}
-				double[] tmprwrd = genTreeRecur(depth+1, naction, DEPTH_LIMIT, child, noderewards, tmpseq, defstrategy, attstrategy, lambda);
+				double[] tmprwrd = genTreeRecur(depth+1, naction, DEPTH_LIMIT, child, noderewards, 
+						tmpseq, defstrategy, attstrategy, lambda, attackfrequency);
 				rwrds[action] = tmprwrd[action];
 
 			}
-			for(int i=0; i<naction; i++)
+			/*for(int i=0; i<naction; i++)
 			{
 				System.out.print(rwrds[i] + " ");
 			}
-			System.out.println("\n");
+			System.out.println("\n");*/
 			return rwrds;
 		}
 		else if(node.player==0) // defender
 		{
 			
-			System.out.println("player 0 node, received rewards from attacker nodes ");
+			//System.out.println("player 0 node, received rewards from attacker nodes ");
 			
 			HashMap<Integer, double[]> rewrdsmap = new HashMap<Integer, double[]>();
 			for(int action = 0; action<naction; action++)
 			{
-				System.out.println("def action "+ action);
+				//System.out.println("def action "+ action);
 				DNode child = new DNode(treenodecount, depth+1, node.player^1);
 				treenodecount++;
 				child.parent = node;
@@ -2324,12 +2325,13 @@ public class EquationGenerator {
 				{
 					tmpseq =  action +"";
 				}
-				double[] tmprwrd = genTreeRecur(depth+1, naction, DEPTH_LIMIT, child, noderewards, tmpseq, defstrategy, attstrategy, lambda);
-				for(int i=0; i<naction; i++)
+				double[] tmprwrd = genTreeRecur(depth+1, naction, DEPTH_LIMIT, 
+						child, noderewards, tmpseq, defstrategy, attstrategy, lambda, attackfrequency);
+				/*for(int i=0; i<naction; i++)
 				{
 					System.out.println("attaction "+i+" : "+tmprwrd[i]);
 				}
-				System.out.println("\n");
+				System.out.println("\n");*/
 				rewrdsmap.put(action, tmprwrd); // these are the rewards from attacker
 			}
 			/**
@@ -2360,13 +2362,13 @@ public class EquationGenerator {
 			}
 			else
 			{
-				System.out.println("No strategy exist, using default");
+				//System.out.println("No strategy exist, using default");
 			}
-			System.out.println("defender strategy : ");
+			/*System.out.println("defender strategy : ");
 			for(int i=0; i<naction; i++)
 			{
 				System.out.println("defaction "+i+" : "+defstrat[i]);
-			}
+			}*/
 			
 
 			/**
@@ -2403,14 +2405,14 @@ public class EquationGenerator {
 			
 			double sm = 0.0;
 			
-			System.out.println("atatcker strategy: ");
+			//System.out.println("atatcker strategy: ");
 			for(int attaction = 0; attaction<naction; attaction++)
 			{
 				double prob = Math.exp(lambda*attexp.get(attaction))/exponnentsum; 
 				recentattstrat[attaction] = prob;
 				sm += prob;
 				
-				System.out.println("attaction "+attaction+" : "+recentattstrat[attaction]);
+				//System.out.println("attaction "+attaction+" : "+recentattstrat[attaction]);
 				
 			}
 			
@@ -2420,6 +2422,51 @@ public class EquationGenerator {
 			}
 			
 			attstrategy.put(key, recentattstrat);
+			
+			
+			/**
+			 * compute the loglikelihoodvalue for attacker strategy
+			 * 1. first get the sequence key 
+			 */
+			
+			double llvalsum = 0.0;
+			
+			System.out.println("seq : "+ key + "\n");
+			if(attackfrequency.containsKey(seq))
+			{
+				int[] freq = attackfrequency.get(key);
+				//double[] attstrtgy = attackstrategy.get(seq);
+				for(int a=0; a<naction; a++)
+				{
+					if(freq[a]>0 && recentattstrat[a]>0)
+					{
+						double tmpllval = freq[a]* Math.log(recentattstrat[a]);
+						System.out.println("llval : "+ tmpllval);
+						llvalsum += tmpllval;
+					}
+					
+				}
+				System.out.println("llvalsum : "+ llvalsum);
+			}
+			else
+			{
+				System.out.println("DOes not have the sequence");
+				//throw new Exception("DOes not have the sequence");
+				int[] freq = attackfrequency.get(key);
+				double[] attstrtgy = {1, 0, 0, 0, 0, 0};
+
+
+				double tmpllval = freq[0]* Math.log(attstrtgy[0]);
+				System.out.println("llval : "+ tmpllval);
+				llvalsum += tmpllval;
+
+
+
+				System.out.println("llvalsum : "+ llvalsum);
+			}
+			
+			
+			EquationGenerator.llval += llvalsum;
 
 
 			/**
@@ -2448,7 +2495,7 @@ public class EquationGenerator {
 				
 			}
 			
-			System.out.println("att action  "+node.prevaction+" : "+exppayoff);
+			//System.out.println("att action  "+node.prevaction+" : "+exppayoff);
 			
 			if(node.prevaction >=0 )
 			{
@@ -2461,12 +2508,12 @@ public class EquationGenerator {
 			
 			
 			
-			System.out.println("Non Leafndoe, returning attacker reward for node******************** ");
+			/*System.out.println("Non Leafndoe, returning attacker reward for node******************** ");
 			for(int i=0; i<naction; i++)
 			{
 				System.out.print(attrerdprevation[i] + " ");
 			}
-			System.out.println("\n");
+			System.out.println("\n");*/
 			
 			return attrerdprevation;
 
@@ -3368,11 +3415,11 @@ public class EquationGenerator {
 		
 	}
 
-	public static DNode buildGameTreeRecur(int DEPTH_LIMIT, int naction, HashMap<String,HashMap<String,Double>> defstrategy, HashMap<String, double[]> attstrategy, double lambda) {
+	public static DNode buildGameTreeRecur(int DEPTH_LIMIT, int naction, HashMap<String,HashMap<String,Double>> defstrategy, HashMap<String, double[]> attstrategy, double lambda, HashMap<String,int[]> attackfrequency) {
 		
 		HashMap<Integer, Integer[]> noderewards = createNodeRewards(naction);
 
-		DNode root = createGameTreeRecur(DEPTH_LIMIT, naction, noderewards, defstrategy, attstrategy, lambda);
+		DNode root = createGameTreeRecur(DEPTH_LIMIT, naction, noderewards, defstrategy, attstrategy, lambda, attackfrequency);
 		System.out.println("Node id "+ root.nodeid + ", parent : "+ null + ", player "+ 0);
 		System.out.println();
 		printTree(root, naction);
