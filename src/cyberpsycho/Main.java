@@ -25,7 +25,10 @@ public class Main {
 		//AdversaryModelExps.computeLambdaExps();
 		
 		
-		AdversaryModelExps.computeLambda();
+		AdversaryModelExps.computeLambdaQR();
+		//AdversaryModelExps.generateApprximateNEPlay();
+		//AdversaryModelExps.generatePTPlay();
+		//AdversaryModelExps.fitPT();
 		
 		
 		

@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import weka.clusterers.DensityBasedClusterer;
 import weka.clusterers.EM;
 import weka.core.Instances;
 import weka.core.converters.ArffSaver;
@@ -22,11 +23,26 @@ public class Weka {
 
 		Instances instances = generateInstance(normalizedexamples);
 		Instances newinstance = new Instances(instances);
+		
 		EM dc = new EM();
 		ArrayList<Integer>[] clusters = clusterWithWeka(newinstance, k, dc);
 		return clusters;
 
 	}
+	
+	
+	public static List<Integer>[] clusterUsers( double[][] normalizedexamples) throws Exception {
+
+
+		Instances instances = generateInstance(normalizedexamples);
+		Instances newinstance = new Instances(instances);
+		
+		DensityBasedClusterer dc = new EM();
+		ArrayList<Integer>[] clusters = clusterWithWeka(newinstance, dc);
+		return clusters;
+
+	}
+
 
 
 	private static ArrayList<Integer>[] clusterWithWeka(Instances newinstance, int k, EM dc) throws Exception 
@@ -45,6 +61,36 @@ public class Weka {
 		for(int i=0; i<newinstance.size(); i++)
 		{
 			System.out.println("instance  "+i +", cluster "+ dc.clusterInstance(newinstance.get(i))+1);
+			int clusterid = dc.clusterInstance(newinstance.get(i));
+			int tid = (int)newinstance.get(i).value(0);
+			clusters[clusterid].add(tid);
+		}
+		return clusters;
+	}
+	
+	
+	private static ArrayList<Integer>[] clusterWithWeka(Instances newinstance, DensityBasedClusterer dc) throws Exception 
+	{
+
+
+		
+		//dc.setNumClusters(k); // 0 for base
+		dc.buildClusterer(newinstance);
+		
+		int k = dc.numberOfClusters();
+		
+		
+		ArrayList<Integer>[] clusters = (ArrayList<Integer>[])new ArrayList[k];
+
+		for(int i=0; i<k; i++)
+		{
+			clusters[i] = new ArrayList<Integer>();
+		}
+		
+		System.out.println(dc);
+		for(int i=0; i<newinstance.size(); i++)
+		{
+			System.out.println("instance  "+i +", cluster "+ (dc.clusterInstance(newinstance.get(i))+1));
 			int clusterid = dc.clusterInstance(newinstance.get(i));
 			int tid = (int)newinstance.get(i).value(0);
 			clusters[clusterid].add(tid);

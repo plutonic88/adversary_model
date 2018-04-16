@@ -13,6 +13,7 @@ public class EquationGenerator {
 	public static int treenodecount =0;
 
 	public static double llval = 0;
+	public static double ptval = 0;
 
 
 
@@ -1012,7 +1013,7 @@ public class EquationGenerator {
 
 	}
 
-	private static HashMap<Integer, Integer[]> createNodeRewards(int naction) {
+	public static HashMap<Integer, Integer[]> createNodeRewards(int naction) {
 
 
 		HashMap<Integer, Integer[]> values = new HashMap<Integer, Integer[]>();
@@ -2171,6 +2172,42 @@ public class EquationGenerator {
 
 	}
 	
+	
+	private static DNode createGameTreeRecurPT(int DEPTH_LIMIT, int naction, HashMap<Integer,
+			Integer[]> noderewards, HashMap<String,HashMap<String,Double>> defstrategy, HashMap<String, double[]> attstrategy, HashMap<String,int[]> attackfrequency, double alpha, double beta, double theta, double gamma) throws Exception 
+	{
+
+		DNode root = new DNode(0, 0, 0);
+		treenodecount++;
+		genTreeRecurPT(0, naction, DEPTH_LIMIT, root, noderewards, "", defstrategy, attstrategy, attackfrequency, alpha, beta, theta, gamma);
+		return root;
+
+	}
+	
+	
+	private static DNode createGameTreeRecurNE(int DEPTH_LIMIT, int naction, HashMap<Integer,
+			Integer[]> noderewards, HashMap<String,HashMap<String,Double>> defstrategy, HashMap<String, double[]> attstrategy, double lambda) 
+	{
+
+		DNode root = new DNode(0, 0, 0);
+		treenodecount++;
+		genTreeRecurNE(0, naction, DEPTH_LIMIT, root, noderewards, "", defstrategy, attstrategy, lambda);
+		return root;
+
+	}
+	
+	
+	private static DNode createGameTreeRecurPT(int DEPTH_LIMIT, int naction, HashMap<Integer,
+			Integer[]> noderewards, HashMap<String,HashMap<String,Double>> defstrategy, HashMap<String, double[]> attstrategy, double alpha, double beta, double theta, double gamma) throws Exception 
+	{
+
+		DNode root = new DNode(0, 0, 0);
+		treenodecount++;
+		genTreeRecurPT(0, naction, DEPTH_LIMIT, root, noderewards, "", defstrategy, attstrategy, alpha, beta, theta, gamma);
+		return root;
+
+	}
+	
 	private static DNode createGameTreeBFS(int DEPTH_LIMIT, int naction, HashMap<Integer,Integer[]> noderewards) 
 	{
 
@@ -2249,6 +2286,285 @@ public class EquationGenerator {
 
 
 		}
+
+	}
+	
+	
+	private static double[] genTreeRecurNE(int depth, int naction, int DEPTH_LIMIT, DNode node, 
+			HashMap<Integer,Integer[]> noderewards, String seq, HashMap<String,HashMap<String,Double>> defstrategy,
+			HashMap<String,double[]> attstrategy, double lambda) 
+	{
+
+		if(depth==DEPTH_LIMIT)
+		{
+			//System.out.println("leaf Node " + node.nodeid + ", seq "+ seq);
+			int defreward = 99999;//computeDefenderReward(node, noderewards);
+			int reward = computeAttackerReward(seq, noderewards);
+			//System.out.println();
+
+			node.attacker_reward = reward;
+			node.defender_reward = defreward;
+			node.leaf = true;
+			double[] rd = new double[naction];
+			rd[node.prevaction] = node.attacker_reward;
+			/*System.out.println("Leafndoe, returning attacker rewards ");
+			for(int i=0; i<naction; i++)
+			{
+				System.out.print(rd[i] + " ");
+			}*/
+			//System.out.println("\n");
+			return rd;
+		}
+
+
+
+		if(node.player==1) // attacker
+		{
+			//System.out.println("player 1 node, returning all reward from the childs(defnodes) ");
+			double[] rwrds = new double[naction];
+			for(int action = 0; action<naction; action++)
+			{
+				DNode child = new DNode(treenodecount, depth+1, node.player^1);
+				treenodecount++;
+				child.parent = node;
+				child.prevaction = action;
+				String tmpseq = seq + "," + action;
+				if(seq.equals(""))
+				{
+					tmpseq =  action +"";
+				}
+				double[] tmprwrd = genTreeRecurNE(depth+1, naction, DEPTH_LIMIT, child, noderewards, 
+						tmpseq, defstrategy, attstrategy, lambda);
+				rwrds[action] = tmprwrd[action];
+
+			}
+			/*for(int i=0; i<naction; i++)
+			{
+				System.out.print(rwrds[i] + " ");
+			}
+			System.out.println("\n");*/
+			return rwrds;
+		}
+		else if(node.player==0) // defender
+		{
+			
+			//System.out.println("player 0 node, received rewards from attacker nodes ");
+			
+			HashMap<Integer, double[]> rewrdsmap = new HashMap<Integer, double[]>();
+			for(int action = 0; action<naction; action++)
+			{
+				//System.out.println("def action "+ action);
+				DNode child = new DNode(treenodecount, depth+1, node.player^1);
+				treenodecount++;
+				child.parent = node;
+				child.prevaction = action;
+				String tmpseq = seq + "," + action;
+				if(seq.equals(""))
+				{
+					tmpseq =  action +"";
+				}
+				double[] tmprwrd = genTreeRecurNE(depth+1, naction, DEPTH_LIMIT, 
+						child, noderewards, tmpseq, defstrategy, attstrategy, lambda);
+				/*for(int i=0; i<naction; i++)
+				{
+					System.out.println("attaction "+i+" : "+tmprwrd[i]);
+				}
+				System.out.println("\n");*/
+				rewrdsmap.put(action, tmprwrd); // these are the rewards from attacker
+			}
+			/**
+			 *  1. compute attacker Q-BR
+			 *  2. Need sequence
+			 *  3. defender strategy
+			 */
+
+			String key = getDefAttckrSeq(seq);
+			double[] defstrat = new double[naction];
+			defstrat[0] = 1.0;
+
+			if(defstrategy.containsKey(key))
+			{
+
+				HashMap<String,Double> defstrt = defstrategy.get(key);
+				for(int i=0; i<naction; i++)
+				{
+					if(defstrt.containsKey(i+""))
+					{
+						defstrat[i] = defstrt.get(i+"");
+					}
+					else
+					{
+						defstrat[i] = 0.0;
+					}
+				}
+			}
+			else
+			{
+				//System.out.println("No strategy exist, using default");
+			}
+			/*System.out.println("defender strategy : ");
+			for(int i=0; i<naction; i++)
+			{
+				System.out.println("defaction "+i+" : "+defstrat[i]);
+			}*/
+			
+
+			/**
+			 * now compute Q-BR
+			 * 
+			 * 1. for every action of attacker
+			 * 		for every action of defender
+			 * 			compute exp
+			 */
+			
+			HashMap<Integer, Double> attexp = new HashMap<Integer, Double>();
+			
+			
+			double exponnentsum = 0.0;
+			
+			for(int attaction = 0; attaction<naction; attaction++)
+			{
+				double sum = 0.0;
+				for(int defaction = 0; defaction<naction; defaction++)
+				{
+					double atttmprwrd[] = rewrdsmap.get(defaction); // get the rewards of attacker for dfenders  action
+					// now get the reward for attacker;s action
+					double attrwd = atttmprwrd[attaction];
+					
+					sum += (attrwd* defstrat[defaction]);
+					
+				}
+				attexp.put(attaction, sum);
+				exponnentsum += Math.exp(lambda*sum);
+			}
+			
+			double [] recentattstrat = new double[naction];
+			
+			
+			double sm = 0.0;
+			
+			//System.out.println("atatcker strategy: ");
+			for(int attaction = 0; attaction<naction; attaction++)
+			{
+				double prob = Math.exp(lambda*attexp.get(attaction))/exponnentsum; 
+				recentattstrat[attaction] = prob;
+				sm += prob;
+				
+				//System.out.println("attaction "+attaction+" : "+recentattstrat[attaction]);
+				
+			}
+			
+			if(sm<(1-0.0001))
+			{
+				System.out.println("problem in attaacker strategy, sum(prob) != 1");
+			}
+			
+			attstrategy.put(key, recentattstrat);
+			
+			
+			/**
+			 * compute the loglikelihoodvalue for attacker strategy
+			 * 1. first get the sequence key 
+			 */
+			
+			/*double llvalsum = 0.0;
+			
+			//System.out.println("seq : "+ key + "\n");
+			if(attackfrequency.containsKey(key))
+			{
+				int[] freq = attackfrequency.get(key);
+				//double[] attstrtgy = attackstrategy.get(seq);
+				for(int a=0; a<naction; a++)
+				{
+					if(freq[a]>0 && recentattstrat[a]>0)
+					{
+						double tmpllval = freq[a]* Math.log(recentattstrat[a]);
+						//System.out.println("llval : "+ tmpllval);
+						llvalsum += tmpllval;
+					}
+					
+				}
+				//System.out.println("llvalsum : "+ llvalsum);
+			}
+			else
+			{
+				System.out.println("DOes not have the sequence");
+				//throw new Exception("DOes not have the sequence");
+				int[] freq = attackfrequency.get(key);
+				double[] attstrtgy = {1, 0, 0, 0, 0, 0};
+
+
+				double tmpllval = freq[0]* Math.log(attstrtgy[0]);
+				//System.out.println("llval : "+ tmpllval);
+				llvalsum += tmpllval;
+
+
+
+				//System.out.println("llvalsum : "+ llvalsum);
+			}
+			
+			
+			EquationGenerator.llval += llvalsum;
+			//System.out.println("llval : "+ (-EquationGenerator.llval));
+*/
+			/**
+			 * now compute create an empty array and return the expected payoff of attacker for the prev action
+			 */
+			
+			double[] attrerdprevation = new double[naction];
+			
+			
+			double exppayoff = 0.0;
+			
+			for(int defaction = 0; defaction<naction; defaction++)
+			{
+				// use rewards map to get the payoffs of attacker
+				double[] rwrd = rewrdsmap.get(defaction);
+				
+				double defprob = defstrat[defaction];
+				double attexpsum = 0;
+				
+				for(int attaction=0; attaction<naction; attaction++)
+				{
+					double tmp = rwrd[attaction]*recentattstrat[attaction];
+					attexpsum += tmp;
+				}
+				exppayoff += (defprob*attexpsum);
+				
+			}
+			
+			//System.out.println("att action  "+node.prevaction+" : "+exppayoff);
+			
+			if(node.prevaction >=0 )
+			{
+				attrerdprevation[node.prevaction] = exppayoff;
+			}
+			else
+			{
+				attrerdprevation[0] = exppayoff;
+			}
+			
+			
+			
+			/*System.out.println("Non Leafndoe, returning attacker reward for node******************** ");
+			for(int i=0; i<naction; i++)
+			{
+				System.out.print(attrerdprevation[i] + " ");
+			}
+			System.out.println("\n");*/
+			
+			return attrerdprevation;
+
+
+
+
+			// return expected payoff of attacker if attacker plays the action that leads to this node
+
+		}
+
+
+
+		return null;
 
 	}
 	
@@ -2529,6 +2845,737 @@ public class EquationGenerator {
 		return null;
 
 	}
+	
+	
+	
+	private static double[] genTreeRecurPT(int depth, int naction, int DEPTH_LIMIT, DNode node, 
+			HashMap<Integer,Integer[]> noderewards, String seq, HashMap<String,HashMap<String,Double>> defstrategy, HashMap<String,double[]> attstrategy,
+			 double alpha, double beta, double theta, double gamma) throws Exception 
+	{
+
+		if(depth==DEPTH_LIMIT)
+		{
+			//System.out.println("leaf Node " + node.nodeid + ", seq "+ seq);
+			int defreward = 99999;//computeDefenderReward(node, noderewards);
+			int reward = computeAttackerReward(seq, noderewards);
+			//System.out.println();
+
+			node.attacker_reward = reward;
+			node.defender_reward = defreward;
+			node.leaf = true;
+			double[] rd = new double[naction];
+			rd[node.prevaction] = node.attacker_reward;
+			/*System.out.println("Leafndoe, returning attacker rewards ");
+			for(int i=0; i<naction; i++)
+			{
+				System.out.print(rd[i] + " ");
+			}*/
+			//System.out.println("\n");
+			return rd;
+		}
+
+
+
+		if(node.player==1) // attacker
+		{
+			//System.out.println("player 1 node, returning all reward from the childs(defnodes) ");
+			double[] rwrds = new double[naction];
+			for(int action = 0; action<naction; action++)
+			{
+				DNode child = new DNode(treenodecount, depth+1, node.player^1);
+				treenodecount++;
+				child.parent = node;
+				child.prevaction = action;
+				String tmpseq = seq + "," + action;
+				if(seq.equals(""))
+				{
+					tmpseq =  action +"";
+				}
+				double[] tmprwrd = genTreeRecurPT(depth+1, naction, DEPTH_LIMIT, child, noderewards, 
+						tmpseq, defstrategy, attstrategy, alpha, beta, theta, gamma);
+				rwrds[action] = tmprwrd[action];
+
+			}
+			/*for(int i=0; i<naction; i++)
+			{
+				System.out.print(rwrds[i] + " ");
+			}
+			System.out.println("\n");*/
+			return rwrds;
+		}
+		else if(node.player==0) // defender
+		{
+			
+			//System.out.println("player 0 node, received rewards from attacker nodes ");
+			
+			HashMap<Integer, double[]> rewrdsmap = new HashMap<Integer, double[]>();
+			for(int action = 0; action<naction; action++)
+			{
+				//System.out.println("def action "+ action);
+				DNode child = new DNode(treenodecount, depth+1, node.player^1);
+				treenodecount++;
+				child.parent = node;
+				child.prevaction = action;
+				String tmpseq = seq + "," + action;
+				if(seq.equals(""))
+				{
+					tmpseq =  action +"";
+				}
+				double[] tmprwrd = genTreeRecurPT(depth+1, naction, DEPTH_LIMIT, 
+						child, noderewards, tmpseq, defstrategy, attstrategy, alpha, beta, theta, gamma);
+				/*for(int i=0; i<naction; i++)
+				{
+					System.out.println("attaction "+i+" : "+tmprwrd[i]);
+				}
+				System.out.println("\n");*/
+				rewrdsmap.put(action, tmprwrd); // these are the rewards from attacker for every action for defender's every action
+			}
+			/**
+			 *  1. compute attacker Q-BR
+			 *  2. Need sequence
+			 *  3. defender strategy
+			 */
+
+			String key = getDefAttckrSeq(seq);
+			double[] defstrat = new double[naction];
+			defstrat[0] = 1.0;
+
+			if(defstrategy.containsKey(key))
+			{
+
+				HashMap<String,Double> defstrt = defstrategy.get(key);
+				for(int i=0; i<naction; i++)
+				{
+					if(defstrt.containsKey(i+""))
+					{
+						defstrat[i] = defstrt.get(i+"");
+					}
+					else
+					{
+						defstrat[i] = 0.0;
+					}
+				}
+			}
+			else
+			{
+				//System.out.println("No strategy exist, using default");
+			}
+			/*System.out.println("defender strategy : ");
+			for(int i=0; i<naction; i++)
+			{
+				System.out.println("defaction "+i+" : "+defstrat[i]);
+			}*/
+			
+			
+			
+			
+			
+			/**
+			 * determined who are the controllers of the nodes
+			 */
+			
+			
+			//int[] controllers = getControllers(seq, noderewards);
+			
+			
+			
+			
+
+			/**
+			 * now compute PT
+			 * 
+			 * 1. for every action of attacker
+			 * 		for every action of defender
+			 * 			compute exp
+			 */
+			
+			HashMap<Integer, Double> attprospects = new HashMap<Integer, Double>();
+			
+			
+			//double exponnentsum = 0.0;
+			
+			for(int attaction = 0; attaction<naction; attaction++)
+			{
+				double sum = 0.0;
+				for(int defaction = 0; defaction<naction; defaction++)
+				{
+					double atttmprwrd[] = rewrdsmap.get(defaction); // get the rewards of attacker for dfenders  action
+					// now get the reward for attacker;s action
+					double attrwd = atttmprwrd[attaction];
+					
+					
+					double weightedreward = weightedR(attrwd, alpha, beta, theta);
+					double weightedprob = weightedP(defstrat[defaction], gamma);
+					
+					sum += (weightedreward* weightedprob);
+					
+				}
+				attprospects.put(attaction, sum);
+				
+			}
+			
+			double [] recentattstrat = new double[naction];
+			
+			
+			double maxprospect = Double.NEGATIVE_INFINITY;
+			int maxprospectaction = -1;
+			double  sm =0;
+			
+			//System.out.println("atatcker strategy: ");
+			for(int attaction = 0; attaction<naction; attaction++)
+			{
+				
+				double pros = attprospects.get(attaction);
+				
+				//System.out.println("action : "+ attaction + ", pros "+ pros);
+				
+				if(maxprospect<pros)
+				{
+					maxprospect = pros;
+					maxprospectaction = attaction;
+				}
+			}
+			
+			
+			
+			
+			recentattstrat[maxprospectaction] = 1.0;
+			
+			
+			for(int attaction = 0; attaction<naction; attaction++)
+			{
+				
+				sm += recentattstrat[attaction];
+				
+			}
+			
+			if(sm<(1-0.0001))
+			{
+				System.out.println("problem in attaacker strategy, sum(prob) != 1");
+				throw new Exception("att strat problem not ==1 ");
+				
+			}
+			
+			attstrategy.put(key, recentattstrat);
+			
+			
+			/**
+			 * compute the loglikelihoodvalue for attacker strategy
+			 * 1. first get the sequence key 
+			 */
+			
+			/*double ptval = 0.0;
+			
+			System.out.println("seq : "+ key + "\n");
+			if(attackfrequency.containsKey(key))
+			{
+				int[] freq = attackfrequency.get(key);
+				//double[] attstrtgy = attackstrategy.get(seq);
+				for(int a=0; a<naction; a++)
+				{
+					if(freq[a]>0 && recentattstrat[a]>0)
+					{
+						double tmpptval = freq[a]* recentattstrat[a];
+						//System.out.println("llval : "+ tmpllval);
+						ptval += tmpptval;
+					}
+					
+				}
+				//System.out.println("llvalsum : "+ llvalsum);
+			}
+			else
+			{
+				System.out.println("DOes not have the sequence");
+				//throw new Exception("DOes not have the sequence");
+				int[] freq = attackfrequency.get(key);
+				double[] attstrtgy = {1, 0, 0, 0, 0, 0};
+
+
+				double tmpptval = freq[0]* attstrtgy[0];
+				//System.out.println("llval : "+ tmpllval);
+				ptval += tmpptval;
+
+
+
+				//System.out.println("llvalsum : "+ llvalsum);
+			}
+			
+			
+			EquationGenerator.ptval += ptval;*/
+			//System.out.println("llval : "+ (-EquationGenerator.llval));
+
+			/**
+			 * now compute create an empty array and return the expected payoff of attacker for the prev action
+			 */
+			
+			double[] attrerdprevation = new double[naction];
+			
+			
+			double exppayoff = 0.0;
+			
+			for(int defaction = 0; defaction<naction; defaction++)
+			{
+				// use rewards map to get the payoffs of attacker
+				double[] rwrd = rewrdsmap.get(defaction);
+				
+				double defprob = defstrat[defaction];
+				double attexpsum = 0;
+				
+				for(int attaction=0; attaction<naction; attaction++)
+				{
+					double tmp = rwrd[attaction]*recentattstrat[attaction];
+					attexpsum += tmp;
+				}
+				exppayoff += (defprob*attexpsum);
+				
+			}
+			
+			//System.out.println("att action  "+node.prevaction+" : "+exppayoff);
+			
+			if(node.prevaction >=0 )
+			{
+				attrerdprevation[node.prevaction] = exppayoff;
+			}
+			else
+			{
+				attrerdprevation[0] = exppayoff;
+			}
+			
+			
+			
+			/*System.out.println("Non Leafndoe, returning attacker reward for node******************** ");
+			for(int i=0; i<naction; i++)
+			{
+				System.out.print(attrerdprevation[i] + " ");
+			}
+			System.out.println("\n");*/
+			
+			return attrerdprevation;
+
+
+
+
+			// return expected payoff of attacker if attacker plays the action that leads to this node
+
+		}
+
+
+
+		return null;
+
+	}
+	
+	
+	private static double[] genTreeRecurPT(int depth, int naction, int DEPTH_LIMIT, DNode node, 
+			HashMap<Integer,Integer[]> noderewards, String seq, HashMap<String,HashMap<String,Double>> defstrategy, HashMap<String,double[]> attstrategy, HashMap<String,int[]> attackfrequency, double alpha, double beta, double theta, double gamma) throws Exception 
+	{
+
+		if(depth==DEPTH_LIMIT)
+		{
+			//System.out.println("leaf Node " + node.nodeid + ", seq "+ seq);
+			int defreward = 99999;//computeDefenderReward(node, noderewards);
+			int reward = computeAttackerReward(seq, noderewards);
+			//System.out.println();
+
+			node.attacker_reward = reward;
+			node.defender_reward = defreward;
+			node.leaf = true;
+			double[] rd = new double[naction];
+			rd[node.prevaction] = node.attacker_reward;
+			/*System.out.println("Leafndoe, returning attacker rewards ");
+			for(int i=0; i<naction; i++)
+			{
+				System.out.print(rd[i] + " ");
+			}*/
+			//System.out.println("\n");
+			return rd;
+		}
+
+
+
+		if(node.player==1) // attacker
+		{
+			//System.out.println("player 1 node, returning all reward from the childs(defnodes) ");
+			double[] rwrds = new double[naction];
+			for(int action = 0; action<naction; action++)
+			{
+				DNode child = new DNode(treenodecount, depth+1, node.player^1);
+				treenodecount++;
+				child.parent = node;
+				child.prevaction = action;
+				String tmpseq = seq + "," + action;
+				if(seq.equals(""))
+				{
+					tmpseq =  action +"";
+				}
+				double[] tmprwrd = genTreeRecurPT(depth+1, naction, DEPTH_LIMIT, child, noderewards, 
+						tmpseq, defstrategy, attstrategy, attackfrequency, alpha, beta, theta, gamma);
+				rwrds[action] = tmprwrd[action];
+
+			}
+			/*for(int i=0; i<naction; i++)
+			{
+				System.out.print(rwrds[i] + " ");
+			}
+			System.out.println("\n");*/
+			return rwrds;
+		}
+		else if(node.player==0) // defender
+		{
+			
+			//System.out.println("player 0 node, received rewards from attacker nodes ");
+			
+			HashMap<Integer, double[]> rewrdsmap = new HashMap<Integer, double[]>();
+			for(int action = 0; action<naction; action++)
+			{
+				//System.out.println("def action "+ action);
+				DNode child = new DNode(treenodecount, depth+1, node.player^1);
+				treenodecount++;
+				child.parent = node;
+				child.prevaction = action;
+				String tmpseq = seq + "," + action;
+				if(seq.equals(""))
+				{
+					tmpseq =  action +"";
+				}
+				double[] tmprwrd = genTreeRecurPT(depth+1, naction, DEPTH_LIMIT, 
+						child, noderewards, tmpseq, defstrategy, attstrategy, attackfrequency, alpha, beta, theta, gamma);
+				/*for(int i=0; i<naction; i++)
+				{
+					System.out.println("attaction "+i+" : "+tmprwrd[i]);
+				}
+				System.out.println("\n");*/
+				rewrdsmap.put(action, tmprwrd); // these are the rewards from attacker for every action for defender's every action
+			}
+			/**
+			 *  1. compute attacker Q-BR
+			 *  2. Need sequence
+			 *  3. defender strategy
+			 */
+
+			String key = getDefAttckrSeq(seq);
+			double[] defstrat = new double[naction];
+			defstrat[0] = 1.0;
+
+			if(defstrategy.containsKey(key))
+			{
+
+				HashMap<String,Double> defstrt = defstrategy.get(key);
+				for(int i=0; i<naction; i++)
+				{
+					if(defstrt.containsKey(i+""))
+					{
+						defstrat[i] = defstrt.get(i+"");
+					}
+					else
+					{
+						defstrat[i] = 0.0;
+					}
+				}
+			}
+			else
+			{
+				//System.out.println("No strategy exist, using default");
+			}
+			/*System.out.println("defender strategy : ");
+			for(int i=0; i<naction; i++)
+			{
+				System.out.println("defaction "+i+" : "+defstrat[i]);
+			}*/
+			
+			
+			
+			
+			
+			/**
+			 * determined who are the controllers of the nodes
+			 */
+			
+			
+			//int[] controllers = getControllers(seq, noderewards);
+			
+			
+			
+			
+
+			/**
+			 * now compute PT
+			 * 
+			 * 1. for every action of attacker
+			 * 		for every action of defender
+			 * 			compute exp
+			 */
+			
+			HashMap<Integer, Double> attprospects = new HashMap<Integer, Double>();
+			
+			
+			//double exponnentsum = 0.0;
+			
+			for(int attaction = 0; attaction<naction; attaction++)
+			{
+				double sum = 0.0;
+				for(int defaction = 0; defaction<naction; defaction++)
+				{
+					double atttmprwrd[] = rewrdsmap.get(defaction); // get the rewards of attacker for dfenders  action
+					// now get the reward for attacker;s action
+					double attrwd = atttmprwrd[attaction];
+					
+					
+					double weightedreward = weightedR(attrwd, alpha, beta, theta);
+					double weightedprob = weightedP(defstrat[defaction], gamma);
+					
+					sum += (weightedreward* weightedprob);
+					
+				}
+				attprospects.put(attaction, sum);
+				
+			}
+			
+			double [] recentattstrat = new double[naction];
+			
+			
+			double maxprospect = Double.NEGATIVE_INFINITY;
+			int maxprospectaction = -1;
+			double  sm =0;
+			
+			System.out.println("atatcker strategy: ");
+			for(int attaction = 0; attaction<naction; attaction++)
+			{
+				
+				double pros = attprospects.get(attaction);
+				
+				System.out.println("action : "+ attaction + ", pros "+ pros);
+				
+				if(maxprospect<pros)
+				{
+					maxprospect = pros;
+					maxprospectaction = attaction;
+				}
+			}
+			
+			
+			
+			
+			recentattstrat[maxprospectaction] = 1.0;
+			
+			
+			for(int attaction = 0; attaction<naction; attaction++)
+			{
+				
+				sm += recentattstrat[attaction];
+				
+			}
+			
+			if(sm<(1-0.0001))
+			{
+				System.out.println("problem in attaacker strategy, sum(prob) != 1");
+				throw new Exception("att strat problem not ==1 ");
+				
+			}
+			
+			attstrategy.put(key, recentattstrat);
+			
+			
+			/**
+			 * compute the loglikelihoodvalue for attacker strategy
+			 * 1. first get the sequence key 
+			 */
+			
+			double ptval = 0.0;
+			
+			System.out.println("seq : "+ key + "\n");
+			if(attackfrequency.containsKey(key))
+			{
+				int[] freq = attackfrequency.get(key);
+				//double[] attstrtgy = attackstrategy.get(seq);
+				for(int a=0; a<naction; a++)
+				{
+					if(freq[a]>0 && recentattstrat[a]>0)
+					{
+						double tmpptval = freq[a]* recentattstrat[a];
+						//System.out.println("llval : "+ tmpllval);
+						ptval += tmpptval;
+					}
+					
+				}
+				//System.out.println("llvalsum : "+ llvalsum);
+			}
+			else
+			{
+				System.out.println("DOes not have the sequence");
+				//throw new Exception("DOes not have the sequence");
+				int[] freq = attackfrequency.get(key);
+				double[] attstrtgy = {1, 0, 0, 0, 0, 0};
+
+
+				double tmpptval = freq[0]* attstrtgy[0];
+				//System.out.println("llval : "+ tmpllval);
+				ptval += tmpptval;
+
+
+
+				//System.out.println("llvalsum : "+ llvalsum);
+			}
+			
+			
+			EquationGenerator.ptval += ptval;
+			//System.out.println("llval : "+ (-EquationGenerator.llval));
+
+			/**
+			 * now compute create an empty array and return the expected payoff of attacker for the prev action
+			 */
+			
+			double[] attrerdprevation = new double[naction];
+			
+			
+			double exppayoff = 0.0;
+			
+			for(int defaction = 0; defaction<naction; defaction++)
+			{
+				// use rewards map to get the payoffs of attacker
+				double[] rwrd = rewrdsmap.get(defaction);
+				
+				double defprob = defstrat[defaction];
+				double attexpsum = 0;
+				
+				for(int attaction=0; attaction<naction; attaction++)
+				{
+					double tmp = rwrd[attaction]*recentattstrat[attaction];
+					attexpsum += tmp;
+				}
+				exppayoff += (defprob*attexpsum);
+				
+			}
+			
+			//System.out.println("att action  "+node.prevaction+" : "+exppayoff);
+			
+			if(node.prevaction >=0 )
+			{
+				attrerdprevation[node.prevaction] = exppayoff;
+			}
+			else
+			{
+				attrerdprevation[0] = exppayoff;
+			}
+			
+			
+			
+			/*System.out.println("Non Leafndoe, returning attacker reward for node******************** ");
+			for(int i=0; i<naction; i++)
+			{
+				System.out.print(attrerdprevation[i] + " ");
+			}
+			System.out.println("\n");*/
+			
+			return attrerdprevation;
+
+
+
+
+			// return expected payoff of attacker if attacker plays the action that leads to this node
+
+		}
+
+
+
+		return null;
+
+	}
+	
+	
+	
+
+	
+
+	private static double weightedP(double x, double gamma) {
+		
+		
+		double nom = Math.pow(x, gamma);
+		
+		double dnom = Math.pow(Math.pow(x, gamma) + Math.pow(1-x, gamma), (1/gamma));
+		
+		double wp = nom/dnom;
+		
+		
+		return wp;
+	}
+
+	private static double weightedR(double c, double alpha, double beta, double theta) {
+		
+		
+		if(c>=0)
+		{
+			return Math.pow(c, alpha);
+		}
+		else if(c<0)
+		{
+			return -theta*Math.pow(-c, beta);
+		}
+		
+		
+		return 999999;
+	}
+
+	private static double valueFunction(Integer integer, double alpha, double beta, double theta) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	private static int[] getControllers(String seq, HashMap<Integer, Integer[]> noderewards) {
+		
+
+
+
+		int[] controllers = new int[noderewards.size()];
+
+		/*int attpoints = 0;
+		int defpoints = 0;
+		*/
+		String[] splittedseq = seq.split(",");
+
+		/*//System.out.print("");
+
+		for(int i= 0; i<seq.size(); i++)
+		{
+			System.out.print(seq.get(i) + ", ");
+		}
+		 */
+		//System.out.println();
+		for(int i= 0; i<(splittedseq.length/2); i++)
+		{
+
+			int defaction = Integer.parseInt(splittedseq[2*i]);
+			int attaction = Integer.parseInt(splittedseq[2*i+1]);
+
+/*
+			int attcost = noderewards.get(attaction)[1];
+			int defcost = noderewards.get(defaction)[1];
+			// cost for action
+			attpoints -= attcost;
+			defpoints -= defcost;*/
+			//reward for current action
+			if(defaction != attaction)
+			{
+				//int attreward = noderewards.get(attaction)[0];
+			//	attpoints += attreward;
+				controllers[attaction] = 1;
+			}
+			// now reward for other controlled nodes
+			/*for(int j=0; j<controllers.length; j++)
+			{
+				if((controllers[j] != controllers[attaction]) && (controllers[j]==1))
+				{
+					int attreward = noderewards.get(attaction)[0];
+					attpoints += attreward;
+				}
+			}*/
+		}
+		//System.out.print( attpoints+", ");
+
+		return controllers;
+		
+		
+			}
 
 	private static String getDefAttckrSeq(String seq) {
 		
@@ -2637,11 +3684,11 @@ public class EquationGenerator {
 		return reward;
 	}
 	
-	private static int computeAttackerReward(String seq, HashMap<Integer, Integer[]> noderewards) {
+	public static int computeAttackerReward(String seq, HashMap<Integer, Integer[]> noderewards) {
 
 
 
-
+		//seq = "0,1,1,0,5,3,1,3,5,0";
 
 		int[] controllers = new int[noderewards.size()];
 
@@ -2676,13 +3723,14 @@ public class EquationGenerator {
 				int attreward = noderewards.get(attaction)[0];
 				attpoints += attreward;
 				controllers[attaction] = 1;
+				controllers[defaction] = 0;
 			}
 			// now reward for other controlled nodes
 			for(int j=0; j<controllers.length; j++)
 			{
-				if((controllers[j] != controllers[attaction]) && (controllers[j]==1))
+				if((j != attaction) && (controllers[j]==1))
 				{
-					int attreward = noderewards.get(attaction)[0];
+					int attreward = noderewards.get(j)[0];
 					attpoints += attreward;
 				}
 			}
@@ -3415,18 +4463,85 @@ public class EquationGenerator {
 		
 	}
 
-	public static DNode buildGameTreeRecur(int DEPTH_LIMIT, int naction, HashMap<String,HashMap<String,Double>> defstrategy, HashMap<String, double[]> attstrategy, double lambda, HashMap<String,int[]> attackfrequency) {
+	public static DNode buildGameTreeRecur(int DEPTH_LIMIT, int naction, HashMap<String,HashMap<String,Double>> defstrategy,
+HashMap<String, double[]> attstrategy, double lambda, HashMap<String,int[]> attackfrequency) {
 		
 		HashMap<Integer, Integer[]> noderewards = createNodeRewards(naction);
 
 		DNode root = createGameTreeRecur(DEPTH_LIMIT, naction, noderewards, defstrategy, attstrategy, lambda, attackfrequency);
-		System.out.println("Node id "+ root.nodeid + ", parent : "+ null + ", player "+ 0);
-		System.out.println();
+		//System.out.println("Node id "+ root.nodeid + ", parent : "+ null + ", player "+ 0);
+		//System.out.println();
 		printTree(root, naction);
 		
 		
 		return root;
 	}
+	
+	
+	
+	/**
+	 * prospect theory
+	 * @param DEPTH_LIMIT
+	 * @param naction
+	 * @param defstrategy
+	 * @param attstrategy
+	 * @param lambda
+	 * @param attackfrequency
+	 * @param gamma 
+	 * @param theta 
+	 * @param beta 
+	 * @param alpha 
+	 * @return
+	 * @throws Exception 
+	 */
+	public static DNode buildGameTreeRecurPT(int DEPTH_LIMIT, int naction, HashMap<String,HashMap<String,Double>> defstrategy,
+			HashMap<String, double[]> attstrategy, HashMap<String,int[]> attackfrequency, double alpha, double beta, double theta, double gamma) throws Exception {
+					
+					HashMap<Integer, Integer[]> noderewards = createNodeRewards(naction);
+
+					DNode root = createGameTreeRecurPT(DEPTH_LIMIT, naction, noderewards, defstrategy, attstrategy, attackfrequency, alpha, beta, theta, gamma);
+					//System.out.println("Node id "+ root.nodeid + ", parent : "+ null + ", player "+ 0);
+					//System.out.println();
+					printTree(root, naction);
+					
+					
+					return root;
+				}
+	
+	
+	public static void buildGameTreeRecurNE(int DEPTH_LIMIT, int naction, HashMap<String,HashMap<String,Double>> defstrategy,
+			HashMap<String, double[]> attstrategy, double lambda) {
+					
+					HashMap<Integer, Integer[]> noderewards = createNodeRewards(naction);
+
+					createGameTreeRecurNE(DEPTH_LIMIT, naction, noderewards, defstrategy, attstrategy, lambda);
+					//System.out.println("Node id "+ root.nodeid + ", parent : "+ null + ", player "+ 0);
+					//System.out.println();
+					//sprintTree(root, naction);
+					
+					
+					//return root;
+				}
+	
+	
+	public static void buildGameTreeRecurPT(int DEPTH_LIMIT, int naction, HashMap<String,HashMap<String,Double>> defstrategy,
+			HashMap<String, double[]> attstrategy, double alpha, double beta, double theta, double gamma) throws Exception {
+					
+					HashMap<Integer, Integer[]> noderewards = createNodeRewards(naction);
+
+					try {
+						createGameTreeRecurPT(DEPTH_LIMIT, naction, noderewards, defstrategy, attstrategy, alpha, beta, theta, gamma);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					//System.out.println("Node id "+ root.nodeid + ", parent : "+ null + ", player "+ 0);
+					//System.out.println();
+					//sprintTree(root, naction);
+					
+					
+					//return root;
+				}
 	
 	
 
