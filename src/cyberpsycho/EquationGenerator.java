@@ -2299,7 +2299,7 @@ public class EquationGenerator {
 		{
 			//System.out.println("leaf Node " + node.nodeid + ", seq "+ seq);
 			int defreward = 99999;//computeDefenderReward(node, noderewards);
-			int reward = computeAttackerReward(seq, noderewards);
+			int reward = 20+computeAttackerReward(seq, noderewards);
 			//System.out.println();
 
 			node.attacker_reward = reward;
@@ -2577,7 +2577,7 @@ public class EquationGenerator {
 		{
 			//System.out.println("leaf Node " + node.nodeid + ", seq "+ seq);
 			int defreward = 99999;//computeDefenderReward(node, noderewards);
-			int reward = computeAttackerReward(seq, noderewards);
+			int reward = 20+computeAttackerReward(seq, noderewards);
 			//System.out.println();
 
 			node.attacker_reward = reward;
@@ -2766,16 +2766,16 @@ public class EquationGenerator {
 			}
 			else
 			{
-				System.out.println("DOes not have the sequence");
+				/*System.out.println("DOes not have the sequence");
 				//throw new Exception("DOes not have the sequence");
 				int[] freq = attackfrequency.get(key);
-				double[] attstrtgy = {1, 0, 0, 0, 0, 0};
+				double[] attstrtgy = {0, 0, 0, 0, 0, 1};
 
 
 				double tmpllval = freq[0]* Math.log(attstrtgy[0]);
 				//System.out.println("llval : "+ tmpllval);
 				llvalsum += tmpllval;
-
+*/
 
 
 				//System.out.println("llvalsum : "+ llvalsum);
@@ -2857,7 +2857,7 @@ public class EquationGenerator {
 		{
 			//System.out.println("leaf Node " + node.nodeid + ", seq "+ seq);
 			int defreward = 99999;//computeDefenderReward(node, noderewards);
-			int reward = computeAttackerReward(seq, noderewards);
+			int reward = 20+computeAttackerReward(seq, noderewards);
 			//System.out.println();
 
 			node.attacker_reward = reward;
@@ -3174,7 +3174,7 @@ public class EquationGenerator {
 		{
 			//System.out.println("leaf Node " + node.nodeid + ", seq "+ seq);
 			int defreward = 99999;//computeDefenderReward(node, noderewards);
-			int reward = computeAttackerReward(seq, noderewards);
+			int reward = 20+computeAttackerReward(seq, noderewards);
 			//System.out.println();
 
 			node.attacker_reward = reward;
@@ -3725,6 +3725,11 @@ public class EquationGenerator {
 				controllers[attaction] = 1;
 				controllers[defaction] = 0;
 			}
+			else if((defaction == attaction) && (controllers[attaction]==1)) // when def==att
+			{
+				int attreward = noderewards.get(attaction)[0];
+				attpoints += attreward;
+			}
 			// now reward for other controlled nodes
 			for(int j=0; j<controllers.length; j++)
 			{
@@ -3739,6 +3744,115 @@ public class EquationGenerator {
 
 		return attpoints;
 	}
+	
+	
+	public static int computeAttackerReward(HashMap<Integer, Integer[]> noderewards, HashMap<String, String> user_seq, HashMap<String, Integer> user_reward) {
+
+
+
+		//seq = "0,1,1,0,5,3,1,3,5,0";
+		int sumattackerpoints = 0;
+		
+		int defpoints = 0;
+		
+		for(String user: user_seq.keySet())
+		{
+			
+			if(user.equals("\"$2y$10$4CyKTc5BlQCaUdr5Sqs2JeqJmHjCT2oE8XllF2mAp.Wyy9/Ace03u\""))
+			{
+				//int pp=1;
+				System.out.println("hi");
+			}
+			
+			int attpoints = 20;
+
+			String seq = user_seq.get(user);
+
+			int[] controllers = new int[noderewards.size()];
+
+
+			
+
+			String[] splittedseq = seq.split(",");
+
+			/*//System.out.print("");
+
+		for(int i= 0; i<seq.size(); i++)
+		{
+			System.out.print(seq.get(i) + ", ");
+		}
+			 */
+			//System.out.println();
+			for(int i= 0; i<(splittedseq.length/2); i++)
+			{
+
+				int defaction = -1;//Integer.parseInt(splittedseq[2*i]);
+				int attaction = -1;//Integer.parseInt(splittedseq[2*i+1]);
+				
+				if(splittedseq[2*i].equals(""))
+				{
+					defaction = 0;
+				}
+				else
+				{
+					defaction = Integer.parseInt(splittedseq[2*i]);
+				}
+				
+				if(splittedseq[2*i+1].equals(""))
+				{
+					attaction = 5;;
+				}
+				else
+				{
+					attaction = Integer.parseInt(splittedseq[2*i+1]);
+				}
+				
+				
+				
+
+
+				int attcost = noderewards.get(attaction)[1];
+				int defcost = noderewards.get(defaction)[1];
+				// cost for action
+				attpoints -= attcost;
+				defpoints -= defcost;
+				//reward for current action
+				if(defaction != attaction)
+				{
+					int attreward = noderewards.get(attaction)[0];
+					attpoints += attreward;
+					controllers[attaction] = 1;
+					controllers[defaction] = 0;
+				}
+				else if((defaction == attaction) && (controllers[attaction]==1))
+				{
+					int attreward = noderewards.get(attaction)[0];
+					attpoints += attreward;
+				}
+					
+				
+				
+				
+				// now reward for other controlled nodes
+				for(int j=0; j<controllers.length; j++)
+				{
+					if((j != attaction) && (controllers[j]==1))
+					{
+						int attreward = noderewards.get(j)[0];
+						attpoints += attreward;
+					}
+				}
+			}
+			
+			user_reward.put(user, attpoints);
+			
+			sumattackerpoints += attpoints;
+		}
+		//System.out.print( attpoints+", ");
+
+		return sumattackerpoints/user_seq.size();
+	}
+	
 	
 
 	private static int computeAttackerReward(ArrayList<Integer> seq, HashMap<Integer, Integer[]> noderewards) {

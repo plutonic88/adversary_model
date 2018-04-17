@@ -38,11 +38,13 @@ public class AdversaryModelExps {
 		ArrayList<ArrayList<String>> data =  Data.readData();
 
 
+		int gameinstance0 = 4;
+		int gameinstance1 = 1;
 
 		// keep the users who played all 6 games
 		// that means they have 
 		ArrayList<String> users_refined = refineUser(data, -1, 1);
-		ArrayList<ArrayList<String>>  data_refined = refineData(data,1,users_refined);
+		ArrayList<ArrayList<String>>  data_refined = refineData(data,1,users_refined, gameinstance0, gameinstance1);
 		System.out.println("Total number of users "+ users_refined.size());
 
 
@@ -293,7 +295,7 @@ public class AdversaryModelExps {
 
 
 
-	private static ArrayList<ArrayList<String>> refineData(ArrayList<ArrayList<String>> data, int game_type, ArrayList<String> users_refined) {
+	private static ArrayList<ArrayList<String>> refineData(ArrayList<ArrayList<String>> data, int game_type, ArrayList<String> users_refined, int gameinstance0, int gameinstance1) {
 
 
 		ArrayList<ArrayList<String>> examples = new ArrayList<ArrayList<String>>();
@@ -326,12 +328,12 @@ public class AdversaryModelExps {
 			/**
 			 * we can use data from different game instances gameinstance== 4,5,6 or 1,2,3
 			 */
-			if(def_order.equals("0") && (gameinstance>=4) && users_refined.contains(tmpuser) && gameplayed == 6 && gametype == game_type) // asc, take 4th game instance to 6th
+			if(def_order.equals("0") && (gameinstance==gameinstance0) && users_refined.contains(tmpuser) && gameplayed == 6 && gametype == game_type) // asc, take 4th game instance to 6th
 			{
 
 				examples.add(example);
 			}
-			else if(def_order.equals("1") && (gameinstance<=3) && users_refined.contains(tmpuser) && gameplayed == 6 && gametype == game_type) // desc, take 1st game instance to 3rd
+			else if(def_order.equals("1") && (gameinstance==gameinstance1) && users_refined.contains(tmpuser) && gameplayed == 6 && gametype == game_type) // desc, take 1st game instance to 3rd
 			{
 				examples.add(example);
 			}
@@ -355,6 +357,11 @@ public class AdversaryModelExps {
 		{
 			// get user id
 			String tmpuser = example.get(Headers_minimum.user_id.getValue());
+			
+			//if(!tmpuser.equals("\"$2y$10$1.vgQUYwu1DmltOCcbkwt.fTPbViJwq/W4mURkZFKI.Z4zHvenYRq\"") && !tmpuser.equals("\"$2y$10$MVaZ8l6MqBDdc9ODF844puqPXFePcZ3ECDt4mx37nrvb9nHrBThDm\""))
+			{
+			
+			
 			int gameplayed = Integer.parseInt(example.get(Headers_minimum.game_played.getValue())) ;
 			int tmp_def_order = Integer.parseInt(example.get(Headers_minimum.pick_def_order.getValue())) ;
 			int game_type = Integer.parseInt(example.get(Headers_minimum.game_type.getValue())) ;
@@ -370,6 +377,7 @@ public class AdversaryModelExps {
 					users.add(tmpuser);
 					System.out.println("Adding user "+ tmpuser + " , played "+ gameplayed + " games, deforder "+ tmp_def_order);
 				}
+			}
 			}
 			
 			/*if(users.size()==10)
@@ -1210,6 +1218,8 @@ public class AdversaryModelExps {
 
 		int personality = 	-1;
 		int user_refine_type = 1;
+		int gameinstance0 = 4;
+		int gameinstance1 = 1;
 
 
 
@@ -1217,7 +1227,7 @@ public class AdversaryModelExps {
 		//ArrayList<String> users_lowscore = refineUsers(users_refined, data, 0, personality);
 
 
-		ArrayList<ArrayList<String>>  data_refined = refineData(data,1,users_refined_type);
+		ArrayList<ArrayList<String>>  data_refined = refineData(data,1,users_refined_type, gameinstance0, gameinstance1);
 		System.out.println("Total number of high score users "+ users_refined_type.size());
 
 
@@ -1669,13 +1679,58 @@ public class AdversaryModelExps {
 					int gameinstance = Integer.parseInt(example.get(Headers_minimum.game_instance.getValue()));
 					
 					
-					if(def_order.equals("0") && (gameinstance>=4) && round==5) // asc, take 4th game instance to 6th
+					if(def_order.equals("0") && (gameinstance==6) && round==5) // asc, take 4th game instance to 6th
 					{
 						
 						sum += Integer.parseInt(example.get(Headers_minimum.attacker_points.getValue()));
 
 					}
-					else if(def_order.equals("1") && (gameinstance<=3) && round==5) // desc, take 1st game instance to 3rd
+					else if(def_order.equals("1") && (gameinstance==3) && round==5) // desc, take 1st game instance to 3rd
+					{
+						sum += Integer.parseInt(example.get(Headers_minimum.attacker_points.getValue()));
+					}
+					
+					
+					
+				}
+
+			}
+		return sum;
+	}
+	
+	
+	private static int getAllUserScore(String tmpusr, ArrayList<ArrayList<String>> data, int gameinstance0, int gameinstance1) {
+
+		/*for(ArrayList<String> example: data)
+		{
+			if(example.get(Headers_minimum.user_id.getValue()).equals(tmpusr))
+				return Integer.parseInt(example.get(Headers_minimum.total_points.getValue()));
+		}*/
+		
+		
+		
+			int sum = 0;
+		
+			for(ArrayList<String> example: data)
+			{
+				// get user id
+				String tmpuser = example.get(Headers_minimum.user_id.getValue());
+				// if example is for user_id
+				if(tmpusr.equals(tmpuser))
+				{
+					//int gameins = Integer.parseInt(example.get(Headers_minimum.game_instance.getValue()));
+					int round = Integer.parseInt(example.get(Headers_minimum.round.getValue()));
+					String def_order = example.get(Headers_minimum.pick_def_order.getValue());
+					int gameinstance = Integer.parseInt(example.get(Headers_minimum.game_instance.getValue()));
+					
+					
+					if(def_order.equals("0") && (gameinstance==gameinstance0) && round==5) // asc, take 4th game instance to 6th
+					{
+						
+						sum += Integer.parseInt(example.get(Headers_minimum.attacker_points.getValue()));
+
+					}
+					else if(def_order.equals("1") && (gameinstance==gameinstance1) && round==5) // desc, take 1st game instance to 3rd
 					{
 						sum += Integer.parseInt(example.get(Headers_minimum.attacker_points.getValue()));
 					}
@@ -1852,14 +1907,17 @@ public class AdversaryModelExps {
 		int k= 3; // how many clusters you want
 		int numberofnodes = 6;
 
+		int gameinstance0 = 4;
+		int gameinstance1 = 1;
+		
 		ArrayList<ArrayList<String>> data =  Data.readData();
 
 		ArrayList<String> users_refined = refineUser(data, -1, 1);
 
-		ArrayList<ArrayList<String>>  data_refined = refineData(data,1, users_refined);
+		ArrayList<ArrayList<String>>  data_refined = refineData(data,1, users_refined, gameinstance0, gameinstance1);
 
 		//double[][] examples = prepareExamplesDTScorePoints(data_refined, users_refined);
-		double[][] examples = prepareExamplesNodeCostPoint(data_refined, users_refined);
+		double[][] examples = prepareExamplesNodeCostPoint(data_refined, users_refined, gameinstance0, gameinstance1);
 		//double [][] examples = prepareFrquencey(data_refined, users_refined, numberofnodes);
 
 		printData(users_refined,examples);
@@ -2159,12 +2217,12 @@ public class AdversaryModelExps {
 					{
 						attackaction = Integer.parseInt(action);
 					}
-					if(def_order.equals("0") && (gameinstance>=4) /*&& round==1*/) // asc, take 4th game instance to 6th
+					if(def_order.equals("0") && (gameinstance==6) /*&& round==1*/) // asc, take 4th game instance to 6th
 					{
 						count[attackaction]++;
 
 					}
-					else if(def_order.equals("1") && (gameinstance<=3) /*&& round==1*/) // desc, take 1st game instance to 3rd
+					else if(def_order.equals("1") && (gameinstance==3) /*&& round==1*/) // desc, take 1st game instance to 3rd
 					{
 						count[attackaction]++;
 					}
@@ -2182,7 +2240,7 @@ public class AdversaryModelExps {
 	}
 
 	private static double[][] prepareExamplesNodeCostPoint(ArrayList<ArrayList<String>> data_refined,
-			ArrayList<String> users_refined) {
+			ArrayList<String> users_refined, int gameinstance0, int gameinstance1) {
 
 
 
@@ -2214,8 +2272,8 @@ public class AdversaryModelExps {
 
 
 
-		//3 features per round, 3 games, 5 round per game , 45 features
-		double examples[][] = new double[users_refined.size()][45]; // nodevalue,cost,pointforaction,
+		//3 features per round, 1 games, 5 round per game , 45 features
+		double examples[][] = new double[users_refined.size()][15]; // nodevalue,cost,pointforaction,
 
 
 		int exampleindex = 0;
@@ -2256,7 +2314,7 @@ public class AdversaryModelExps {
 
 
 
-					if(def_order.equals("0") && (gameinstance>=4) /*&& round==1*/) // asc, take 4th game instance to 6th
+					if(def_order.equals("0") && (gameinstance==gameinstance0) /*&& round==1*/) // asc, take 4th game instance to 6th
 					{
 						System.out.println("instance "+gameinstance +", round "+ round);
 						//int featuregameinstance = gameinstance-4;
@@ -2272,7 +2330,7 @@ public class AdversaryModelExps {
 
 
 					}
-					else if(def_order.equals("1") && (gameinstance<=3)/* && round==1*/) // desc, take 1st game instance to 3rd
+					else if(def_order.equals("1") && (gameinstance==gameinstance1)/* && round==1*/) // desc, take 1st game instance to 3rd
 					{
 						System.out.println("instance "+gameinstance +", round "+ round);
 						//int featuregameinstance = gameinstance-1;
@@ -2471,6 +2529,21 @@ public class AdversaryModelExps {
 
 		 // how many clusters you want
 		int numberofnodes = 6;
+		int gameinstance0 = 4;
+		int gameinstance1 = 1;
+		
+		
+		
+
+		int DEPTH_LIMIT = 10; // needs to be 10 for our experiment
+		int naction = 6;
+		double minlambda = .06;
+		double maxlambda = .16;
+		double step = .01;
+		double[] lambda = generateLambdaArray(minlambda, maxlambda, step);
+
+		int ngames = 1;
+		int roundlimit = 5;
 
 		ArrayList<ArrayList<String>> data =  Data.readData();
 
@@ -2479,10 +2552,60 @@ public class AdversaryModelExps {
 		// defeorder 1 desc, 1st 3 games max defender
 		ArrayList<String> users_refined = refineUser(data, -1, 1);
 
-		ArrayList<ArrayList<String>>  data_refined = refineData(data,1, users_refined);
+		ArrayList<ArrayList<String>>  data_refined = refineData(data,1, users_refined, gameinstance0, gameinstance1);
+		
+		
+		/**
+		 * remove users whose points are not consistent
+		 */
+		
+		HashMap<Integer, Integer[]> noderewards = EquationGenerator.createNodeRewards(naction);
+		
+		HashMap<String, String> alluser_seq = new HashMap<String, String>();
+		HashMap<String, Integer> alluser_reward = new HashMap<String, Integer>();
+		int[][] allusergameplay = createGamePlay(ngames, users_refined, data_refined, roundlimit,alluser_seq);
+		
+		double allattpoints = EquationGenerator.computeAttackerReward(noderewards, alluser_seq, alluser_reward);
+		
+		
+		ArrayList<String> inconsistentuser = new ArrayList<String>();
+		
+		
+		
+		System.out.println("users size "+ users_refined.size());
+		
+		for(String usr: alluser_seq.keySet())
+		{
+		
+			int tmpscore= getAllUserScore(usr, data_refined, gameinstance0, gameinstance1);
+			int score = alluser_reward.get(usr);
+			
+			if(tmpscore != score)
+			{
+				inconsistentuser.add(usr);
+			}
+		}
+		
+		for(String usr: inconsistentuser)
+		{
+			if(users_refined.contains(usr))
+			{
+				users_refined.remove(usr);
+			}
+		}
+		
+		System.out.println("after removing inconsistent users size "+ users_refined.size());
+		
+		data_refined = refineData(data,1, users_refined, gameinstance0, gameinstance1);
+		
+		
+		
+		
+		
+		
 
 		//double[][] examples = prepareExamplesDTScorePoints(data_refined, users_refined);
-		double[][] examples = prepareExamplesNodeCostPoint(data_refined, users_refined);
+		double[][] examples = prepareExamplesNodeCostPoint(data_refined, users_refined, gameinstance0, gameinstance1);
 		//double [][] examples = prepareFrquencey(data_refined, users_refined, numberofnodes);
 
 		printData(users_refined,examples);
@@ -2495,11 +2618,13 @@ public class AdversaryModelExps {
 
 		printData(users_refined, normalizedexamples);
 
-		int k= 3;
+		int k= 2;
 
-		//List<Integer>[] clusters = Weka.clusterUsers(k, normalizedexamples);
+		List<Integer>[] clusters = Weka.clusterUsers(k, normalizedexamples);
 
-		List<Integer>[] clusters = Weka.clusterUsers(normalizedexamples);
+		
+		
+		//List<Integer>[] clusters = Weka.clusterUsers(normalizedexamples);
 
 
 		
@@ -2509,12 +2634,6 @@ public class AdversaryModelExps {
 		printClustersInt(clusters);
 		
 		
-		int DEPTH_LIMIT = 10; // needs to be 10 for our experiment
-		int naction = 6;
-		double minlambda = 0;
-		double maxlambda = .6;
-		double step = .01;
-		double[] lambda = generateLambdaArray(minlambda, maxlambda, step);
 
 
 		/**
@@ -2528,11 +2647,11 @@ public class AdversaryModelExps {
 		MatlabProxy proxy = factory.getProxy();
 		 */
 
-		try
+		/*try
 		{
 			PrintWriter pw = new PrintWriter(new FileOutputStream(new File("cluster-lambda.csv"),true));
 
-			pw.append("cluster,#users,lambda,score,mscore,nscore,pscore,nodeA(10/8),nodeB(10/2),NodeC(4/2),nodeD(4/8),NodeE(10/5),nodeF(PASS)"+ "\n");
+			//pw.append("cluster,#users,lambda,score,mscore,nscore,pscore,nodeA(10/8),nodeB(10/2),NodeC(4/2),nodeD(4/8),NodeE(10/5),nodeF(PASS)"+ "\n");
 
 			//pw.append(cluster+","+users_groups.size()+","+ estimatedlambda+","+sumscore+","+sum_mscore+","+sum_nscore+","+sum_pscore+"\n");
 			pw.close();
@@ -2542,7 +2661,7 @@ public class AdversaryModelExps {
 			System.out.println(" ");
 		}
 		
-		
+		*/
 		
 		
 		
@@ -2560,8 +2679,29 @@ public class AdversaryModelExps {
 			 */
 
 
+			
+			HashMap<String, String> user_seq = new HashMap<String, String>();
 
-			int[][] gameplay = createGamePlay(3, users_groups, data_refined, 5);
+			int[][] gameplay = createGamePlay(ngames, users_groups, data_refined, roundlimit,user_seq);
+			
+			
+			/*String u= "\"$2y$10$1.vgQUYwu1DmltOCcbkwt.fTPbViJwq/W4mURkZFKI.Z4zHvenYRq\"";
+			
+			String ss= user_seq.get(u);*/
+			
+			
+			
+			// = createGamePlay(ngames, users_groups, data_refined, roundlimit);
+			
+			
+			
+			HashMap<String, Integer> user_reward = new HashMap<String, Integer>();
+			
+			double attpoints = EquationGenerator.computeAttackerReward(noderewards, user_seq, user_reward);
+			
+			
+			
+			
 			int attackcount[] = getAttackFrequency(users_groups, data_refined, numberofnodes);
 			HashMap<String, int[]> attackfrequency = getAttackCountInData(gameplay, numberofnodes, 5);
 			
@@ -2665,8 +2805,27 @@ public class AdversaryModelExps {
 
 
 				String tmpusr = users_groups.get(i);
+				
+				
+				
+				
+				
 
-				sumscore += getUserScore(tmpusr, data_refined);
+				int tmpscore= getUserScore(tmpusr, data_refined); // compute score from sequence
+				
+				int computedscore = user_reward.get(tmpusr);
+				
+				if(tmpscore != computedscore)
+				{
+					System.out.println(tmpusr + "   reward not matching");
+					//throw new Exception("reward not matching");
+				}
+				
+				
+				sumscore += tmpscore;
+				
+				
+				
 
 				sum_mscore += getPersonalityScore(tmpusr, data_refined, 0);
 				sum_nscore += getPersonalityScore(tmpusr, data_refined, 1);
@@ -2676,7 +2835,7 @@ public class AdversaryModelExps {
 				//System.out.println("kept user "+ tmpusr);
 			}
 
-			sumscore /= users_groups.size();
+			sumscore = sumscore/users_groups.size();
 			sum_mscore /= users_groups.size();
 			sum_nscore /= users_groups.size();
 			sum_pscore /= users_groups.size();
@@ -2737,18 +2896,21 @@ public class AdversaryModelExps {
 
 		 // how many clusters you want
 		int numberofnodes = 6;
+		int gameinstance0 = 4;
+		int gameinstance1 = 1;
 
 		ArrayList<ArrayList<String>> data =  Data.readData();
+		
 
 		// gametype 1 full info, 0 noinfo
 		// deforder 0 asc: last 3 games max defender
 		// defeorder 1 desc, 1st 3 games max defender
 		ArrayList<String> users_refined = refineUser(data, -1, 1);
 
-		ArrayList<ArrayList<String>>  data_refined = refineData(data,1, users_refined);
+		ArrayList<ArrayList<String>>  data_refined = refineData(data,1, users_refined, gameinstance0, gameinstance1);
 
 		//double[][] examples = prepareExamplesDTScorePoints(data_refined, users_refined);
-		double[][] examples = prepareExamplesNodeCostPoint(data_refined, users_refined);
+		double[][] examples = prepareExamplesNodeCostPoint(data_refined, users_refined, gameinstance0, gameinstance1);
 		//double [][] examples = prepareFrquencey(data_refined, users_refined, numberofnodes);
 
 		printData(users_refined,examples);
@@ -2834,7 +2996,7 @@ public class AdversaryModelExps {
 		{
 			PrintWriter pw = new PrintWriter(new FileOutputStream(new File("cluster-lambda.csv"),true));
 
-			pw.append("cluster,#users,alpha,beta,theta, gamma, score,mscore,nscore,pscore,nodeA(10/8),nodeB(10/2),NodeC(4/2),nodeD(4/8),NodeE(10/5),nodeF(PASS)"+ "\n");
+			//pw.append("cluster,#users,alpha,beta,theta, gamma, score,mscore,nscore,pscore,nodeA(10/8),nodeB(10/2),NodeC(4/2),nodeD(4/8),NodeE(10/5),nodeF(PASS)"+ "\n");
 
 			//pw.append(cluster+","+users_groups.size()+","+ estimatedlambda+","+sumscore+","+sum_mscore+","+sum_nscore+","+sum_pscore+"\n");
 			pw.close();
@@ -3031,7 +3193,7 @@ public class AdversaryModelExps {
 		
 		
 		
-		int val = size*3*5;
+		int val = size*1*5;
 		
 		int sum = 0;
 		
@@ -3292,7 +3454,7 @@ public class AdversaryModelExps {
 		
 		int size = (int)Math.ceil((maxlambda-minlambda)/step);
 		double arr[] = new double[size];
-		arr[0] = 0;
+		arr[0] = minlambda;
 		
 		for(int i=1; i<size; i++)
 		{
@@ -3477,6 +3639,82 @@ private static double[] generateGammaArray(double min, double max, double step) 
 
 	}
 
+	private static int[][] createGamePlay(int ngames, ArrayList<String> users_refined, ArrayList<ArrayList<String>> data_refined, int roundlimit, HashMap<String, String> user_seq) {
+
+
+		int[][] gameplay = new int[users_refined.size()*ngames][2*roundlimit]; 
+
+		
+
+			int usercount = 0;
+			for(String user_id: users_refined)
+			{
+				
+				String seq = "";
+				
+				for(ArrayList<String> example: data_refined)
+				{
+					// get user id
+					String tmpuser = example.get(Headers_minimum.user_id.getValue());
+					// if example is for user_id
+					
+					
+					
+					if(user_id.equals(tmpuser))
+					{
+						int gameins = Integer.parseInt(example.get(Headers_minimum.game_instance.getValue()));
+						int round = Integer.parseInt(example.get(Headers_minimum.round.getValue()));
+						if(round <= roundlimit)
+						{
+
+							String attackeraction = example.get(Headers_minimum.attacker_action.getValue());
+							String defenderaction = example.get(Headers_minimum.defender_action.getValue());
+
+							if(attackeraction.equals(" ") || attackeraction.equals(""))
+							{
+								attackeraction = "5";
+							}
+							int attackaction = Integer.parseInt(attackeraction);
+							int defendaction = Integer.parseInt(defenderaction);
+							
+							
+							if(round==1)
+							{
+							
+								seq =  defenderaction + ","+ attackeraction;
+							}
+							else
+							{
+								seq +=  "," + defenderaction + ","+ attackeraction;
+							}
+							
+
+
+							int defround = 2*(round-1)  ;
+							int attackround = 2*(round-1)+1 ;
+
+
+							gameplay[usercount][defround] = defendaction;
+							gameplay[usercount][attackround] = attackaction; // in data round starts from 1. so use round-1
+							
+							if(round==roundlimit)
+							{
+								usercount++;
+							}
+							
+						}
+
+					}
+
+				}
+				user_seq.put(user_id, seq);
+				
+			
+		}
+		return gameplay;
+	}
+	
+	
 	private static int[][] createGamePlay(int ngames, ArrayList<String> users_refined, ArrayList<ArrayList<String>> data_refined, int roundlimit) {
 
 
@@ -3679,13 +3917,13 @@ private static double[] generateGammaArray(double min, double max, double step) 
 		
 		//double tmplambda = 0.6;
 		
-		double nelambda = 2.5;
+		double nelambda = .14;
 		int DEPTH_LIMIT = 10; // needs to be 10 for our experiment
 		int naction = 6;
 		double minlambda = 0;
-		double maxlambda = 5;
-		double step = .5;
-		int nexamples = 300;
+		double maxlambda = .2;
+		double step = .01;
+		int nexamples = 79;
 		double[] lambda = generateLambdaArray(minlambda, maxlambda, step);
 		int numberofnodes = 6;
 		int roundlimit = 5;
@@ -3740,7 +3978,7 @@ private static double[] generateGammaArray(double min, double max, double step) 
 		{
 			PrintWriter pw = new PrintWriter(new FileOutputStream(new File("cluster-lambda.csv"),true));
 
-			pw.append("cluster,#users,lambda,score,mscore,nscore,pscore,nodeA(10/8),nodeB(10/2),NodeC(4/2),nodeD(4/8),NodeE(10/5),nodeF(PASS)"+ "\n");
+			//pw.append("cluster,#users,lambda,score,mscore,nscore,pscore,nodeA(10/8),nodeB(10/2),NodeC(4/2),nodeD(4/8),NodeE(10/5),nodeF(PASS)"+ "\n");
 
 			//pw.append(cluster+","+users_groups.size()+","+ estimatedlambda+","+sumscore+","+sum_mscore+","+sum_nscore+","+sum_pscore+"\n");
 			
@@ -4486,7 +4724,7 @@ public static void generatePTPlay() throws Exception {
 			
 			
 		}
-		avgpoints /= (nexamples/3);
+		avgpoints /= (nexamples);
 		
 		
 		
