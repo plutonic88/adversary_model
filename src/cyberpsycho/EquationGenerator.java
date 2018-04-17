@@ -3338,13 +3338,13 @@ public class EquationGenerator {
 			int maxprospectaction = -1;
 			double  sm =0;
 			
-			System.out.println("atatcker strategy: ");
+			//System.out.println("atatcker strategy: ");
 			for(int attaction = 0; attaction<naction; attaction++)
 			{
 				
 				double pros = attprospects.get(attaction);
 				
-				System.out.println("action : "+ attaction + ", pros "+ pros);
+				//System.out.println("action : "+ attaction + ", pros "+ pros);
 				
 				if(maxprospect<pros)
 				{
@@ -3383,7 +3383,7 @@ public class EquationGenerator {
 			
 			double ptval = 0.0;
 			
-			System.out.println("seq : "+ key + "\n");
+			//System.out.println("seq : "+ key + "\n");
 			if(attackfrequency.containsKey(key))
 			{
 				int[] freq = attackfrequency.get(key);
@@ -3402,7 +3402,7 @@ public class EquationGenerator {
 			}
 			else
 			{
-				System.out.println("DOes not have the sequence");
+				/*//System.out.println("DOes not have the sequence");
 				//throw new Exception("DOes not have the sequence");
 				int[] freq = attackfrequency.get(key);
 				double[] attstrtgy = {1, 0, 0, 0, 0, 0};
@@ -3411,7 +3411,7 @@ public class EquationGenerator {
 				double tmpptval = freq[0]* attstrtgy[0];
 				//System.out.println("llval : "+ tmpllval);
 				ptval += tmpptval;
-
+*/
 
 
 				//System.out.println("llvalsum : "+ llvalsum);
