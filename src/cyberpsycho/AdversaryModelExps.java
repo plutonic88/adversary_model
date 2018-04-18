@@ -2539,8 +2539,8 @@ public class AdversaryModelExps {
 
 		int DEPTH_LIMIT = 10; // needs to be 10 for our experiment
 		int naction = 6;
-		double minlambda = .06;
-		double maxlambda = .16;
+		double minlambda = .05;
+		double maxlambda = .18;
 		double step = .01;
 		double[] lambda = generateLambdaArray(minlambda, maxlambda, step);
 
@@ -2674,7 +2674,7 @@ public class AdversaryModelExps {
 			ArrayList<String> users_groups = getUserGroup(clusters[cluster], users_refined);
 
 
-			//users_groups = users_refined;
+			users_groups = users_refined;
 
 			/**
 			 * get attack count for different information set
@@ -2898,7 +2898,7 @@ public class AdversaryModelExps {
 			}
 
 
-			//break;
+			break;
 
 		}
 
@@ -2925,7 +2925,7 @@ public class AdversaryModelExps {
 		int gameinstance1 = 1;
 		
 
-		int DEPTH_LIMIT = 10; // needs to be 10 for our experiment
+		int DEPTH_LIMIT = 6; // needs to be 10 for our experiment
 		int naction = 6;
 		double minlambda = .06;
 		double maxlambda = .16;
@@ -3154,7 +3154,7 @@ public class AdversaryModelExps {
 			
 			double[] estimatedptparams = estimatePTParams(attackfrequency, naction, defstrategy, DEPTH_LIMIT, alpha, beta, theta, gamma);
 			
-			//System.out.println("Estmiated lambda "+ estimatedlambdanaive);
+			System.out.println("Estmiated PTparams  "+ estimatedptparams[0]+","+estimatedptparams[1]+","+estimatedptparams[2]+","+estimatedptparams[3]);
 			
 			
 			
@@ -3455,6 +3455,8 @@ public class AdversaryModelExps {
 						double ptval = EquationGenerator.ptval;//computeLogLikeliHoodValue(attackfrequency, attstrategy, naction);
 
 						//double llh = -likeHoodValue(isets, attackfrequency, naction, defstrategy, root, dEPTH_LIMIT, depthinfoset, lambda[i]);
+						
+						System.out.println("cur alpha : "+alpha[i]+", curbeta : "+ beta[j] + ", theta "+ theta[k] + ", gamma "+ gamma[l]);
 
 						if(ptval>maxptval)
 						{
@@ -3601,6 +3603,8 @@ private static double[] generateAlphaArray(double minalpha, double maxalpha, dou
 			arr[i] =  /*((arr[i-1])*100)/100*/ arr[i-1] +step;
 			
 			arr[i] = (arr[i]*100)/100;
+			
+			arr[i] = arr[i];
 			
 		}
 		
@@ -4040,7 +4044,7 @@ private static double[] generateGammaArray(double min, double max, double step) 
 		
 		//double tmplambda = 0.6;
 		
-		double nelambda = .16;//.15;
+		double nelambda = .15;//.15;
 		int DEPTH_LIMIT = 10; // needs to be 10 for our experiment
 		int naction = 6;
 		double minlambda = .13;
@@ -4382,6 +4386,398 @@ private static double[] generateGammaArray(double min, double max, double step) 
 		}
 		*/
 	}
+	
+	
+	
+public static void errorInQRLambdaEst() throws Exception {
+		
+		
+		
+		/**
+		 * create e-NE attacker strategy against defender strategy
+		 */
+		
+		
+		HashMap<String, HashMap<String, Double>> defstrategy = Data.readStrategy("g5d5_FI.txt");
+		
+		
+		//HashMap<String, double[]> attstrategy = new HashMap<String, double[]>();
+		
+		//double tmplambda = 0.6;
+		
+		double nelambda = .15;//.15;
+		int DEPTH_LIMIT = 10; // needs to be 10 for our experiment
+		int naction = 6;
+		double minlambda = .13;
+		double maxlambda = .2;
+		double step = .01;
+		int nexamples = 300;
+		double[] lambda = generateLambdaArray(minlambda, maxlambda, step);
+		int numberofnodes = 6;
+		int roundlimit = 5;
+
+		int ntrials = 10;
+		
+		double[] estlambda = new double[ntrials];
+		
+		
+		
+		
+		
+		
+		HashMap<String, double[]> attstrategy = new HashMap<String, double[]>();
+		HashMap<Integer, Integer[]> noderewards = EquationGenerator.createNodeRewards(naction);
+		EquationGenerator.buildGameTreeRecurNE(DEPTH_LIMIT, naction, defstrategy, attstrategy, nelambda);
+		
+		
+		
+		
+		
+		
+		
+		
+		/**
+		 * play game and compute points
+		 */
+		
+		
+
+		for(int t=0; t<ntrials; t++)
+		{
+
+
+			int[][] negameplay = new int[nexamples][DEPTH_LIMIT];
+
+			double points = playGame(defstrategy, attstrategy, naction, DEPTH_LIMIT/2, negameplay, nexamples, noderewards);
+
+
+			//double attpoints = EquationGenerator.computeAttackerReward(noderewards, user_seq, user_reward);
+
+
+
+			System.out.println("lambda "+ nelambda + ", points "+ points);
+
+
+			HashMap<String, int[]> attackfrequency = getAttackCountInData(negameplay, numberofnodes, 5);
+
+			int attackcount[] = getAttackFrequency(negameplay, numberofnodes, roundlimit);
+
+
+
+
+
+
+
+			/**
+			 * next estimate lambda for NE player
+			 */
+
+
+			double estimatedlambdanaive = estimateLambdaNaive(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
+			
+			estlambda[t] = estimatedlambdanaive;
+
+
+			try
+			{
+				PrintWriter pw = new PrintWriter(new FileOutputStream(new File("cluster-lambda.csv"),true));
+
+				//pw.append("cluster,#users,lambda,score,mscore,nscore,pscore,nodeA(10/8),nodeB(10/2),NodeC(4/2),nodeD(4/8),NodeE(10/5),nodeF(PASS)"+ "\n");
+
+				//pw.append(cluster+","+users_groups.size()+","+ estimatedlambda+","+sumscore+","+sum_mscore+","+sum_nscore+","+sum_pscore+"\n");
+
+				pw.append("0,"+nexamples +","+ estimatedlambdanaive+","+points+","+0+","+0+","+0+",");
+
+				int index=0;
+				for(int c: attackcount)
+				{
+					pw.append(c+"");
+					if(index<(attackcount.length-1))
+					{
+						pw.append(",");
+					}
+
+					index++;
+				}
+				pw.append("\n");
+
+				//pw.close();
+				pw.close();
+			}
+			catch(Exception ex)
+			{
+				System.out.println(" ");
+			}
+
+		}
+		
+		
+		double e=0.0;
+		
+		for(int t=0; t<ntrials; t++)
+		{
+			double tmpe = ((nelambda-estlambda[t])/nelambda)*100.00;
+			
+			System.out.println("trials "+ t  + ", error "+ tmpe +"% ");
+			
+			e+=tmpe;
+		}
+		
+		e /= ntrials;
+		
+		System.out.println("avg error "+ e);
+		
+		
+		
+		/*
+		
+
+		 // how many clusters you want
+		int numberofnodes = 6;
+
+		ArrayList<ArrayList<String>> data =  Data.readData();
+
+		// gametype 1 full info, 0 noinfo
+		// deforder 0 asc: last 3 games max defender
+		// defeorder 1 desc, 1st 3 games max defender
+		ArrayList<String> users_refined = refineUser(data, -1, 1);
+
+		ArrayList<ArrayList<String>>  data_refined = refineData(data,1, users_refined);
+
+		//double[][] examples = prepareExamplesDTScorePoints(data_refined, users_refined);
+		double[][] examples = prepareExamplesNodeCostPoint(data_refined, users_refined);
+		//double [][] examples = prepareFrquencey(data_refined, users_refined, numberofnodes);
+
+		printData(users_refined,examples);
+
+		// normalize the data
+
+		double normalizedexamples[][] = normalizeData(examples);
+
+		System.out.println("Normalized data: ");
+
+		printData(users_refined, normalizedexamples);
+
+		int k= 2;
+
+		List<Integer>[] clusters = Weka.clusterUsers(k, normalizedexamples);
+
+		//List<Integer>[] clusters = Weka.clusterUsers(normalizedexamples);
+
+
+		
+		//List<Integer>[] clusters = KmeanClustering.clusterUsersV2(k, normalizedexamples);
+
+
+		printClustersInt(clusters);
+		
+		
+		
+
+		*//**
+		 * next use weka to cluster
+		 *//*
+
+		//printClusters(clusters);
+
+		//Create a proxy, which we will use to control MATLAB
+		MatlabProxyFactory factory = new MatlabProxyFactory();
+		MatlabProxy proxy = factory.getProxy();
+		 
+
+		try
+		{
+			PrintWriter pw = new PrintWriter(new FileOutputStream(new File("cluster-lambda.csv"),true));
+
+			pw.append("cluster,#users,lambda,score,mscore,nscore,pscore,nodeA(10/8),nodeB(10/2),NodeC(4/2),nodeD(4/8),NodeE(10/5),nodeF(PASS)"+ "\n");
+
+			//pw.append(cluster+","+users_groups.size()+","+ estimatedlambda+","+sumscore+","+sum_mscore+","+sum_nscore+","+sum_pscore+"\n");
+			pw.close();
+		}
+		catch(Exception ex)
+		{
+			System.out.println(" ");
+		}
+		
+		
+		
+		
+		
+		
+
+		for(int cluster=0; cluster<clusters.length; cluster++)
+		{
+			ArrayList<String> users_groups = getUserGroup(clusters[cluster], users_refined);
+
+
+			//users_groups = users_refined;
+
+			*//**
+			 * get attack count for different information set
+			 *//*
+
+
+
+			int[][] gameplay = createGamePlay(3, users_groups, data_refined, 5);
+			int attackcount[] = getAttackFrequency(users_groups, data_refined, numberofnodes);
+			HashMap<String, int[]> attackfrequency = getAttackCountInData(gameplay, numberofnodes, 5);
+			
+			// #10*3*5 attackfreq should be 150
+			boolean isok = verifyAttackFreq(attackfrequency, users_groups.size());
+			
+			if(!isok)
+			{
+				throw new Exception("problem freq....");
+			}
+			// TODO remove sequence for which there is no action was played
+			
+			//refineAttackFrequency(attackfrequency);
+
+			//printAttackFreq(attackfrequency);
+
+
+
+			// now compute the best response in the tree
+
+			
+
+
+
+			//HashMap<String, HashMap<String, Double>> defstrategy = Data.readStrategy("g5d5_FI.txt");
+			
+			
+			//HashMap<String, double[]> attstrategy = new HashMap<String, double[]>();
+			
+			//double tmplambda = 0.6;
+			
+			
+			double estimatedlambdanaive = estimateLambdaNaive(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
+			
+			System.out.println("Estmiated lambda "+ estimatedlambdanaive);
+			
+			
+			
+			
+			DNode root1 = EquationGenerator.buildGameTreeRecur(DEPTH_LIMIT, naction, defstrategy, attstrategy, tmplambda);
+			
+			computeLogLikeliHoodValue(attackfrequency, attstrategy, naction);
+			
+			
+			
+
+			
+			DNode root = EquationGenerator.buildGameTree(DEPTH_LIMIT, naction);
+			
+			
+			
+			HashMap<String, ArrayList<DNode>> I = EquationGenerator.prepareInformationSets(root, DEPTH_LIMIT, naction);
+			EquationGenerator.printInfoSet(I);
+			HashMap<String, InfoSet> isets = EquationGenerator.prepareInfoSet(I);
+			*//**
+			 * compute information sets according to depth
+			 *//*
+			HashMap<Integer, ArrayList<String>> depthinfoset = depthInfoSet(DEPTH_LIMIT, isets,1); // for player 1: attacker, player 0 is defender
+			EquationGenerator.printISets(isets);
+			
+			
+			EquationGenerator.updateTreeWithDefStartegy(isets, root, strategy, naction);
+			
+			
+			
+			//double estimatedlambda = estimateLambda(lambda, isets, attackfrequency, naction, strategy, root, DEPTH_LIMIT, depthinfoset, step);
+			
+			
+			
+			
+			
+			
+			
+			// use attackstrategy to compute lambda
+			
+			
+			
+			
+			int p =1;
+			
+			
+			int sumattackcoutn = 0;
+
+			for(int c: attackcount)
+			{
+				sumattackcoutn += c;
+			}
+
+
+			
+
+			double sumscore = 0;
+
+			double sum_mscore =0;
+			double sum_nscore = 0;
+			double sum_pscore = 0;
+
+
+			for(int i=0; i<users_groups.size(); i++)
+			{
+
+
+				String tmpusr = users_groups.get(i);
+
+				sumscore += getUserScore(tmpusr, data_refined);
+
+				sum_mscore += getPersonalityScore(tmpusr, data_refined, 0);
+				sum_nscore += getPersonalityScore(tmpusr, data_refined, 1);
+				sum_pscore += getPersonalityScore(tmpusr, data_refined, 2);
+
+
+				//System.out.println("kept user "+ tmpusr);
+			}
+
+			sumscore /= users_groups.size();
+			sum_mscore /= users_groups.size();
+			sum_nscore /= users_groups.size();
+			sum_pscore /= users_groups.size();
+
+
+
+			System.out.println("Cluster "+cluster+", user count "+users_groups.size()+", lambda "+ estimatedlambdanaive);
+
+
+			try
+			{
+				PrintWriter pw = new PrintWriter(new FileOutputStream(new File("cluster-lambda.csv"),true));
+
+				//pw.append("cluster,#users,lambda,score,mscore,nscore,pscore"+ "\n");
+
+				pw.append(cluster+","+users_groups.size()+","+ estimatedlambdanaive+","+sumscore+","+sum_mscore+","+sum_nscore+","+sum_pscore+",");
+
+				int index=0;
+				for(int c: attackcount)
+				{
+					pw.append(c+"");
+					if(index<(attackcount.length-1))
+					{
+						pw.append(",");
+					}
+
+					index++;
+				}
+				pw.append("\n");
+
+				pw.close();
+			}
+			catch(Exception ex)
+			{
+				System.out.println(" ");
+			}
+
+
+			break;
+
+		}
+		*/
+	}
+	
 	
 	
 	

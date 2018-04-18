@@ -27,6 +27,7 @@ public class Main {
 		
 		//AdversaryModelExps.computeLambdaQR();
 		//AdversaryModelExps.generateApprximateNEPlay();
+		//AdversaryModelExps.errorInQRLambdaEst();
 		//AdversaryModelExps.generatePTPlay();
 		AdversaryModelExps.fitPT();
 		
