@@ -46,6 +46,14 @@ public class Main {
 		
 		
 		/**
+		 * show agent model with estimated parameter VS actual data difference in a chart for attack node frequency
+		 * 
+		 * loglikelihood value should also show that
+		 */
+		
+		
+		
+		/**
 		 * Work in subjective QR
 		 */
 		

@@ -2729,8 +2729,63 @@ public class EquationGenerator {
 			 *  2. Need sequence
 			 *  3. defender strategy
 			 */
+			
+			
+			
 
 			String key = getDefAttckrSeq(seq);
+			
+			
+			
+			/**
+			 * attacksuccess: #times attacked and successfully captured it
+			 * 
+			 * value range: 0-10
+			 * 
+			 * compute attack success rate (0-1) then multiply with 10
+			 * 
+			 */
+			
+			int sboost = 5;
+			double[] attacksuccess = computeAttackSuccess(seq, naction, noderewards, sboost); 
+			
+			//TODO
+			/**
+			 * attackfailure: #times attacked and failed
+			 * 
+			 * value range: 0-1
+			 * 
+			 * compute attack failre rate (0-1) then multiply with boost
+			 * 
+			 */
+			
+			int fboost = 5;
+			double[] attackfailure = computeAttackFailure(seq, naction, noderewards, fboost); 
+			
+			
+			
+			/**
+			 * % of points received from a node
+			 * value range : 0-1
+			 * boost 
+			 */
+			
+			int ipboost = 5;
+			
+			double[] ipointspercentage = computeImmediatePointPercentage(seq, naction, noderewards, ipboost); 
+			
+			
+			
+			int tpboost = 5;
+			
+			double[] tpointspercentage = computeTotalPointPercentage(seq, naction, noderewards, tpboost); 
+			
+			
+			int ppboost = 5;
+			
+			double[] penltyspercentage = computeTotalPenaltyPercentage(seq, naction, noderewards, ppboost); 
+			
+			
 			
 			
 			double[] defstrat = buildDefStrat(key, defstrategy, naction);
@@ -2754,7 +2809,7 @@ public class EquationGenerator {
 			
 			
 			
-			double[] recentattstrat = computeAttackerSUQBR(key, defstrat, naction, lambda, rewrdsmap, penaltysmap, omega);
+			double[] recentattstrat = computeAttackerSUQBR(key, defstrat, naction, lambda, rewrdsmap, penaltysmap, omega, attacksuccess);
 			
 			attstrategy.put(key, recentattstrat);
 			
@@ -2810,6 +2865,582 @@ public class EquationGenerator {
 	
 	
 	
+	private static double[] computeAttackSuccess(String seq, int naction, HashMap<Integer, Integer[]> noderewards, int boost) {
+		
+		
+		double[] success = new double[naction];
+		
+		double[] attackcount= new double[naction];
+		double[] successcount = new double[naction];
+		double[] failcount = new double[naction];
+		
+		
+		
+		//seq = "0,1,1,0,5,3,1,3,5,0";
+
+		int[] controllers = new int[noderewards.size()];
+
+		//int attpoints = 0;
+		
+		int attrwrd = 0;
+		int attckpenlty = 0;
+		
+		int defpoints = 0;
+		
+		String[] splittedseq = seq.split(",");
+
+		/*//System.out.print("");
+
+		for(int i= 0; i<seq.size(); i++)
+		{
+			System.out.print(seq.get(i) + ", ");
+		}
+		 */
+		//System.out.println();
+		for(int i= 0; i<(splittedseq.length/2); i++)
+		{
+
+			int defaction = Integer.parseInt(splittedseq[2*i]);
+			int attaction = Integer.parseInt(splittedseq[2*i+1]);
+			attackcount[attaction]++; // increase counter when attacker attacked it
+
+
+			int attcost = noderewards.get(attaction)[1];
+			int defcost = noderewards.get(defaction)[1];
+			// cost for action
+			
+			//attpoints -= attcost;
+			attckpenlty += (-attcost);
+			
+			
+			defpoints -= defcost;
+			//reward for current action
+			if(defaction != attaction)
+			{
+				int attreward = noderewards.get(attaction)[0];
+				
+				//attpoints += attreward;
+				
+				attrwrd += attreward;
+				
+				controllers[attaction] = 1;
+				controllers[defaction] = 0;
+				
+				successcount[attaction]++; // successful attack
+				
+				
+			}
+			else if((defaction == attaction) && (controllers[attaction]==1)) // when def==att
+			{
+				int attreward = noderewards.get(attaction)[0];
+				
+				//attpoints += attreward;
+				attrwrd += attreward;
+				
+				successcount[attaction]++;
+				
+				
+			}
+			else
+			{
+				// failed attack for attackaction
+				failcount[attaction]++;
+			}
+			// now reward for other controlled nodes
+			for(int j=0; j<controllers.length; j++)
+			{
+				if((j != attaction) && (controllers[j]==1))
+				{
+					int attreward = noderewards.get(j)[0];
+					//attpoints += attreward;
+					attrwrd += attreward;
+				}
+			}
+		}
+		//System.out.print( attpoints+", ");
+		
+		
+		for(int a=0; a<naction; a++)
+		{
+			
+			if(attackcount[a] != 0)
+			{
+				success[a] = boost*(successcount[a]/attackcount[a]);
+			}
+			//System.out.println("a: "+ a + ", attackcuont "+ attackcount[a] + ", successcount "+ successcount[a] + ", success "+ success[a]);
+		}
+		
+		return success;
+	}
+	
+	
+private static double[] computeAttackFailure(String seq, int naction, HashMap<Integer, Integer[]> noderewards, int boost) {
+		
+		
+		double[] failure = new double[naction];
+		
+		double[] attackcount= new double[naction];
+		double[] successcount = new double[naction];
+		double[] failcount = new double[naction];
+		
+		
+		
+		//seq = "0,1,1,0,5,3,1,3,5,0";
+
+		int[] controllers = new int[noderewards.size()];
+
+		//int attpoints = 0;
+		
+		int attrwrd = 0;
+		int attckpenlty = 0;
+		
+		int defpoints = 0;
+		
+		String[] splittedseq = seq.split(",");
+
+		/*//System.out.print("");
+
+		for(int i= 0; i<seq.size(); i++)
+		{
+			System.out.print(seq.get(i) + ", ");
+		}
+		 */
+		//System.out.println();
+		for(int i= 0; i<(splittedseq.length/2); i++)
+		{
+
+			int defaction = Integer.parseInt(splittedseq[2*i]);
+			int attaction = Integer.parseInt(splittedseq[2*i+1]);
+			attackcount[attaction]++; // increase counter when attacker attacked it
+
+
+			int attcost = noderewards.get(attaction)[1];
+			int defcost = noderewards.get(defaction)[1];
+			// cost for action
+			
+			//attpoints -= attcost;
+			attckpenlty += (-attcost);
+			
+			
+			defpoints -= defcost;
+			//reward for current action
+			if(defaction != attaction)
+			{
+				int attreward = noderewards.get(attaction)[0];
+				
+				//attpoints += attreward;
+				
+				attrwrd += attreward;
+				
+				controllers[attaction] = 1;
+				controllers[defaction] = 0;
+				
+				successcount[attaction]++; // successful attack
+				
+				
+			}
+			else if((defaction == attaction) && (controllers[attaction]==1)) // when def==att
+			{
+				int attreward = noderewards.get(attaction)[0];
+				
+				//attpoints += attreward;
+				attrwrd += attreward;
+				
+				successcount[attaction]++;
+				
+				
+			}
+			else
+			{
+				// failed attack for attackaction
+				failcount[attaction]++;
+			}
+			// now reward for other controlled nodes
+			for(int j=0; j<controllers.length; j++)
+			{
+				if((j != attaction) && (controllers[j]==1))
+				{
+					int attreward = noderewards.get(j)[0];
+					//attpoints += attreward;
+					attrwrd += attreward;
+				}
+			}
+		}
+		//System.out.print( attpoints+", ");
+		
+		
+		for(int a=0; a<naction; a++)
+		{
+			
+			if(attackcount[a] != 0)
+			{
+				failure[a] = boost*(failcount[a]/attackcount[a]);
+			}
+			//System.out.println("a: "+ a + ", attackcuont "+ attackcount[a] + ", successcount "+ successcount[a] + ", success "+ success[a]);
+		}
+		
+		return failure;
+	}
+
+
+private static double[] computeImmediatePointPercentage(String seq, int naction, HashMap<Integer, Integer[]> noderewards, int boost) {
+	
+	
+	double perc[] = new double[naction];
+	
+	double[] attacksrewards= new double[naction];
+	double[] attackpenalties = new double[naction];
+	
+	
+	
+	
+	//seq = "0,1,1,0,5,3,1,3,5,0";
+
+	int[] controllers = new int[noderewards.size()];
+
+	//int attpoints = 0;
+	
+	int attrwrd = 0;
+	int sumimmediaterwrd = 0;
+	int attckpenlty = 0;
+	
+	int defpoints = 0;
+	
+	String[] splittedseq = seq.split(",");
+
+	/*//System.out.print("");
+
+	for(int i= 0; i<seq.size(); i++)
+	{
+		System.out.print(seq.get(i) + ", ");
+	}
+	 */
+	//System.out.println();
+	for(int i= 0; i<(splittedseq.length/2); i++)
+	{
+
+		int defaction = Integer.parseInt(splittedseq[2*i]);
+		int attaction = Integer.parseInt(splittedseq[2*i+1]);
+		attacksrewards[attaction]++; // increase counter when attacker attacked it
+
+
+		int attcost = noderewards.get(attaction)[1];
+		int defcost = noderewards.get(defaction)[1];
+		// cost for action
+		
+		//attpoints -= attcost;
+		attckpenlty += (-attcost);
+		attackpenalties[attaction] += (-attcost);
+		
+		
+		defpoints -= defcost;
+		//reward for current action
+		if(defaction != attaction)
+		{
+			int attreward = noderewards.get(attaction)[0];
+			
+			//attpoints += attreward;
+			
+			attrwrd += attreward;
+			sumimmediaterwrd += attreward;
+			
+			controllers[attaction] = 1;
+			controllers[defaction] = 0;
+			
+			attacksrewards[attaction] += attreward;
+			
+			
+		}
+		else if((defaction == attaction) && (controllers[attaction]==1)) // when def==att
+		{
+			int attreward = noderewards.get(attaction)[0];
+			
+			//attpoints += attreward;
+			attrwrd += attreward;
+			
+			attacksrewards[attaction] += attreward;
+			
+			sumimmediaterwrd += attreward;
+			
+			
+			
+			
+		}
+		else
+		{
+			// failed attack for attackaction
+			//failcount[attaction]++;
+		}
+		// now reward for other controlled nodes
+		for(int j=0; j<controllers.length; j++)
+		{
+			if((j != attaction) && (controllers[j]==1))
+			{
+				int attreward = noderewards.get(j)[0];
+				//attpoints += attreward;
+				attrwrd += attreward;
+				//attacksrewards[j] += attreward;
+				
+				
+			}
+		}
+	}
+	//System.out.print( attpoints+", ");
+	
+	
+	for(int a=0; a<naction; a++)
+	{
+		
+		if(attacksrewards[a] != 0)
+		{
+			perc[a] = boost*(attacksrewards[a]/sumimmediaterwrd);
+		}
+		//System.out.println("a: "+ a + ", attackcuont "+ attackcount[a] + ", successcount "+ successcount[a] + ", success "+ success[a]);
+	}
+	
+	return perc;
+}
+
+
+private static double[] computeTotalPointPercentage(String seq, int naction, HashMap<Integer, Integer[]> noderewards, int boost) {
+	
+	
+	double perc[] = new double[naction];
+	
+	double[] attacksrewards= new double[naction];
+	double[] attackpenalties = new double[naction];
+	
+	
+	
+	
+	//seq = "0,1,1,0,5,3,1,3,5,0";
+
+	int[] controllers = new int[noderewards.size()];
+
+	//int attpoints = 0;
+	
+	int attrwrd = 0;
+	int sumimmediaterwrd = 0;
+	int attckpenlty = 0;
+	
+	int defpoints = 0;
+	
+	String[] splittedseq = seq.split(",");
+
+	/*//System.out.print("");
+
+	for(int i= 0; i<seq.size(); i++)
+	{
+		System.out.print(seq.get(i) + ", ");
+	}
+	 */
+	//System.out.println();
+	for(int i= 0; i<(splittedseq.length/2); i++)
+	{
+
+		int defaction = Integer.parseInt(splittedseq[2*i]);
+		int attaction = Integer.parseInt(splittedseq[2*i+1]);
+		attacksrewards[attaction]++; // increase counter when attacker attacked it
+
+
+		int attcost = noderewards.get(attaction)[1];
+		int defcost = noderewards.get(defaction)[1];
+		// cost for action
+		
+		//attpoints -= attcost;
+		attckpenlty += (-attcost);
+		attackpenalties[attaction] += (-attcost);
+		
+		
+		defpoints -= defcost;
+		//reward for current action
+		if(defaction != attaction)
+		{
+			int attreward = noderewards.get(attaction)[0];
+			
+			//attpoints += attreward;
+			
+			attrwrd += attreward;
+			sumimmediaterwrd += attreward;
+			
+			controllers[attaction] = 1;
+			controllers[defaction] = 0;
+			
+			attacksrewards[attaction] += attreward;
+			
+			
+		}
+		else if((defaction == attaction) && (controllers[attaction]==1)) // when def==att
+		{
+			int attreward = noderewards.get(attaction)[0];
+			
+			//attpoints += attreward;
+			attrwrd += attreward;
+			
+			attacksrewards[attaction] += attreward;
+			
+			sumimmediaterwrd += attreward;
+			
+			
+			
+			
+		}
+		else
+		{
+			// failed attack for attackaction
+			//failcount[attaction]++;
+		}
+		// now reward for other controlled nodes
+		for(int j=0; j<controllers.length; j++)
+		{
+			if((j != attaction) && (controllers[j]==1))
+			{
+				int attreward = noderewards.get(j)[0];
+				//attpoints += attreward;
+				attrwrd += attreward;
+				attacksrewards[j] += attreward;
+				
+				
+			}
+		}
+	}
+	//System.out.print( attpoints+", ");
+	
+	
+	for(int a=0; a<naction; a++)
+	{
+		
+		if(attacksrewards[a] != 0)
+		{
+			perc[a] = boost*(attacksrewards[a]/attrwrd);
+		}
+		//System.out.println("a: "+ a + ", attackcuont "+ attackcount[a] + ", successcount "+ successcount[a] + ", success "+ success[a]);
+	}
+	
+	return perc;
+}
+
+
+private static double[] computeTotalPenaltyPercentage(String seq, int naction, HashMap<Integer, Integer[]> noderewards, int boost) {
+	
+	
+	double perc[] = new double[naction];
+	
+	double[] attacksrewards= new double[naction];
+	double[] attackpenalties = new double[naction];
+	
+	
+	
+	
+	//seq = "0,1,1,0,5,3,1,3,5,0";
+
+	int[] controllers = new int[noderewards.size()];
+
+	//int attpoints = 0;
+	
+	int attrwrd = 0;
+	int sumimmediaterwrd = 0;
+	int attckpenlty = 0;
+	
+	int defpoints = 0;
+	
+	String[] splittedseq = seq.split(",");
+
+	/*//System.out.print("");
+
+	for(int i= 0; i<seq.size(); i++)
+	{
+		System.out.print(seq.get(i) + ", ");
+	}
+	 */
+	//System.out.println();
+	for(int i= 0; i<(splittedseq.length/2); i++)
+	{
+
+		int defaction = Integer.parseInt(splittedseq[2*i]);
+		int attaction = Integer.parseInt(splittedseq[2*i+1]);
+		attacksrewards[attaction]++; // increase counter when attacker attacked it
+
+
+		int attcost = noderewards.get(attaction)[1];
+		int defcost = noderewards.get(defaction)[1];
+		// cost for action
+		
+		//attpoints -= attcost;
+		attckpenlty += (-attcost);
+		attackpenalties[attaction] += (-attcost);
+		
+		
+		defpoints -= defcost;
+		//reward for current action
+		if(defaction != attaction)
+		{
+			int attreward = noderewards.get(attaction)[0];
+			
+			//attpoints += attreward;
+			
+			attrwrd += attreward;
+			sumimmediaterwrd += attreward;
+			
+			controllers[attaction] = 1;
+			controllers[defaction] = 0;
+			
+			attacksrewards[attaction] += attreward;
+			
+			
+		}
+		else if((defaction == attaction) && (controllers[attaction]==1)) // when def==att
+		{
+			int attreward = noderewards.get(attaction)[0];
+			
+			//attpoints += attreward;
+			attrwrd += attreward;
+			
+			attacksrewards[attaction] += attreward;
+			
+			sumimmediaterwrd += attreward;
+			
+			
+			
+			
+		}
+		else
+		{
+			// failed attack for attackaction
+			//failcount[attaction]++;
+		}
+		// now reward for other controlled nodes
+		for(int j=0; j<controllers.length; j++)
+		{
+			if((j != attaction) && (controllers[j]==1))
+			{
+				int attreward = noderewards.get(j)[0];
+				//attpoints += attreward;
+				attrwrd += attreward;
+				attacksrewards[j] += attreward;
+				
+				
+			}
+		}
+	}
+	//System.out.print( attpoints+", ");
+	
+	
+	for(int a=0; a<naction; a++)
+	{
+		
+		if(attacksrewards[a] != 0)
+		{
+			perc[a] = boost*(attackpenalties[a]/attckpenlty);
+		}
+		//System.out.println("a: "+ a + ", attackcuont "+ attackcount[a] + ", successcount "+ successcount[a] + ", success "+ success[a]);
+	}
+	
+	return perc;
+}
+
+
+
 	private static double[] computeReturnReward(double[] defstrat, int naction, HashMap<Integer, double[]> rewrdsmap, double[] recentattstrat, DNode node) {
 		
 		
@@ -2994,7 +3625,7 @@ private static double[][] computeReturnRewardSUQR(double[] defstrat, int naction
 	}
 	
 	
-private static double[] computeAttackerSUQBR(String key, double[] defstrat, int naction, double lambda, HashMap<Integer, double[]> rewrdsmap, HashMap<Integer,double[]> penaltysmap, double[] omega) throws Exception {
+private static double[] computeAttackerSUQBR(String key, double[] defstrat, int naction, double lambda, HashMap<Integer, double[]> rewrdsmap, HashMap<Integer,double[]> penaltysmap, double[] omega, double[] attacksuccess) throws Exception {
 		
 
 		HashMap<Integer, Double> attsu = new HashMap<Integer, Double>();
@@ -3020,7 +3651,7 @@ private static double[] computeAttackerSUQBR(String key, double[] defstrat, int 
 				 * use a linear combination of features
 				 */
 				
-				double linearcombutiltiy = omega[0]*defstrat[defaction] + omega[1]*attrwd + omega[2]*attpnlty; 
+				double linearcombutiltiy = omega[0]*defstrat[defaction] + omega[1]*attrwd + omega[2]*attpnlty + omega[3]*attacksuccess[attaction]; 
 				sum += linearcombutiltiy;
 				
 				//sum += (attrwd* defstrat[defaction]);

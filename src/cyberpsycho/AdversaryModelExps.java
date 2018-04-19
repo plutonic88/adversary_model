@@ -2925,7 +2925,7 @@ public class AdversaryModelExps {
 		
 		
 
-		int DEPTH_LIMIT = 2; // needs to be 10 for our experiment
+		int DEPTH_LIMIT = 6; // needs to be 10 for our experiment
 		int naction = 6;
 		double minlambda = .05;
 		double maxlambda = .18;
@@ -2939,23 +2939,23 @@ public class AdversaryModelExps {
 		
 		
 		double minw1 = -10;
-		double maxw1 = 10;
+		double maxw1 = 3;
 		double stepw1 = .1;
 		
 		
-		double minw2 = -10;
-		double maxw2 = 10;
-		double stepw2 = .1;
+		double minw2 = -1;
+		double maxw2 = 1;
+		double stepw2 = .05;
 		
 		
-		double minw3 = -10;
-		double maxw3 = 10;
-		double stepw3 = .1;
+		double minw3 = -1;
+		double maxw3 = 1;
+		double stepw3 = .05;
 		
-		/*
+		
 		double minw4 = -10;
 		double maxw4 = 10;
-		double stepw4 = .1;*/
+		double stepw4 = .1;
 		
 		
 		
@@ -2970,7 +2970,7 @@ public class AdversaryModelExps {
 		double[] w3 = generateBetaArray(minw3, maxw3, stepw3);
 		
 		
-		//double[] w4 = generateGammaArray(minw4, maxw4, stepw4);
+		double[] w4 = generateGammaArray(minw4, maxw4, stepw4);
 
 		
 		
@@ -3192,9 +3192,13 @@ public class AdversaryModelExps {
 			 * also need success and failure rate of each action after each round
 			 */
 			
-			double[] estimatedw = estimateOmegaNaive(lambda[cluster], attackfrequency, naction, defstrategy, DEPTH_LIMIT, w1, w2, w3);
 			
-			System.out.println("Estmiated lambda "+ estimatedw[0]+ ", "+estimatedw[1]+ ", "+ estimatedw[2] );
+			
+			
+			
+			double[] estimatedw = estimateOmegaNaive(lambda[cluster], attackfrequency, naction, defstrategy, DEPTH_LIMIT, w1, w2, w3, w4);
+			
+			System.out.println("Estmiated w "+ estimatedw[0]+ ", "+estimatedw[1]+ ", "+ estimatedw[2] );
 			
 			
 			
@@ -3852,7 +3856,7 @@ public class AdversaryModelExps {
 	
 	private static double[] estimateOmegaNaive(double lambda,
 			HashMap<String, int[]> attackfrequency, int naction, HashMap<String, HashMap<String, Double>> defstrategy,
-			int dEPTH_LIMIT, double[] w1, double[] w2, double[] w3) throws Exception {
+			int dEPTH_LIMIT, double[] w1, double[] w2, double[] w3, double[] w4) throws Exception {
 		
 		
 		
@@ -3861,7 +3865,7 @@ public class AdversaryModelExps {
 		double mw1 = -9999;
 		double mw2 = -9999;
 		double mw3 = -9999;
-		//double mw4 = -9999;
+		double mw4 = -9999;
 
 		for(int i=0; i<w1.length; i++)
 		{
@@ -3874,11 +3878,11 @@ public class AdversaryModelExps {
 				{
 
 
-					//for(int l=0; l<w4.length; l++)
+					for(int l=0; l<w4.length; l++)
 					{
 
 
-						double omega[] = {w1[i], w2[j], w3[k]};
+						double omega[] = {w1[i], w2[j], w3[k], w4[l]};
 						EquationGenerator.llval = 0.0;
 						HashMap<String, double[]> attstrategy = new HashMap<String, double[]>();
 						DNode root1 = EquationGenerator.buildGameTreeRecurSUQR(dEPTH_LIMIT, naction, defstrategy, attstrategy, lambda, attackfrequency, omega);
@@ -3896,10 +3900,10 @@ public class AdversaryModelExps {
 							mw1 = w1[i];
 							mw2 = w2[j];
 							mw3 = w3[k];
-							//mw4 = w4[l];
+							mw4 = w4[l];
 
 
-							System.out.println("minllh "+minllh +", min w1 : "+mw1+", w2 : "+ mw2+ " w3 : "+mw3);
+							System.out.println("minllh "+minllh +", min w1 : "+mw1+", w2 : "+ mw2+ " w3 : "+mw3 + ", w4 : "+ mw4);
 						}
 					}
 
@@ -3910,7 +3914,7 @@ public class AdversaryModelExps {
 		
 		
 		
-		return new double[] {mw1, mw2, mw3};
+		return new double[] {mw1, mw2, mw3, mw4};
 	}
 	
 	
