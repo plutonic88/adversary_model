@@ -2174,7 +2174,7 @@ public class EquationGenerator {
 	
 	
 	private static DNode createGameTreeRecurSUQR(int DEPTH_LIMIT, int naction, HashMap<Integer,
-			Integer[]> noderewards, HashMap<String,HashMap<String,Double>> defstrategy, HashMap<String, double[]> attstrategy, double lambda, HashMap<String,int[]> attackfrequency, double[] omega) 
+			Integer[]> noderewards, HashMap<String,HashMap<String,Double>> defstrategy, HashMap<String, double[]> attstrategy, double lambda, HashMap<String,int[]> attackfrequency, double[] omega) throws Exception 
 	{
 
 		DNode root = new DNode(0, 0, 0);
@@ -2624,7 +2624,7 @@ public class EquationGenerator {
 	
 	private static double[][] genTreeRecurSUQR(int depth, int naction, int DEPTH_LIMIT, DNode node, 
 			HashMap<Integer,Integer[]> noderewards, String seq, HashMap<String,HashMap<String,Double>> defstrategy, 
-			HashMap<String,double[]> attstrategy, double lambda, HashMap<String,int[]> attackfrequency, double[] omega) 
+			HashMap<String,double[]> attstrategy, double lambda, HashMap<String,int[]> attackfrequency, double[] omega) throws Exception 
 	{
 
 		if(depth==DEPTH_LIMIT)
@@ -2647,8 +2647,8 @@ public class EquationGenerator {
 			double[][] rd = new double[2][naction];
 			rd[0][node.prevaction] = node.attacker_reward;
 			rd[1][node.prevaction] = node.attacker_penalty;
-			System.out.println("Leafndoe, returning attacker rewards ");
-			for(int i=0; i<2; i++)
+			//System.out.println("Leafndoe, returning attacker rewards ");
+			/*for(int i=0; i<2; i++)
 			{
 				for(int j=0; j<naction; j++)
 				{
@@ -2656,7 +2656,7 @@ public class EquationGenerator {
 				}
 				System.out.println();
 			}
-			System.out.println("\n");
+			System.out.println("\n");*/
 			return rd;
 		}
 
@@ -2684,7 +2684,7 @@ public class EquationGenerator {
 				rwrds[1][action] = tmprwrd[1][action];
 
 			}
-			for(int i=0; i<2; i++)
+			/*for(int i=0; i<2; i++)
 			{
 				for(int j=0; j<naction; j++)
 				{
@@ -2692,7 +2692,7 @@ public class EquationGenerator {
 				}
 				System.out.println();
 			}
-			System.out.println("\n");
+			System.out.println("\n");*/
 			return rwrds;
 		}
 		else if(node.player==0) // defender
@@ -2737,11 +2737,11 @@ public class EquationGenerator {
 			
 			
 			
-			System.out.println("defender strategy : ");
+			/*System.out.println("defender strategy : ");
 			for(int i=0; i<naction; i++)
 			{
 				System.out.println("defaction "+i+" : "+defstrat[i]);
-			}
+			}*/
 			
 
 			/**
@@ -2770,7 +2770,7 @@ public class EquationGenerator {
 			
 			
 			EquationGenerator.llval += llvalsum;
-			System.out.println("llval : "+ (-EquationGenerator.llval));
+			//System.out.println("llval : "+ (-EquationGenerator.llval));
 
 			/**
 			 * now compute create an empty array and return the expected payoff of attacker for the prev action
@@ -2782,7 +2782,7 @@ public class EquationGenerator {
 			
 			
 			
-			System.out.println("Non Leafndoe, returning attacker reward for node******************** ");
+			/*System.out.println("Non Leafndoe, returning attacker reward for node******************** ");
 			for(int i=0; i<2; i++)
 			{
 				for(int j=0; j<naction; j++)
@@ -2791,7 +2791,7 @@ public class EquationGenerator {
 				}
 				System.out.println();
 			}
-			System.out.println("\n");
+			System.out.println("\n");*/
 			
 			return attrerdprevation;
 
@@ -2994,7 +2994,7 @@ private static double[][] computeReturnRewardSUQR(double[] defstrat, int naction
 	}
 	
 	
-private static double[] computeAttackerSUQBR(String key, double[] defstrat, int naction, double lambda, HashMap<Integer, double[]> rewrdsmap, HashMap<Integer,double[]> penaltysmap, double[] omega) {
+private static double[] computeAttackerSUQBR(String key, double[] defstrat, int naction, double lambda, HashMap<Integer, double[]> rewrdsmap, HashMap<Integer,double[]> penaltysmap, double[] omega) throws Exception {
 		
 
 		HashMap<Integer, Double> attsu = new HashMap<Integer, Double>();
@@ -3046,9 +3046,11 @@ private static double[] computeAttackerSUQBR(String key, double[] defstrat, int 
 			
 		}
 		
-		if(sm<(1-0.0001))
+		if(sm<(1-0.001))
 		{
+			
 			System.out.println("problem in attaacker strategy, sum(prob) != 1");
+			throw new Exception("problem with prob sum");
 		}
 		
 		return recentattstrat;
@@ -4918,7 +4920,7 @@ HashMap<String, double[]> attstrategy, double lambda, HashMap<String,int[]> atta
 	
 	
 	public static DNode buildGameTreeRecurSUQR(int DEPTH_LIMIT, int naction, HashMap<String,HashMap<String,Double>> defstrategy,
-			HashMap<String, double[]> attstrategy, double lambda, HashMap<String,int[]> attackfrequency, double[] omega) {
+			HashMap<String, double[]> attstrategy, double lambda, HashMap<String,int[]> attackfrequency, double[] omega) throws Exception {
 					
 					HashMap<Integer, Integer[]> noderewards = createNodeRewards(naction);
 
