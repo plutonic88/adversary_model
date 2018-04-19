@@ -27,9 +27,31 @@ public class Main {
 		
 		//AdversaryModelExps.computeLambdaQR();
 		//AdversaryModelExps.generateApprximateNEPlay();
+		
+		
 		//AdversaryModelExps.errorInQRLambdaEst();
 		//AdversaryModelExps.generatePTPlay();
-		AdversaryModelExps.fitPT();
+		
+		
+		
+		/**
+		 * do testing
+		 * 1. strategy computation
+		 * 2. frequency multiplication
+		 * 3. how do i propagate reward upwards? do i use the weighted functions?
+		 * 4. add noise to the used parameters and copmute ptval 305
+		 */
+		//AdversaryModelExps.fitPT();
+		
+		
+		
+		/**
+		 * Work in subjective QR
+		 */
+		
+		AdversaryModelExps.computeOmegaSUQR();
+		//AdversaryModelExps.generateApprximateNEPlay();
+				
 		
 		
 		
