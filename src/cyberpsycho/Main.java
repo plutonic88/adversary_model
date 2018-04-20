@@ -25,8 +25,39 @@ public class Main {
 		//AdversaryModelExps.computeLambdaExps();
 		
 		
+		
+		
+		
+		
+		
+		
 		//AdversaryModelExps.computeLambdaQR();
+		
+		
 		//AdversaryModelExps.generateApprximateNEPlay();
+		
+		int k = 2;//Integer.parseInt(args[0]);
+		
+		
+		//may be irrational players decrease in size
+		// some players does not adapt
+		//AdversaryModelExps.computeLambdaForAdaptivenessQR(k);
+		
+		
+		
+		AdversaryModelExps.trackUsersPerformanceQR(k);
+		
+		/**
+		 * Also do def_order 1
+		 * 
+		 * and personality score clustering
+		 */
+		
+		
+		
+		//TODO tracking users
+		
+		
 		
 		
 		//AdversaryModelExps.errorInQRLambdaEst();
@@ -57,7 +88,7 @@ public class Main {
 		 * Work in subjective QR
 		 */
 		
-		AdversaryModelExps.computeOmegaSUQR();
+		//AdversaryModelExps.computeOmegaSUQR();
 		//AdversaryModelExps.generateApprximateNEPlay();
 				
 		

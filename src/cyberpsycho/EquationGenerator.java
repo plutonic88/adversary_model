@@ -2747,7 +2747,7 @@ public class EquationGenerator {
 			 */
 			
 			int sboost = 5;
-			double[] attacksuccess = computeAttackSuccess(seq, naction, noderewards, sboost); 
+		//	double[] attacksuccess = computeAttackSuccess(seq, naction, noderewards, sboost); 
 			
 			//TODO
 			/**
@@ -2760,12 +2760,12 @@ public class EquationGenerator {
 			 */
 			
 			int fboost = 5;
-			double[] attackfailure = computeAttackFailure(seq, naction, noderewards, fboost); 
+			//double[] attackfailure = computeAttackFailure(seq, naction, noderewards, fboost); 
 			
 			
 			
 			/**
-			 * % of points received from a node
+			 * % ofimmediate  points received from a node
 			 * value range : 0-1
 			 * boost 
 			 */
@@ -2778,12 +2778,12 @@ public class EquationGenerator {
 			
 			int tpboost = 5;
 			
-			double[] tpointspercentage = computeTotalPointPercentage(seq, naction, noderewards, tpboost); 
+			//double[] tpointspercentage = computeTotalPointPercentage(seq, naction, noderewards, tpboost); 
 			
 			
 			int ppboost = 5;
 			
-			double[] penltyspercentage = computeTotalPenaltyPercentage(seq, naction, noderewards, ppboost); 
+			//double[] penltyspercentage = computeTotalPenaltyPercentage(seq, naction, noderewards, ppboost); 
 			
 			
 			
@@ -2809,7 +2809,7 @@ public class EquationGenerator {
 			
 			
 			
-			double[] recentattstrat = computeAttackerSUQBR(key, defstrat, naction, lambda, rewrdsmap, penaltysmap, omega, attacksuccess);
+			double[] recentattstrat = computeAttackerSUQBR(key, defstrat, naction, lambda, rewrdsmap, penaltysmap, omega, ipointspercentage);
 			
 			attstrategy.put(key, recentattstrat);
 			
@@ -3121,7 +3121,7 @@ private static double[] computeImmediatePointPercentage(String seq, int naction,
 
 		int defaction = Integer.parseInt(splittedseq[2*i]);
 		int attaction = Integer.parseInt(splittedseq[2*i+1]);
-		attacksrewards[attaction]++; // increase counter when attacker attacked it
+		//attacksrewards[attaction]++; // increase counter when attacker attacked it
 
 
 		int attcost = noderewards.get(attaction)[1];
@@ -3240,7 +3240,7 @@ private static double[] computeTotalPointPercentage(String seq, int naction, Has
 
 		int defaction = Integer.parseInt(splittedseq[2*i]);
 		int attaction = Integer.parseInt(splittedseq[2*i+1]);
-		attacksrewards[attaction]++; // increase counter when attacker attacked it
+		//attacksrewards[attaction]++; // increase counter when attacker attacked it
 
 
 		int attcost = noderewards.get(attaction)[1];
@@ -3359,7 +3359,7 @@ private static double[] computeTotalPenaltyPercentage(String seq, int naction, H
 
 		int defaction = Integer.parseInt(splittedseq[2*i]);
 		int attaction = Integer.parseInt(splittedseq[2*i+1]);
-		attacksrewards[attaction]++; // increase counter when attacker attacked it
+		//attacksrewards[attaction]++; // increase counter when attacker attacked it
 
 
 		int attcost = noderewards.get(attaction)[1];
