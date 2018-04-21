@@ -3452,18 +3452,18 @@ public class AdversaryModelExps {
 			}
 			else if(def_order == 1)
 			{
-				/*findLambdaForOneGroup(users_groups, data_refined_first_game, ngames, gameinstance0, data,
+				findLambdaForOneGroup(users_groups, data_refined_first_game, ngames, gameinstance0, data,
 						noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, cluster, def_order);
 
 				findLambdaForOneGroup(users_groups, data_refined_second_game, ngames, gameinstance1, data,
 						noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, cluster, def_order);
-*/
+
 
 				findLambdaForOneGroup(users_groups, data_refined_third_game, ngames, gameinstance2, data,
 						noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, cluster, def_order);
 
 
-/*
+
 				findFrequencyForOneGroup(users_groups, data_refined_fourth_game, ngames, gameinstance3, data,
 						noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, cluster, def_order);
 
@@ -3471,7 +3471,7 @@ public class AdversaryModelExps {
 						noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, cluster, def_order);
 
 				findFrequencyForOneGroup(users_groups, data_refined_sixth_game, ngames, gameinstance5, data,
-						noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, cluster, def_order);*/
+						noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, cluster, def_order);
 			}
 
 		}

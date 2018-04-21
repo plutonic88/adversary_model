@@ -41,7 +41,8 @@ public class Main {
 		
 		//may be irrational players decrease in size
 		// some players does not adapt
-		//AdversaryModelExps.computeLambdaForAdaptivenessQR(k);
+		//server 1 2
+		//AdversaryModelExps.computeLambdaForAdaptivenessQR(k); 
 		
 		
 		
