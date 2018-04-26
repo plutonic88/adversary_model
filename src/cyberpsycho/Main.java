@@ -36,17 +36,51 @@ public class Main {
 		
 		//AdversaryModelExps.generateApprximateNEPlay();
 		
+		
+		
+		/****************************************EXPERIMENTS**********************/
+		
+		
+		/**
+		 * plan
+		 * 
+		 * Can we differentiate the users so that defender can respond better depending on the type of user he is facing?
+		 * 
+		 * How we prove that defender has benefits if he can determine user type?
+		 * 
+		 * How the defender will determine type? How does the defender respond to different type? how does the game model work?
+		 * 
+		 * 
+		 * 
+		 * 
+		 * How can we prove that there are different user groups based on their rationality and behavior?
+		 * 
+		 * If there are different degree of rationality or preference, can we connect that with personality type?
+		 * 
+		 * 
+		 * How can we connect personality type with attacker behavior?
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * Short goal: Determining if we can differentiate user groups based on their behavior. 
+		 * Can we connect personality type with this?
+		 * 
+		 * Find out the rationality of the whole group in game 1,2,3,4,5,6
+		 * 
+		 * Then try to find user groups based on data or personality type and then  measure their 
+		 * rationality(lambda) or preference(omega) using QR, SUQRE
+		 * 
+		 */
+		
+		
 		int k = 2;//Integer.parseInt(args[0]);
-		
-		
 		//may be irrational players decrease in size
 		// some players does not adapt
 		//server 1 2
 		//AdversaryModelExps.computeLambdaForAdaptivenessQR(k); 
-		
-		
-		
-		AdversaryModelExps.trackUsersPerformanceQR(k);
+		AdversaryModelExps.trackUsersPerformanceQRSUQR(k);
 		
 		/**
 		 * Also do def_order 1
@@ -89,7 +123,7 @@ public class Main {
 		 * Work in subjective QR
 		 */
 		
-		//AdversaryModelExps.computeOmegaSUQR();
+		AdversaryModelExps.computeOmegaSUQR();
 		//AdversaryModelExps.generateApprximateNEPlay();
 				
 		
