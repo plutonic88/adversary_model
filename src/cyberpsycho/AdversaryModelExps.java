@@ -3414,7 +3414,7 @@ public class AdversaryModelExps {
 
 
 
-		int DEPTH_LIMIT = 10; // needs to be 10 for our experiment
+		int DEPTH_LIMIT = 6; // needs to be 10 for our experiment
 		int naction = 6;
 		double minlambda = .01;
 		double maxlambda = .5;
@@ -3704,7 +3704,7 @@ public class AdversaryModelExps {
 		 */
 		
 		
-		//double[][] examples = prepareExamplesNodeCostPointAdaptive(data_refined_first_game, users_refined, gameinstance0, def_order);
+		double[][] examples = prepareExamplesNodeCostPointAdaptive(data_refined_first_game, users_refined, gameinstance0, def_order);
 		
 		//double[][] examples = prepareExamplesDTScorePointsOneGame(data_refined_first_game, users_refined, gameinstance0, def_order);
 		
