@@ -80,7 +80,9 @@ public class Main {
 		// some players does not adapt
 		//server 1 2
 		//AdversaryModelExps.computeLambdaForAdaptivenessQR(k); 
-		AdversaryModelExps.trackUsersPerformanceQRSUQR(k);
+		AdversaryModelExps.trackUsersPerformanceQR(k);
+		
+		//AdversaryModelExps.trackUsersPerformanceSUQR(k);
 		
 		/**
 		 * Also do def_order 1
