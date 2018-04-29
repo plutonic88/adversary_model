@@ -4486,15 +4486,15 @@ public class AdversaryModelExps {
 			 */
 
 
-			HashMap<String, int[]> attackfrequency = getAttackCountInData(gameplay, numberofnodes, 5);
+			HashMap<String, double[]> attackfrequency = getAttackFreqInData(gameplay, numberofnodes, 5);
 
 			// #10*3*5 attackfreq should be 150
-			boolean isok = verifyAttackFreq(attackfrequency, users_groups.size());
+			/*boolean isok = verifyAttackFreq(attackfrequency, users_groups.size());
 
 			if(!isok)
 			{
 				throw new Exception("problem freq....");
-			}
+			}*/
 			// TODO remove sequence for which there is no action was played
 
 			//refineAttackFrequency(attackfrequency);
@@ -4513,7 +4513,10 @@ public class AdversaryModelExps {
 
 
 
-			double estimatedlambdanaive = estimateLambdaNaiveBinaryS(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
+			//double estimatedlambdanaive = estimateLambdaNaiveBinaryS(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
+			
+			
+			double estimatedlambdanaive = estimateLambdaNaiveBinaryDouble(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
 
 			System.out.println("Estmiated lambda "+ estimatedlambdanaive);
 
