@@ -16,6 +16,16 @@ public class AdversaryModel {
 	public final static int P_START_INDEX = 29;
 	public final static int P_END_INDEX = 37;
 	
+	
+	public final static int SWITCHED_RATIONAL = 0;
+	public final static int SWITCHED_IRRATIONAL = 1;
+	public final static int STAYED_RATIONAL = 2;
+	public final static int STAYED_IRRATIONAL = 3;
+	
+	
+	
+	public static int suqrw4 = 0;
+	
 	public static HashMap<Integer, Integer> scoremap = new HashMap<Integer,Integer>();
 
 

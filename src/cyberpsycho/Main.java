@@ -76,13 +76,33 @@ public class Main {
 		
 		
 		int k = 2;//Integer.parseInt(args[0]);
+		int def_order = 0;//Integer.parseInt(args[1]);
+		int depthlimit = 10;//Integer.parseInt(args[2]);
+		AdversaryModel.suqrw4 = 0;//Integer.parseInt(args[3]);
 		//may be irrational players decrease in size
 		// some players does not adapt
 		//server 1 2
-		//AdversaryModelExps.computeLambdaForAdaptivenessQR(k); 
-		AdversaryModelExps.trackUsersPerformanceQR(k);
+		//user trends
+		AdversaryModelExps.computeLambdaForAdaptivenessQR(k, def_order, depthlimit); 
 		
-		//AdversaryModelExps.trackUsersPerformanceSUQR(k);
+		//check which data is used first to cluster before runnig the method
+		//AdversaryModelExps.trackUsersPerformanceQR(k, def_order, depthlimit);
+		
+		// whether users switched or stayed
+		//AdversaryModelExps.trackIndivUsersSwitchingQR(k, def_order, depthlimit);
+		
+		
+		//AdversaryModelExps.trackUsersPerformanceSUQR(k, def_order, depthlimit);
+		
+		
+		
+		
+		int gameins0 = 4;
+		
+		//AdversaryModelExps.computeOmegaSUQR(k, depthlimit, def_order, gameins0);
+		
+		
+		//AdversaryModelExps.generateApprximateNEPlay();
 		
 		/**
 		 * Also do def_order 1
@@ -125,8 +145,7 @@ public class Main {
 		 * Work in subjective QR
 		 */
 		
-		AdversaryModelExps.computeOmegaSUQR();
-		//AdversaryModelExps.generateApprximateNEPlay();
+		
 				
 		
 		
