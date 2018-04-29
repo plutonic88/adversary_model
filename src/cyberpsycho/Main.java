@@ -83,10 +83,10 @@ public class Main {
 		// some players does not adapt
 		//server 1 2
 		//user trends
-		//AdversaryModelExps.computeLambdaForAdaptivenessQR(k, def_order, depthlimit); 
+		AdversaryModelExps.computeLambdaForAdaptivenessQR(k, def_order, depthlimit); 
 		
 		//check which data is used first to cluster before runnig the method
-		//AdversaryModelExps.trackUsersPerformanceQR(k, def_order, depthlimit);
+		AdversaryModelExps.trackUsersPerformanceQR(k, def_order, depthlimit);
 		
 		// whether users switched or stayed
 		//AdversaryModelExps.trackIndivUsersSwitchingQR(k, def_order, depthlimit);
