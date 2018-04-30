@@ -25,6 +25,7 @@ import matlabcontrol.MatlabProxy;
 import matlabcontrol.MatlabProxyFactory;
 import solvers.QRESolver;
 import solvers.SolverUtils;
+import subnet.MonteCarloParallel;
 
 
 public class AdversaryModelExps {
@@ -3571,9 +3572,9 @@ public class AdversaryModelExps {
 		 */
 		
 		
-		double[][] examples = prepareExamplesNodeCostPointAdaptive(data_refined_first_game, users_refined, gameinstance0, def_order);
+		//double[][] examples = prepareExamplesNodeCostPointAdaptive(data_refined_first_game, users_refined, gameinstance0, def_order);
 		
-		//double[][] examples = prepareExamplesDTScorePointsOneGame(data_refined_first_game, users_refined, gameinstance0, def_order);
+		double[][] examples = prepareExamplesDTScorePointsOneGame(data_refined_first_game, users_refined, gameinstance0, def_order);
 		
 		//double [][] examples = prepareFrquenceyOneGame(data_refined_first_game, users_refined, numberofnodes, gameinstance0, def_order);
 
@@ -4388,8 +4389,8 @@ public class AdversaryModelExps {
 		 * then measure their rationality ? frequency may be
 		 * after that measure their ratinality in second game play
 		 */
-		//double[][] examples = prepareExamplesDTScorePointsOneGame(data_refined_first_game, users_refined, gameinstance, deforder);
-		double[][] examples = prepareExamplesNodeCostPointAdaptive(data_refined_first_game, users_refined, gameinstance, deforder);
+		double[][] examples = prepareExamplesDTScorePointsOneGame(data_refined_first_game, users_refined, gameinstance, deforder);
+		//double[][] examples = prepareExamplesNodeCostPointAdaptive(data_refined_first_game, users_refined, gameinstance, deforder);
 		//double [][] examples = prepareFrquencey(data_refined, users_refined, numberofnodes);
 
 		printData(users_refined,examples);
@@ -4759,7 +4760,9 @@ public class AdversaryModelExps {
 			//double estimatedlambdanaive = estimateLambdaNaiveBinaryS(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
 
 
-			double[] estimatedw = estimateOmegaNaive(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, w1, w2, w3, w4);
+			//double[] estimatedw = estimateOmegaNaive(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, w1, w2, w3, w4);
+			
+			double[] estimatedw = estimateOmegaNaiveParallel(1, attackfrequency, naction, defstrategy, DEPTH_LIMIT, w1, w2, w3, w4);
 			
 			//System.out.println("Estmiated lambda "+ estimatedlambdanaive);
 
@@ -5622,22 +5625,22 @@ public class AdversaryModelExps {
 
 		double minw1 = -10;
 		double maxw1 = 1;
-		double stepw1 = 1;
+		double stepw1 = .5;
 
 
 		double minw2 = -1;
 		double maxw2 = 1;
-		double stepw2 = .1;
+		double stepw2 = .05;
 
 
 		double minw3 = -1;
 		double maxw3 = 1;
-		double stepw3 = .1;
+		double stepw3 = .05;
 
 
-		double minw4 = -10;
-		double maxw4 = 10;
-		double stepw4 = .01;
+		double minw4 = 0;
+		double maxw4 = 0;
+		double stepw4 = 1;
 
 
 
@@ -5892,7 +5895,10 @@ public class AdversaryModelExps {
 
 			
 
-			double[] estimatedw = estimateOmegaNaive(l, attackfrequency, naction, defstrategy, DEPTH_LIMIT, w1, w2, w3, w4);
+			//double[] estimatedw = estimateOmegaNaive(l, attackfrequency, naction, defstrategy, DEPTH_LIMIT, w1, w2, w3, w4);
+			
+			double[] estimatedw = estimateOmegaNaiveParallel(l, attackfrequency, naction, defstrategy, DEPTH_LIMIT, w1, w2, w3, w4);
+			
 
 			//System.out.println("Estmiated w "+ estimatedw[0]+ ", "+estimatedw[1]+ ", "+ estimatedw[2] );
 
@@ -7081,6 +7087,141 @@ public class AdversaryModelExps {
 
 		return new double[] {mw1, mw2, mw3, mw4};
 	}
+	
+	
+	
+	
+	private static double[] estimateOmegaNaiveParallel(double lambda,
+			HashMap<String, int[]> attackfrequency, int naction, HashMap<String, HashMap<String, Double>> defstrategy,
+			int dEPTH_LIMIT, double[] w1, double[] w2, double[] w3, double[] w4) throws Exception {
+
+
+
+		//Double minllh = Double.MAX_VALUE;
+		//double minlambda = -1;
+		double mw1 = -9999;
+		double mw2 = -9999;
+		double mw3 = -9999;
+		double mw4 = -9999;
+		
+		
+		int totalcomb = w1.length*w2.length*w3.length*w4.length;
+		
+		
+		System.out.println("Total combination "+ totalcomb);
+		
+		int combcount = 0;
+		
+		int cores = Runtime.getRuntime().availableProcessors();
+		
+		SUQRTreeGeneratorParallel thrd1 [] = new SUQRTreeGeneratorParallel[cores];
+		
+		int peromega = totalcomb/cores;
+
+		//int i=0,j=0,k=0,l=0;
+		double[][] ws = new double[peromega][4];
+		int core = 0;
+		//for(int core=0; core<cores; core++)
+		{
+			combcount = 0;
+			
+
+			int m =0;
+			
+			
+			
+			for(double v1: w1)
+			{
+				
+
+				for(double v2: w2)
+				{
+					
+
+					for(double v3: w3)
+					{
+						
+
+						for(double v4: w4)
+						{
+							
+								ws[m][0] = v1;
+								ws[m][1] = v2;
+								ws[m][2] = v3;
+								ws[m][3] = v4;
+								m++;
+								combcount++;
+								
+								if(combcount==peromega)
+								{
+
+									System.out.println("thread started..."+ core);
+
+									thrd1[core] = new SUQRTreeGeneratorParallel(core+"", dEPTH_LIMIT, AdversaryModel.suqrw4 , ws, defstrategy, attackfrequency, lambda);
+									thrd1[core].start();
+									core++;
+									m=0;
+									combcount = 0;
+									ws = new double[peromega][4];
+								}
+								
+							
+							
+						}
+						
+					}
+					
+				}
+				
+			}
+
+			
+
+
+
+		}
+		
+		
+		for(core=0; core<cores; core++)
+		{
+			thrd1[core].t.join();
+		}
+		
+		
+		double minllh = Double.POSITIVE_INFINITY;
+		int mincore = 0;
+		
+		
+		for(core=0; core<cores; core++)
+		{
+			//double tmpllh = thrd1[core].minllh;
+			
+			System.out.println("thrd "+ core + ", llh "+ thrd1[core].minllh );
+			double[] w = thrd1[core].optimumomega;
+			System.out.println("thrd "+ core + ", w1 "+ w[0] + ", w2 "+ w[1] + ", w3 "+ w[2] + ", w4 "+ w[3] );
+		}
+		
+		
+		
+		for(core=0; core<cores; core++)
+		{
+			double tmpllh = thrd1[core].minllh;
+			
+			if(minllh>tmpllh)
+			{
+				mincore = core;
+				minllh = tmpllh;
+				
+			}
+		}
+		
+		System.out.println("***************************minthrd "+ mincore + ", llh "+ thrd1[mincore].minllh );
+		double[] w = thrd1[mincore].optimumomega;
+		System.out.println("thrd "+ mincore + ", w1 "+ w[0] + ", w2 "+ w[1] + ", w3 "+ w[2] + ", w4 "+ w[3] );
+
+		return thrd1[mincore].optimumomega;
+	}
+
 
 
 	private static double[] estimatePTParams(
@@ -7203,10 +7344,10 @@ public class AdversaryModelExps {
 
 
 		int size = (int)Math.ceil((maxalpha-minalpha)/step);
-		double arr[] = new double[size];
+		double arr[] = new double[size+1];
 		arr[0] = minalpha;
 
-		for(int i=1; i<size; i++)
+		for(int i=1; i<=size; i++)
 		{
 			arr[i] =  /*((arr[i-1])*100)/100*/ arr[i-1] +step;
 
@@ -7229,10 +7370,10 @@ public class AdversaryModelExps {
 
 
 		int size = (int)Math.ceil((max-min)/step);
-		double arr[] = new double[size];
+		double arr[] = new double[size+1];
 		arr[0] = min;
 
-		for(int i=1; i<size; i++)
+		for(int i=1; i<=size; i++)
 		{
 			arr[i] =  /*((arr[i-1])*100)/100*/ arr[i-1] +step;
 
@@ -7253,10 +7394,10 @@ public class AdversaryModelExps {
 
 
 		int size = (int)Math.ceil((max-min)/step);
-		double arr[] = new double[size];
+		double arr[] = new double[size+1];
 		arr[0] = min;
 
-		for(int i=1; i<size; i++)
+		for(int i=1; i<=size; i++)
 		{
 			arr[i] =  /*((arr[i-1])*100)/100*/ arr[i-1] +step;
 
