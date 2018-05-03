@@ -76,23 +76,30 @@ public class Main {
 		
 		
 		int k = 2;//Integer.parseInt(args[0]);
-		int def_order = 0;//Integer.parseInt(args[1]);
+		
+		int def_order = Integer.parseInt(args[0]);
+		
 		int depthlimit = 10;//Integer.parseInt(args[2]);
-		AdversaryModel.suqrw4 = 0;//Integer.parseInt(args[3]);
+		
+		// 0 bhv 1 DT
+		int featureset = Integer.parseInt(args[1]); 
+		
+		AdversaryModel.suqrw4 = 0;//Integer.parseInt(args[4]);
+		
 		//may be irrational players decrease in size
 		// some players does not adapt
 		//server 1 2
 		//user trends
-		//AdversaryModelExps.computeLambdaForAdaptivenessQR(k, def_order, depthlimit); 
+		AdversaryModelExps.computeLambdaForAdaptivenessQR(k, def_order, depthlimit, featureset); 
 		
 		//check which data is used first to cluster before runnig the method
-		//AdversaryModelExps.trackUsersPerformanceQR(k, def_order, depthlimit);
+		//AdversaryModelExps.trackUsersPerformanceQR(k, def_order, depthlimit, featureset);
 		
 		// whether users switched or stayed
-		//AdversaryModelExps.trackIndivUsersSwitchingQR(k, def_order, depthlimit);
+		//AdversaryModelExps.trackIndivUsersSwitchingQR(k, def_order, depthlimit, featureset);
 		
 		
-		//AdversaryModelExps.trackUsersPerformanceSUQR(k, def_order, depthlimit);
+		//AdversaryModelExps.trackUsersPerformanceSUQR(k, def_order, depthlimit, featureset);
 		
 		
 		
