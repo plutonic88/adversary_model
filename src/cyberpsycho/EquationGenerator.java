@@ -3904,11 +3904,12 @@ public class EquationGenerator {
 
 		}
 
+		System.out.println("sum : "+ sm);
 		if(sm<(1-0.001))
 		{
 
-			System.out.println("problem in attaacker strategy, sum(prob) != 1");
-			throw new Exception("problem with prob sum");
+			System.out.println(sm+" problem! attaacker strategy, sum(prob) != 1");
+			throw new Exception("problem with prob sum "+sm);
 		}
 
 		return recentattstrat;

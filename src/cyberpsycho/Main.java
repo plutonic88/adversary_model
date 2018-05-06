@@ -79,18 +79,22 @@ public class Main {
 		
 		int def_order = Integer.parseInt(args[0]);
 		
+		int personlaity = Integer.parseInt(args[1]);
+		
 		int depthlimit = 10;//Integer.parseInt(args[2]);
 		
 		// 0 bhv 1 DT
-		int featureset = Integer.parseInt(args[1]); 
+		int featureset = 0;//Integer.parseInt(args[1]); 
 		
 		AdversaryModel.suqrw4 = 0;//Integer.parseInt(args[4]);
+		
+		
 		
 		//may be irrational players decrease in size
 		// some players does not adapt
 		//server 1 2
 		//user trends
-		AdversaryModelExps.computeLambdaForAdaptivenessQR(k, def_order, depthlimit, featureset); 
+		//AdversaryModelExps.computeLambdaForAdaptivenessQR(k, def_order, depthlimit, featureset); 
 		
 		//check which data is used first to cluster before runnig the method
 		//AdversaryModelExps.trackUsersPerformanceQR(k, def_order, depthlimit, featureset);
@@ -101,7 +105,22 @@ public class Main {
 		
 		//AdversaryModelExps.trackUsersPerformanceSUQR(k, def_order, depthlimit, featureset);
 		
+		//TO DO score based analysis
+		/**
+		 * high mac, high psyc, high narc
+		 * see if it's a better fit than fitting the whole group TODO
+		 * 
+		 * find users based on scores...then for every game find lambda or freq and points....and llval 
+		 * 
+		 * 
+		 * Then do clustering analysis to see if there are different levels of pesonlaity scores...
+		 */
 		
+		
+		
+		
+		
+		AdversaryModelExps.trackDarkTriadPerformanceQR(k, def_order, depthlimit, featureset, personlaity);
 		
 		
 		int gameins0 = 4;

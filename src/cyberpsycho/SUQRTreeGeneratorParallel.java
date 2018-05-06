@@ -50,18 +50,23 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 		//this.t = t;
 		this.threadName = threadName;
 		depth_LIMIT = depth_lIMIT;
-		treenodecount=0;
+		synchronized(this){
+			treenodecount=0;
+		}
 		this.suqrmodel = suqrmodel;
 		
-		this.omega = new double [omega.length][omega[0].length];
-		
-		this.minllh = Double.POSITIVE_INFINITY;
-		
-		for(int i=0; i<omega.length; i++)
-		{
-			for(int j=0; j<omega[i].length; j++)
+		synchronized(this){
+
+			this.omega = new double [omega.length][omega[0].length];
+
+			this.minllh = Double.POSITIVE_INFINITY;
+
+			for(int i=0; i<omega.length; i++)
 			{
-				this.omega[i][j] = omega[i][j];
+				for(int j=0; j<omega[i].length; j++)
+				{
+					this.omega[i][j] = omega[i][j];
+				}
 			}
 		}
 		
@@ -143,8 +148,13 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 	{
 
 		DNode root = new DNode(0, 0, 0);
+		
+		synchronized(this){
+		
 		treenodecount = 0;
 		treenodecount++;
+		}
+		
 		genTreeRecurSUQR(0, naction, DEPTH_LIMIT, root, noderewards, "", defstrategy, attstrategy, lambda, attackfrequency, omega);
 		return root;
 
@@ -199,7 +209,9 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 			for(int action = 0; action<naction; action++)
 			{
 				DNode child = new DNode(treenodecount, depth+1, node.player^1);
-				treenodecount++;
+				synchronized(this){
+					treenodecount++;
+				}
 				child.parent = node;
 				child.prevaction = action;
 				String tmpseq = seq + "," + action;
@@ -235,7 +247,9 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 			{
 				//System.out.println("def action "+ action);
 				DNode child = new DNode(treenodecount, depth+1, node.player^1);
-				treenodecount++;
+				synchronized(this){
+					treenodecount++;
+				}
 				child.parent = node;
 				child.prevaction = action;
 				String tmpseq = seq + "," + action;
@@ -340,13 +354,18 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 			 * 		for every action of defender
 			 * 			compute exp
 			 */
-			double[] recentattstrat = computeAttackerSUQBR(key, defstrat, naction, lambda, rewrdsmap, penaltysmap, omega, suqrpref);
+			
+			double[] recentattstrat = null;
+			synchronized(this){
+			
+				recentattstrat = computeAttackerSUQBR(key, defstrat, naction, lambda, rewrdsmap, penaltysmap, omega, suqrpref);
 
+			}
 			attstrategy.put(key, recentattstrat);
 
 
 			/**
-			 * compute the loglikelihoodvalue for attacker strategy
+			 * compute the loglikelihoodvalue for attacker strategy 
 			 * 1. first get the sequence key 
 			 */
 
