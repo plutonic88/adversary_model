@@ -3979,7 +3979,7 @@ public class AdversaryModelExps {
 	}
 	
 	
-	public static void trackDarkTriadPerformanceQR(int k, int def_order, int depthlimit, int featureset, int personlaity) throws Exception {
+	public static void trackDarkTriadPerformanceQR(int k, int def_order, int depthlimit, int featureset, int personality) throws Exception {
 
 
 
@@ -4051,44 +4051,81 @@ public class AdversaryModelExps {
 		
 		System.out.println("Number of refined users "+ users_refined.size());
 		
-		
-		
-		/**
-		 * now refine users more based on personality score
-		 */
-		
-		HashMap<String, Double> dtpoints = new HashMap<String, Double>();
-		
-		double [][] dtscores = computeDTScores(users_refined, personlaity, data_refined_first_game);
-		
-		// sort the users
-		
-		sortDTUsersDescD(dtscores);
-		
-		System.out.println("scores after sorting personality  "+ personlaity);
-		
-		printUsers(users_refined, dtscores);
-		
-		// compute mean
-		
-		double meanscore = computeMeanScore(dtscores);
-		
-		System.out.println("mean score for peronality "+ personlaity + ", score "+ meanscore);
-		
-		
-		
-		// remove users with score less than mean
-		
-		ArrayList<String> sorted_users = removeUsersLessThanMean(dtscores, users_refined, meanscore, dtpoints);
-		
-		
-		users_refined = sorted_users;
-		
-		
-		System.out.println("number of users above mean dt score "+ users_refined.size());
-		
-		
-		
+		if(personality<=2 && personality>=0)
+		{
+
+			/**
+			 * now refine users more based on personality score
+			 */
+
+			HashMap<String, Double> dtpoints = new HashMap<String, Double>();
+
+			double [][] dtscores = computeDTScores(users_refined, personality, data_refined_first_game);
+
+			// sort the users
+
+			sortDTUsersDescD(dtscores);
+
+			System.out.println("scores after sorting personality  "+ personality);
+
+			printUsers(users_refined, dtscores);
+
+			// compute mean
+
+			double meanscore = computeMeanScore(dtscores);
+
+			System.out.println("mean score for peronality "+ personality + ", score "+ meanscore);
+
+
+
+			// remove users with score less than mean
+
+			ArrayList<String> sorted_users = removeUsersLessThanMean(dtscores, users_refined, meanscore, dtpoints);
+
+
+			users_refined = sorted_users;
+
+
+			System.out.println("number of users above mean dt score "+ users_refined.size());
+
+		}
+		else if(personality==3)
+		{
+			/**
+			 * now refine users more based on personality score
+			 */
+
+			HashMap<String, Double> dtpoints = new HashMap<String, Double>();
+
+			double [][] dtscores = computeAllDTScores(users_refined, personality, data_refined_first_game);
+
+			// sort the users
+
+			//sortDTUsersDescD(dtscores);
+
+			//System.out.println("scores after sorting personality  "+ personality);
+
+			//printUsers(users_refined, dtscores);
+
+			// compute mean
+
+			double[] meanscore = computeAllMeanScore(dtscores);
+
+			System.out.println("mean score for peronality "+ personality + ", mscore "+ meanscore[0]+ ", nscore "+ meanscore[1]+ ", pscore "+ meanscore[2]);
+
+
+
+			// remove users with score less than mean
+
+			ArrayList<String> sorted_users = removeUsersNotAroundMean(dtscores, users_refined, meanscore, dtpoints);
+
+
+			users_refined = sorted_users;
+
+
+			System.out.println("number of users around mean dt score "+ users_refined.size());
+		}
+
 
 	//	int k = 0;
 		
@@ -4098,7 +4135,7 @@ public class AdversaryModelExps {
 		 */
 		
 		
-		double[][] examples = null;
+		/*double[][] examples = null;
 		
 		if(featureset==0)
 		{
@@ -4112,12 +4149,12 @@ public class AdversaryModelExps {
 		
 		
 		
-		/*//double[][] examples = prepareExamplesNodeCostPointAdaptive(data_refined_first_game, users_refined, gameinstance0, def_order);
+		//double[][] examples = prepareExamplesNodeCostPointAdaptive(data_refined_first_game, users_refined, gameinstance0, def_order);
 		
 		double[][] examples = prepareExamplesDTScorePointsOneGame(data_refined_first_game, users_refined, gameinstance0, def_order);
 		
 		//double [][] examples = prepareFrquenceyOneGame(data_refined_first_game, users_refined, numberofnodes, gameinstance0, def_order);
-*/
+
 		printData(users_refined,examples);
 
 		// normalize the data
@@ -4139,13 +4176,14 @@ public class AdversaryModelExps {
 		else
 		{
 			clusters = Weka.clusterUsers(normalizedexamples);
-		}
+		}*/
 		
 		
-		for(int cluster = 0; cluster<clusters.length; cluster++)
-		{
+		//for(int cluster = 0; cluster<clusters.length; cluster++)
+	//	{
 
-			ArrayList<String> users_groups = getUserGroup(clusters[cluster], users_refined);
+			int cluster = 0;
+			ArrayList<String> users_groups = users_refined;//getUserGroup(clusters[cluster], users_refined);
 			//ArrayList<String> users_groups = users_refined;//getUserGroup(clusters[cluster], users_refined);
 
 
@@ -4250,7 +4288,7 @@ public class AdversaryModelExps {
 			//break;
 			
 
-		}
+	//	}
 
 		// for each of the user groups compute lambda
 
@@ -4276,6 +4314,40 @@ public class AdversaryModelExps {
 		
 		return newusers;
 	}
+	
+	
+	private static ArrayList<String> removeUsersNotAroundMean(double[][] dtscores, ArrayList<String> users_refined,
+			double[] meanscore, HashMap<String,Double> dtpoints) {
+		
+		
+		ArrayList<String> newusers = new ArrayList<String>();
+		
+		for(double[] s: dtscores)
+		{
+			
+			double[] diff = {0,0,0};
+			boolean f = true;
+			
+			for(int i=0; i<3; i++)
+			{
+				diff[i] = Math.abs(s[i+1] - meanscore[i]);
+				if(diff[i]>.6)
+				{
+					f = false;
+					break;
+				}
+			}
+			
+			
+			if(f)
+			{
+				newusers.add(users_refined.get((int)s[0]));
+				dtpoints.put(users_refined.get((int)s[0]), s[1]);
+			}
+		}
+		
+		return newusers;
+	}
 
 	private static double computeMeanScore(double[][] dtscores) {
 		
@@ -4288,6 +4360,25 @@ public class AdversaryModelExps {
 		}
 		
 		sum /= dtscores.length;
+		
+		return sum;
+	}
+	
+private static double[] computeAllMeanScore(double[][] dtscores) {
+		
+		
+		double[] sum = new double[3];
+		
+		for(double s[]: dtscores)
+		{
+			sum[0] += s[1];
+			sum[1] += s[2];
+			sum[2] += s[3];
+		}
+		
+		sum[0] /= dtscores.length;
+		sum[1] /= dtscores.length;
+		sum[2] /= dtscores.length;
 		
 		return sum;
 	}
@@ -4321,6 +4412,32 @@ public class AdversaryModelExps {
 		
 		return scores;
 	}
+	
+private static double[][] computeAllDTScores(ArrayList<String> users_refined, int personality, ArrayList<ArrayList<String>> data_refined_first_game) {
+		
+		
+		double scores[][] = new double[users_refined.size()][4];
+		
+		int index = 0;
+		
+		for(String user: users_refined)
+		{
+			double mscore = getPersonalityScore(user, data_refined_first_game, 0);
+			double nscore = getPersonalityScore(user, data_refined_first_game, 1);
+			double pscore = getPersonalityScore(user, data_refined_first_game, 2);
+			
+			scores[index][0] = index;
+			scores[index][1] = mscore;
+			scores[index][2] = nscore;
+			scores[index][3] = pscore;
+			System.out.println("User "+ user + " , mscore "+ mscore+ " , nscore "+ nscore+ " , pscore "+ pscore + ", index "+ index + ", personality "+ personality);
+			index++;
+		}
+		
+		return scores;
+	}
+	
+	
 
 	/**
 	 * find if users switched groups : rational group irrational group
@@ -5844,15 +5961,17 @@ public class AdversaryModelExps {
 			 */
 
 
-			HashMap<String, int[]> attackfrequency = getAttackCountInData(gameplay, numberofnodes, roundlimit);
+			//HashMap<String, int[]> attackfrequency = getAttackCountInData(gameplay, numberofnodes, roundlimit);
+			
+			HashMap<String, double[]> attackfrequency = getAttackFreqInData(gameplay, numberofnodes, roundlimit);
 
 			// #10*3*5 attackfreq should be 150
-			boolean isok = verifyAttackFreq(attackfrequency, users_groups.size());
+			/*boolean isok = verifyAttackFreq(attackfrequency, users_groups.size());
 
 			if(!isok)
 			{
 				throw new Exception("problem freq....");
-			}
+			}*/
 			// TODO remove sequence for which there is no action was played
 
 			//refineAttackFrequency(attackfrequency);
@@ -5873,9 +5992,9 @@ public class AdversaryModelExps {
 
 			//double estimatedlambdanaive = estimateLambdaNaive(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
 
-			double estimatedlambdanaive[] = estimateLambdaNaiveBinaryS(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
+			//double estimatedlambdanaive[] = estimateLambdaNaiveBinaryS(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
 			
-			//double estimatedlambdanaive = estimateLambdaNaiveBinaryDouble(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
+			double[] estimatedlambdanaive = estimateLambdaNaiveBinaryDouble(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
 
 
 			
@@ -6462,7 +6581,7 @@ public class AdversaryModelExps {
 
 				//pw.append("cluster,#users,lambda,score,mscore,nscore,pscore"+ "\n");
 
-				pw.append(gameinstance+","+group+","+users_groups.size()+","+ estimatedlambdanaive+","+sumscore+","+sum_mscore+","+sum_nscore+","+sum_pscore+",");
+				pw.append(gameinstance+","+group+","+users_groups.size()+","+0+","+ estimatedlambdanaive+","+sumscore+","+sum_mscore+","+sum_nscore+","+sum_pscore+",");
 
 				int index=0;
 				for(int c: attackcount)
