@@ -77,33 +77,64 @@ public class Main {
 		
 		int k = 2;//Integer.parseInt(args[0]);
 		
-		int def_order = Integer.parseInt(args[0]);
+		int def_order = 1;//Integer.parseInt(args[0]); // def order 0 strategic last. def order 1 strategic def first
 		
-		int personlaity = Integer.parseInt(args[1]);
+		int personlaity = 0;//Integer.parseInt(args[1]); // 0 mac, 1 narc, 2 psyc, 3 medium
 		
-		int depthlimit = 10;//Integer.parseInt(args[2]);
+		int depthlimit = 10;//Integer.parseInt(args[1]);
+		
+		int pointslevel = 0;//Integer.parseInt(args[1]);
+		
+		int gametype = 1;//Integer.parseInt(args[1]); // 0 noinfo 1 fullinfo
 		
 		// 0 bhv 1 DT
+		
+		
+		
 		int featureset = 0;//Integer.parseInt(args[1]); 
 		
-		AdversaryModel.suqrw4 = 0;//Integer.parseInt(args[4]);
+		AdversaryModel.suqrw4 = Integer.parseInt(args[0]);
 		
+		
+		///***************** SUQR********************///
+		
+		//TODO
+		/**
+		 * 1. compute SUQR for different personalities
+		 * 2. compute SUQR for different point levels
+		 * 3. compute SUQR for behavior
+		 * 4. compute SUQR for all users
+		 */
+		
+		
+		
+		int gameins0 = 1; // 1,2,3,4,5,6
+		
+		
+		AdversaryModelExps.computeOmegaSUQR(k, depthlimit, def_order, gameins0, gametype);
+		
+		//trending, modify it for SUQR
+		//AdversaryModelExps.computeLambdaForAdaptivenessQR(k, def_order, depthlimit, featureset); 
+		//tracking
+		//AdversaryModelExps.trackUsersPerformanceSUQR(k, def_order, depthlimit, featureset);
+		
+		
+		////*********************//////
 		
 		
 		//may be irrational players decrease in size
 		// some players does not adapt
 		//server 1 2
 		//user trends
-		//AdversaryModelExps.computeLambdaForAdaptivenessQR(k, def_order, depthlimit, featureset); 
+		//AdversaryModelExps.computeLambdaForAdaptivenessQR(k, def_order, depthlimit, featureset, gametype); 
 		
 		//check which data is used first to cluster before runnig the method
-		//AdversaryModelExps.trackUsersPerformanceQR(k, def_order, depthlimit, featureset);
+		//AdversaryModelExps.trackUsersPerformanceQR(k, def_order, depthlimit, featureset, gametype);
 		
 		// whether users switched or stayed
 		//AdversaryModelExps.trackIndivUsersSwitchingQR(k, def_order, depthlimit, featureset);
 		
 		
-		//AdversaryModelExps.trackUsersPerformanceSUQR(k, def_order, depthlimit, featureset);
 		
 		//TO DO score based analysis
 		/**
@@ -115,12 +146,16 @@ public class Main {
 		 * 
 		 * Then do clustering analysis to see if there are different levels of pesonlaity scores...
 		 */
-		AdversaryModelExps.trackDarkTriadPerformanceQR(k, def_order, depthlimit, featureset, personlaity);
+		//AdversaryModelExps.trackDarkTriadPerformanceQR(k, def_order, depthlimit, featureset, personlaity, gametype);
 		
 		
-		int gameins0 = 4;
+		// do testing for partial info game
 		
-		//AdversaryModelExps.computeOmegaSUQR(k, depthlimit, def_order, gameins0);
+		//AdversaryModelExps.userPointsTrending(k, def_order, depthlimit, featureset, pointslevel, gametype); 
+		
+		
+		
+		
 		
 		
 		//AdversaryModelExps.generateApprximateNEPlay();

@@ -55,7 +55,7 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 		}
 		this.suqrmodel = suqrmodel;
 		
-		synchronized(this){
+		//synchronized(this){
 
 			this.omega = new double [omega.length][omega[0].length];
 
@@ -68,7 +68,7 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 					this.omega[i][j] = omega[i][j];
 				}
 			}
-		}
+		//}
 		
 		this.defstrategy = defstrategy;
 		this.attackfrequency = attackfrequency;
@@ -306,7 +306,7 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 			 * boost 
 			 */
 
-			int boost = 5;
+			int boost = 1;
 			double[] suqrpref = new double[naction];
 			if(this.suqrmodel==0)
 			{
@@ -541,7 +541,8 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 	}
 	
 	
-	private double[] computeAttackerSUQBR(String key, double[] defstrat, int naction, double lambda, HashMap<Integer, double[]> rewrdsmap, HashMap<Integer,double[]> penaltysmap, double[] omega, double[] attacksuccess) throws Exception {
+	private double[] computeAttackerSUQBR(String key, double[] defstrat, int naction, double lambda, HashMap<Integer, 
+			double[]> rewrdsmap, HashMap<Integer,double[]> penaltysmap, double[] omega, double[] attacksuccess) throws Exception {
 
 
 		HashMap<Integer, Double> attsu = new HashMap<Integer, Double>();
@@ -581,6 +582,8 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 
 
 		double sm = 0.0;
+		
+		//System.out.println(" exponnentsum "+ exponnentsum);
 
 		//System.out.println("atatcker strategy: ");
 		for(int attaction = 0; attaction<naction; attaction++)
@@ -588,16 +591,47 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 			double prob = Math.exp(lambda*attsu.get(attaction))/exponnentsum; 
 			recentattstrat[attaction] = prob;
 			sm += prob;
+			
+			//System.out.println("attsu.get(attaction) "+ attsu.get(attaction));
 
-			//System.out.println("attaction "+attaction+" : "+recentattstrat[attaction]);
+			//System.out.println("attaction "+attaction+" : "+recentattstrat[attaction] + ", lambda "+ lambda);
 
+		}
+		
+		if(sm==0 || sm<(1-0.001))
+		{
+			System.out.println("problem in attaacker strategy, sum(prob) != 1 sm = "+sm);
+			System.out.println("playing default strategy pass for attacker");
+			for(int attaction = 0; attaction<naction; attaction++)
+			{
+				double prob = Math.exp(lambda*attsu.get(attaction))/exponnentsum; 
+				recentattstrat[attaction] = prob;
+				System.out.println("attsu.get(attaction) "+ attsu.get(attaction));
+				System.out.println("attaction "+attaction+" : "+recentattstrat[attaction] + ", lambda "+ lambda);
+				System.out.println("w0 "+omega[0] +", w1 "+ omega[1]+" , w2 " + omega[2]+" w3  " + omega[3] );
+
+			}
+			
+			recentattstrat = new double[naction];
+			recentattstrat[5] = 1;
 		}
 
 		if(sm<(1-0.001))
 		{
 
-			System.out.println("problem in attaacker strategy, sum(prob) != 1");
-			throw new Exception("problem with prob sum");
+			System.out.println("problem in attaacker strategy, sum(prob) != 1 sm = "+sm);
+			System.out.println(" exponnentsum "+ exponnentsum);
+			for(int attaction = 0; attaction<naction; attaction++)
+			{
+				double prob = Math.exp(lambda*attsu.get(attaction))/exponnentsum; 
+				recentattstrat[attaction] = prob;
+				System.out.println("attsu.get(attaction) "+ attsu.get(attaction));
+				System.out.println("attaction "+attaction+" : "+recentattstrat[attaction] + ", lambda "+ lambda);
+				System.out.println("w0 "+omega[0] +", w1 "+ omega[1]+" , w2 " + omega[2]+" w3  " + omega[3] );
+
+			}
+			
+			//throw new Exception("problem with prob sum");
 		}
 
 		return recentattstrat;
