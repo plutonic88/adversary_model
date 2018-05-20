@@ -3585,7 +3585,7 @@ public class AdversaryModelExps {
 			addData(data_refined_first_game, newdata);
 
 			findFrequencyForGroup(users_refined, data_refined_first_game, ngames, gameinstance0, data,
-					noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, k, def_order, featureset, newdata);
+					noderewards, game_type, roundlimit, numberofnodes, step, naction, DEPTH_LIMIT, k, def_order, featureset, newdata);
 
 			
 			/**
@@ -3598,7 +3598,7 @@ public class AdversaryModelExps {
 			addData(data_refined_second_game, newdata);
 			
 			findFrequencyForGroup(users_refined, data_refined_second_game, ngames, gameinstance1, data,
-					noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, k, def_order, featureset, newdata);
+					noderewards, game_type, roundlimit, numberofnodes, step, naction, DEPTH_LIMIT, k, def_order, featureset, newdata);
 
 			/**
 			 * append previous data to the cur data
@@ -3607,7 +3607,7 @@ public class AdversaryModelExps {
 			addData(data_refined_third_game, newdata);
 
 			findFrequencyForGroup(users_refined, data_refined_third_game, ngames, gameinstance2, data,
-					noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, k, def_order, featureset, newdata);
+					noderewards, game_type, roundlimit, numberofnodes, step, naction, DEPTH_LIMIT, k, def_order, featureset, newdata);
 
 
 			
@@ -3689,7 +3689,7 @@ public class AdversaryModelExps {
 			addData( data_refined_fourth_game, newdata);
 
 			findFrequencyForGroup(users_refined, data_refined_fourth_game, ngames, gameinstance3, data,
-					noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, k, def_order, featureset, newdata);
+					noderewards, game_type, roundlimit, numberofnodes, step, naction, DEPTH_LIMIT, k, def_order, featureset, newdata);
 
 			/**
 			 * append previous data to the cur data
@@ -3698,7 +3698,7 @@ public class AdversaryModelExps {
 			addData( data_refined_fifth_game, newdata);
 			
 			findFrequencyForGroup(users_refined, data_refined_fifth_game, ngames, gameinstance4, data,
-					noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, k, def_order, featureset, newdata);
+					noderewards, game_type, roundlimit, numberofnodes, step, naction, DEPTH_LIMIT, k, def_order, featureset, newdata);
 
 			/**
 			 * append previous data to the cur data
@@ -3706,13 +3706,225 @@ public class AdversaryModelExps {
 			addData(data_refined_sixth_game, newdata);
 			
 			findFrequencyForGroup(users_refined, data_refined_sixth_game, ngames, gameinstance5, data,
-					noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, k, def_order, featureset, newdata);
+					noderewards, game_type, roundlimit, numberofnodes, step, naction, DEPTH_LIMIT, k, def_order, featureset, newdata);
 		}
 
 		// for each of the user groups compute lambda
 
 
 	}
+	
+	
+	public static void computeOmegaForAdaptivenessSUQR(int k, int def_order, int depthlimit, int featureset, int game_type) throws Exception {
+
+
+
+
+
+
+		int DEPTH_LIMIT = depthlimit; // needs to be 10 for our experiment
+		int naction = 6;
+		double minlambda = .01;
+		double maxlambda = .5;
+		double step = .01;
+		double lambda = 1;//generateLambdaArray(minlambda, maxlambda, step);
+
+
+		// how many clusters you want
+		int numberofnodes = 6;
+
+		int gameinstance0 = 1; // the game they played first
+		int gameinstance1 = 2;  // the game that they played next againt intelligent def
+		int gameinstance2 = 3; // the game they played first
+		int gameinstance3 = 4;  // the game that they played next againt intelligent def
+		int gameinstance4 = 5; // the game they played first
+		int gameinstance5 = 6;  // the game that they played next againt intelligent def
+
+		//int def_order = 0; //asc 1,2,3 random def.... 4,5,6 stratgic def
+		//int game_type = 1;
+
+
+		int ngames = 1;
+		int roundlimit = 5;
+
+		ArrayList<ArrayList<String>> data =  Data.readData();
+
+		// gametype 1 full info, 0 noinfo
+		// deforder 0 asc: last 3 games max defender
+		// defeorder 1 desc, 1st 3 games max defender
+
+
+		// get the users who played 1st game instance
+		ArrayList<String> users_refined = refineUserAdaptive(data, def_order, game_type);
+
+
+		// now get their 1st play 
+		ArrayList<ArrayList<String>>  data_refined_first_game = refineDataAdaptive(data,game_type, users_refined, gameinstance0, def_order);
+		ArrayList<ArrayList<String>>  data_refined_second_game = refineDataAdaptive(data,game_type, users_refined, gameinstance1, def_order);
+		ArrayList<ArrayList<String>>  data_refined_third_game = refineDataAdaptive(data,game_type, users_refined, gameinstance2, def_order);
+		ArrayList<ArrayList<String>>  data_refined_fourth_game = refineDataAdaptive(data,game_type, users_refined, gameinstance3, def_order);
+		ArrayList<ArrayList<String>>  data_refined_fifth_game = refineDataAdaptive(data,game_type, users_refined, gameinstance4, def_order);
+		ArrayList<ArrayList<String>>  data_refined_sixth_game = refineDataAdaptive(data,game_type, users_refined, gameinstance5, def_order);
+
+
+		/**
+		 * remove users whose points are not consistent
+		 */
+
+		HashMap<Integer, Integer[]> noderewards = EquationGenerator.createNodeRewards(naction);
+
+
+		sanitizeUsers(users_refined, data_refined_first_game, ngames, gameinstance0, data, noderewards, game_type, roundlimit, def_order);
+		sanitizeUsers(users_refined, data_refined_second_game, ngames, gameinstance1, data, noderewards, game_type, roundlimit, def_order);
+		sanitizeUsers(users_refined, data_refined_third_game, ngames, gameinstance2, data, noderewards, game_type, roundlimit, def_order);
+		
+		sanitizeUsers(users_refined, data_refined_fourth_game, ngames, gameinstance3, data, noderewards, game_type, roundlimit, def_order);
+		sanitizeUsers(users_refined, data_refined_fifth_game, ngames, gameinstance4, data, noderewards, game_type, roundlimit, def_order);
+		sanitizeUsers(users_refined, data_refined_sixth_game, ngames, gameinstance5, data, noderewards, game_type, roundlimit, def_order);
+
+	//	int k = 0;
+		
+		
+		/**
+		 * find frequency for the first three game play
+		 */
+		
+		if(def_order==0)
+		{
+
+			//ArrayList<ArrayList<String>> newdata = new ArrayList<ArrayList<String>>();
+			//addData(data_refined_first_game, newdata);
+
+			findFrequencyForGroup(users_refined, data_refined_first_game, ngames, gameinstance0, data,
+					noderewards, game_type, roundlimit, numberofnodes, step, naction, DEPTH_LIMIT, k, def_order, featureset, data_refined_first_game);
+
+			
+			/**
+			 * append previous data to the cur data
+			 */
+			
+			
+			
+			
+			//addData(data_refined_second_game, newdata);
+			
+			findFrequencyForGroup(users_refined, data_refined_second_game, ngames, gameinstance1, data,
+					noderewards, game_type, roundlimit, numberofnodes, step, naction, DEPTH_LIMIT, k, def_order, featureset, data_refined_second_game);
+
+			/**
+			 * append previous data to the cur data
+			 */
+			
+			//addData(data_refined_third_game, newdata);
+
+			findFrequencyForGroup(users_refined, data_refined_third_game, ngames, gameinstance2, data,
+					noderewards, game_type, roundlimit, numberofnodes, step, naction, DEPTH_LIMIT, k, def_order, featureset, data_refined_third_game);
+
+
+			
+			
+			
+			
+			
+			/**
+			 * append previous data to the cur data
+			 */
+			
+			//newdata = new ArrayList<ArrayList<String>>();
+			
+			//addData( data_refined_fourth_game, newdata);
+
+			findOmegaForGroup(users_refined, data_refined_fourth_game, ngames, gameinstance3, data,
+					noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, k, def_order, featureset, data_refined_fourth_game);
+
+			/**
+			 * append previous data to the cur data
+			 */
+			
+			//addData( data_refined_fifth_game, newdata);
+			
+			findOmegaForGroup(users_refined, data_refined_fifth_game, ngames, gameinstance4, data,
+					noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, k, def_order, featureset, data_refined_fifth_game);
+
+			/**
+			 * append previous data to the cur data
+			 */
+			//addData(data_refined_sixth_game, newdata);
+			
+			findOmegaForGroup(users_refined, data_refined_sixth_game, ngames, gameinstance5, data,
+					noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, k, def_order, featureset, data_refined_sixth_game);
+
+		}
+		else if(def_order==1)
+		{
+			//ArrayList<ArrayList<String>> newdata = new ArrayList<ArrayList<String>>();
+			//addData(data_refined_first_game, newdata);
+
+			findOmegaForGroup(users_refined, data_refined_first_game, ngames, gameinstance0, data,
+					noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, k, def_order, featureset, data_refined_first_game);
+
+			
+			/**
+			 * append previous data to the cur data
+			 */
+			
+			
+			
+			
+			//addData(data_refined_second_game, newdata);
+			
+			findOmegaForGroup(users_refined, data_refined_second_game, ngames, gameinstance1, data,
+					noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, k, def_order, featureset, data_refined_second_game);
+
+			/**
+			 * append previous data to the cur data
+			 */
+			
+			//addData(data_refined_third_game, newdata);
+
+			findOmegaForGroup(users_refined, data_refined_third_game, ngames, gameinstance2, data,
+					noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, k, def_order, featureset, data_refined_third_game);
+
+
+			
+			
+			
+			
+			
+			/**
+			 * append previous data to the cur data
+			 */
+			
+			//newdata = new ArrayList<ArrayList<String>>();
+			
+			//addData( data_refined_fourth_game, newdata);
+
+			findFrequencyForGroup(users_refined, data_refined_fourth_game, ngames, gameinstance3, data,
+					noderewards, game_type, roundlimit, numberofnodes, step, naction, DEPTH_LIMIT, k, def_order, featureset, data_refined_fourth_game);
+
+			/**
+			 * append previous data to the cur data
+			 */
+			
+			//addData( data_refined_fifth_game, newdata);
+			
+			findFrequencyForGroup(users_refined, data_refined_fifth_game, ngames, gameinstance4, data,
+					noderewards, game_type, roundlimit, numberofnodes, step, naction, DEPTH_LIMIT, k, def_order, featureset, data_refined_fifth_game);
+
+			/**
+			 * append previous data to the cur data
+			 */
+			//addData(data_refined_sixth_game, newdata);
+			
+			findFrequencyForGroup(users_refined, data_refined_sixth_game, ngames, gameinstance5, data,
+					noderewards, game_type, roundlimit, numberofnodes, step, naction, DEPTH_LIMIT, k, def_order, featureset, data_refined_sixth_game);
+		}
+
+		// for each of the user groups compute lambda
+
+
+	}
+	
 	
 	
 	public static void userPointsTrending(int k, int def_order, int depthlimit, int featureset, int level, int game_type) throws Exception {
@@ -3951,13 +4163,21 @@ public class AdversaryModelExps {
 	 * finds  clusters based on the first game's data then tracks how those groups behaves in the next games
 	 * @param k
 	 * @param featureset 
+	 * @param gameinsforcluster 
 	 * @throws Exception
 	 */
-	public static void trackUsersPerformanceQR(int k, int def_order, int depthlimit, int featureset, int game_type) throws Exception {
+	public static void trackUsersPerformanceQR(int k, int def_order, int depthlimit, int featureset, int game_type, int gameinsforcluster) throws Exception {
 
 
 
 
+		File file = new File("lambda.csv"); //filepath is being passes through //ioc         //and filename through a method 
+
+		
+		if (file.exists()) 
+		{
+			file.delete(); //you might want to check if delete was successfull
+		}
 
 
 		int DEPTH_LIMIT = depthlimit; // needs to be 10 for our experiment
@@ -4032,14 +4252,42 @@ public class AdversaryModelExps {
 		
 		
 		double[][] examples = null;
+		ArrayList<ArrayList<String>>  data_forclustering  = null;
+		
+		if(gameinsforcluster==1)
+		{
+			data_forclustering = data_refined_first_game;
+		}
+		else if(gameinsforcluster==2)
+		{
+			data_forclustering = data_refined_second_game;
+		}
+		else if(gameinsforcluster==3)
+		{
+			data_forclustering = data_refined_third_game;
+		}
+		else if(gameinsforcluster==4)
+		{
+			data_forclustering = data_refined_fourth_game;
+		}
+		else if(gameinsforcluster==5)
+		{
+			data_forclustering = data_refined_fifth_game;
+		}
+		else if(gameinsforcluster==6)
+		{
+			data_forclustering = data_refined_sixth_game;
+		}
+		
+		
 		
 		if(featureset==0)
 		{
-			examples = prepareExamplesNodeCostPointAdaptive(data_refined_first_game, users_refined, gameinstance0, def_order);
+			examples = prepareExamplesNodeCostPointAdaptive(data_forclustering, users_refined, gameinsforcluster, def_order);
 		}
 		else
 		{
-			examples = prepareExamplesDTScorePointsOneGame(data_refined_first_game, users_refined, gameinstance0, def_order);
+			examples = prepareExamplesDTScorePointsOneGame(data_forclustering, users_refined, gameinsforcluster, def_order);
 		}
 		
 		
@@ -4078,8 +4326,8 @@ public class AdversaryModelExps {
 		for(int cluster = 0; cluster<clusters.length; cluster++)
 		{
 
-			//ArrayList<String> users_groups = getUserGroup(clusters[cluster], users_refined);
-			ArrayList<String> users_groups = users_refined;//getUserGroup(clusters[cluster], users_refined);
+			ArrayList<String> users_groups = getUserGroup(clusters[cluster], users_refined);
+			//ArrayList<String> users_groups = users_refined;//getUserGroup(clusters[cluster], users_refined);
 
 
 			/**
@@ -4180,7 +4428,7 @@ public class AdversaryModelExps {
 						noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, cluster, def_order);
 			}
 			
-			break;
+			//break;
 			
 
 		}
@@ -5110,7 +5358,7 @@ private static double[][] computeAllDTScores(ArrayList<String> users_refined, in
 	 * @param featureset 
 	 * @throws Exception
 	 */
-	public static void trackUsersPerformanceSUQR(int k, int def_order, int depthlimit, int featureset) throws Exception {
+	public static void trackUsersPerformanceSUQR(int k, int def_order, int depthlimit, int featureset, int gameinsforcluster) throws Exception {
 
 
 
@@ -5185,16 +5433,48 @@ private static double[][] computeAllDTScores(ArrayList<String> users_refined, in
 		 */
 		
 		
+		//double[][] examples = null;
+		
 		double[][] examples = null;
+		ArrayList<ArrayList<String>>  data_forclustering  = null;
+		
+		if(gameinsforcluster==1)
+		{
+			data_forclustering = data_refined_first_game;
+		}
+		else if(gameinsforcluster==2)
+		{
+			data_forclustering = data_refined_second_game;
+		}
+		else if(gameinsforcluster==3)
+		{
+			data_forclustering = data_refined_third_game;
+		}
+		else if(gameinsforcluster==4)
+		{
+			data_forclustering = data_refined_fourth_game;
+		}
+		else if(gameinsforcluster==5)
+		{
+			data_forclustering = data_refined_fifth_game;
+		}
+		else if(gameinsforcluster==6)
+		{
+			data_forclustering = data_refined_sixth_game;
+		}
+		
+		
 		
 		if(featureset==0)
 		{
-			examples = prepareExamplesNodeCostPointAdaptive(data_refined_first_game, users_refined, gameinstance0, def_order);
+			examples = prepareExamplesNodeCostPointAdaptive(data_forclustering, users_refined, gameinsforcluster, def_order);
 		}
 		else
 		{
-			examples = prepareExamplesDTScorePointsOneGame(data_refined_first_game, users_refined, gameinstance0, def_order);
+			examples = prepareExamplesDTScorePointsOneGame(data_forclustering, users_refined, gameinsforcluster, def_order);
 		}
+		
+		
 		
 		
 		/*double[][] examples = prepareExamplesNodeCostPointAdaptive(data_refined_first_game, users_refined, gameinstance0, def_order);*/
@@ -5580,6 +5860,307 @@ private static double[][] computeAllDTScores(ArrayList<String> users_refined, in
 				//pw.append("cluster,#users,lambda,score,mscore,nscore,pscore"+ "\n");
 
 				pw.append(gameinstance+","+cluster+","+users_groups.size()+","+ estimatedlambdanaive[0]+","+ estimatedlambdanaive[1]+","+sumscore+","+sum_mscore+","+sum_nscore+","+sum_pscore+",");
+
+				int index=0;
+				for(int c: attackcount)
+				{
+					pw.append(c+"");
+					if(index<(attackcount.length-1))
+					{
+						pw.append(",");
+					}
+
+					index++;
+				}
+				pw.append("\n");
+
+				pw.close();
+			}
+			catch(Exception ex)
+			{
+				System.out.println(" ");
+			}
+
+
+			//break;
+
+		}
+		
+	}
+	
+	
+	private static void findOmegaForGroup(ArrayList<String> users_refined, ArrayList<ArrayList<String>> data_refined_first_game, 
+			int ngames, int gameinstance, ArrayList<ArrayList<String>> data, HashMap<Integer,Integer[]> noderewards, 
+			int game_type, int roundlimit, int numberofnodes, double lambda, double step, int naction, int DEPTH_LIMIT, int k, int deforder, int featureset, ArrayList<ArrayList<String>> newdata) throws Exception {
+		
+
+
+
+		
+		double minw1 = -10;
+		double maxw1 = -9;
+		double stepw1 = .5;
+
+
+		double minw2 = -1;
+		double maxw2 = 1;
+		double stepw2 = .5;
+
+
+		double minw3 = -1;
+		double maxw3 = 1;
+		double stepw3 = .5;
+
+
+		double minw4 = -10;
+		double maxw4 = 10;
+		double stepw4 = 1;
+
+
+
+
+		double[] w1 = generateAlphaArray(minw1, maxw1, stepw1);
+
+
+		double[] w2 = generateBetaArray(minw2, maxw2, stepw2);
+
+
+		double[] w3 = generateBetaArray(minw3, maxw3, stepw3);
+
+
+		double[] w4 = generateGammaArray(minw4, maxw4, stepw4);
+
+
+		/**
+		 * cluster based on the first play
+		 * then measure their rationality ? frequency may be
+		 * after that measure their ratinality in second game play
+		 */
+		
+		double[][] examples = null;
+		
+		if(featureset==0)
+		{
+			examples = prepareExamplesNodeCostPointAdaptiveProgressive(newdata, users_refined, gameinstance, deforder);
+			
+			//examples = prepareExamplesNodeCostPointAdaptive(data_refined_first_game, users_refined, gameinstance, deforder);
+		}
+		else
+		{
+			examples = prepareExamplesDTScorePointsOneGame(data_refined_first_game, users_refined, gameinstance, deforder);
+		}
+		//double [][] examples = prepareFrquencey(data_refined, users_refined, numberofnodes);
+
+		printData(users_refined,examples);
+
+		// normalize the data
+
+		double normalizedexamples[][] = normalizeData(examples);
+
+		System.out.println("Normalized data: ");
+
+		printData(users_refined, normalizedexamples);
+		
+		List<Integer>[] clusters = null;
+
+		if(k>1)
+		{
+			clusters = Weka.clusterUsers(k, normalizedexamples);
+		}
+		else
+		{
+			clusters = Weka.clusterUsers(normalizedexamples);
+		}
+
+
+
+		//List<Integer>[] clusters = KmeanClustering.clusterUsersV2(k, normalizedexamples);
+
+
+		printClustersInt(clusters);
+
+
+
+
+
+
+
+
+
+		for(int cluster=0; cluster<clusters.length; cluster++)
+		{
+			ArrayList<String> users_groups = getUserGroup(clusters[cluster], users_refined);
+
+
+			//users_groups = users_refined;
+
+			/**
+			 * get attack count for different information set
+			 */
+
+
+
+			HashMap<String, String> user_seq = new HashMap<String, String>();
+
+			int[][] gameplay = createGamePlay(ngames, users_groups, data_refined_first_game, roundlimit,user_seq);
+
+
+			/*String u= "\"$2y$10$1.vgQUYwu1DmltOCcbkwt.fTPbViJwq/W4mURkZFKI.Z4zHvenYRq\"";
+
+			String ss= user_seq.get(u);*/
+
+
+
+			// = createGamePlay(ngames, users_groups, data_refined, roundlimit);
+
+
+
+			HashMap<String, Integer> user_reward = new HashMap<String, Integer>();
+
+			double attpoints = EquationGenerator.computeAttackerReward(noderewards, user_seq, user_reward);
+
+
+
+
+			int attackcount[] = getAttackFrequencyAdaptive(users_groups, data_refined_first_game, numberofnodes, gameinstance, deforder);
+
+
+			
+
+
+
+			//int[][] testgameplay = new int[10][10];
+
+
+			/*for(int t=0; t<testgameplay.length; t++)
+			{
+				for(int u=0; u<testgameplay[t].length; u++)
+				{
+					testgameplay[t][u] = gameplay[t][u];
+					System.out.print(testgameplay[t][u] + " ");
+				}
+				System.out.println();
+
+			}
+			 */
+
+
+			HashMap<String, int[]> attackfrequency = getAttackCountInData(gameplay, numberofnodes, 5);
+			
+			//HashMap<String, double[]> attackfrequency = getAttackFreqInData(gameplay, numberofnodes, 5);
+
+			// #10*3*5 attackfreq should be 150
+			/*boolean isok = verifyAttackFreq(attackfrequency, users_groups.size());
+
+			if(!isok)
+			{
+				throw new Exception("problem freq....");
+			}*/
+			// TODO remove sequence for which there is no action was played
+
+			//refineAttackFrequency(attackfrequency);
+
+			//printAttackFreq(attackfrequency);
+
+
+
+			// now compute the best response in the tree
+
+
+
+
+
+			HashMap<String, HashMap<String, Double>> defstrategy = Data.readStrategy("g5d5_FI.txt");
+
+
+
+			//double[] estimatedlambdanaive = estimateLambdaNaiveBinarySDouble(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
+			
+			double[] estimatedw = estimateOmegaNaiveParallel(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, w1, w2, w3, w4);
+			
+			
+			//double[] estimatedlambdanaive = estimateLambdaNaiveBinaryDouble(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
+
+			//System.out.println("Estmiated lambda "+ estimatedlambdanaive[1]);
+
+
+
+
+			//double estimatedlambda = estimateLambda(lambda, isets, attackfrequency, naction, strategy, root, DEPTH_LIMIT, depthinfoset, step);
+
+
+			int p =1;
+
+
+			int sumattackcoutn = 0;
+
+			for(int c: attackcount)
+			{
+				sumattackcoutn += c;
+			}
+
+
+
+
+			double sumscore = 0;
+
+			double sum_mscore =0;
+			double sum_nscore = 0;
+			double sum_pscore = 0;
+
+
+			for(int i=0; i<users_groups.size(); i++)
+			{
+
+
+				String tmpusr = users_groups.get(i);
+
+
+
+
+
+
+				//int tmpscore= getAllUserScoreAdaptive(tmpusr, data_refined_first_game, gameinstance0); // compute score from sequence
+
+				int computedscore = user_reward.get(tmpusr);
+
+				/*if(tmpscore != computedscore)
+				{
+					System.out.println(tmpusr + "   reward not matching");
+					//throw new Exception("reward not matching");
+				}*/
+
+
+				sumscore += computedscore;
+
+
+
+
+				sum_mscore += getPersonalityScore(tmpusr, data_refined_first_game, 0);
+				sum_nscore += getPersonalityScore(tmpusr, data_refined_first_game, 1);
+				sum_pscore += getPersonalityScore(tmpusr, data_refined_first_game, 2);
+
+
+				//System.out.println("kept user "+ tmpusr);
+			}
+
+			sumscore = sumscore/users_groups.size();
+			sum_mscore /= users_groups.size();
+			sum_nscore /= users_groups.size();
+			sum_pscore /= users_groups.size();
+
+
+
+			//System.out.println("Cluster "+cluster+", user count "+users_groups.size()+", lambda "+ estimatedlambdanaive);
+
+
+			try
+			{
+				PrintWriter pw = new PrintWriter(new FileOutputStream(new File("suqr.csv"),true));
+
+				//pw.append("cluster,#users,lambda,score,mscore,nscore,pscore"+ "\n");
+
+				pw.append(gameinstance+","+cluster+","+users_groups.size()+","+ estimatedw[4]+","+ estimatedw[0]+","+ estimatedw[1]+","+ estimatedw[2]+","+ estimatedw[3]+","+sumscore+","+sum_mscore+","+sum_nscore+","+sum_pscore+",");
 
 				int index=0;
 				for(int c: attackcount)
@@ -6453,7 +7034,7 @@ private static double[][] computeAllDTScores(ArrayList<String> users_refined, in
 
 			//double estimatedlambdanaive[] = estimateLambdaNaiveBinaryS(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
 			
-			double[] estimatedlambdanaive = estimateLambdaNaiveBinaryDouble(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
+			double[] estimatedlambdanaive = {0,0};//estimateLambdaNaiveBinaryDouble(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
 
 
 			
@@ -6532,7 +7113,15 @@ private static double[][] computeAllDTScores(ArrayList<String> users_refined, in
 
 			try
 			{
+				//File file = new File("lambda.csv"); //filepath is being passes through //ioc         //and filename through a method 
+
 				PrintWriter pw = new PrintWriter(new FileOutputStream(new File("lambda.csv"),true));
+				/*if (file.exists()) 
+				{
+					file.delete(); //you might want to check if delete was successfull
+				}*/
+				
+				
 
 				//pw.append("cluster,#users,lambda,score,mscore,nscore,pscore"+ "\n");
 
@@ -6590,7 +7179,7 @@ private static double[][] computeAllDTScores(ArrayList<String> users_refined, in
 	 */
 	private static void findFrequencyForGroup(ArrayList<String> users_refined, ArrayList<ArrayList<String>> data_refined_first_game, 
 			int ngames, int gameinstance, ArrayList<ArrayList<String>> data, HashMap<Integer,Integer[]> noderewards, 
-			int game_type, int roundlimit, int numberofnodes, double[] lambda, double step, int naction, 
+			int game_type, int roundlimit, int numberofnodes, double step, int naction, 
 			int DEPTH_LIMIT, int k, int deforder, int featureset, ArrayList<ArrayList<String>> newdata) throws Exception {
 		
 
@@ -6825,7 +7414,7 @@ private static double[][] computeAllDTScores(ArrayList<String> users_refined, in
 
 			try
 			{
-				PrintWriter pw = new PrintWriter(new FileOutputStream(new File("lambda.csv"),true));
+				PrintWriter pw = new PrintWriter(new FileOutputStream(new File("freq.csv"),true));
 
 				//pw.append("cluster,#users,lambda,score,mscore,nscore,pscore"+ "\n");
 
@@ -7379,6 +7968,14 @@ private static double[][] computeAllDTScores(ArrayList<String> users_refined, in
 
 			try
 			{
+				//filepath is being passes through //ioc         //and filename through a method 
+
+				
+				/*if (file.exists()) 
+				{
+					file.delete(); //you might want to check if delete was successfull
+				}*/
+				
 				PrintWriter pw = new PrintWriter(new FileOutputStream(new File("lambda.csv"),true));
 
 				//pw.append("cluster,#users,lambda,score,mscore,nscore,pscore"+ "\n");

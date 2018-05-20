@@ -31,7 +31,7 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 	
 	double lambda;
 	
-	public static double llval;
+	public double llval;
 	
 
 
@@ -66,8 +66,16 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 				for(int j=0; j<omega[i].length; j++)
 				{
 					this.omega[i][j] = omega[i][j];
+					//System.out.println("thrd "+ this.threadName + ", w1 "+ this.omega[i][j] + ", w2 "+ w[1] + ", w3 "+ w[2] + ", w4 "+ w[3] );
 				}
 			}
+			
+			for(double w[] : this.omega)
+			{
+				System.out.println("Thread "+this.threadName+",  w1 : "+w[0]+", w2 : "+ w[1]+ " w3 : "+w[2] + ", w4 : "+ w[3]);
+			}
+			
+			
 		//}
 		
 		this.defstrategy = defstrategy;
@@ -86,7 +94,7 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 		{
 
 			//double omega[] = w;
-			SUQRTreeGeneratorParallel.llval = 0.0;
+			this.llval = 0.0;
 			HashMap<String, double[]> attstrategy = new HashMap<String, double[]>();
 			try {
 				DNode root1 = buildGameTreeRecurSUQR(this.depth_LIMIT, naction, defstrategy, attstrategy, lambda, attackfrequency, w);
@@ -97,19 +105,19 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 
 
 
-			double llh = -SUQRTreeGeneratorParallel.llval;//computeLogLikeliHoodValue(attackfrequency, attstrategy, naction);
+			double llh = -this.llval;//computeLogLikeliHoodValue(attackfrequency, attstrategy, naction);
 
 			//double llh = -likeHoodValue(isets, attackfrequency, naction, defstrategy, root, dEPTH_LIMIT, depthinfoset, lambda[i]);
 
+			
+			//System.out.println("Thread "+this.threadName+", llh "+llh +", min w1 : "+w[0]+", w2 : "+ w[1]+ " w3 : "+w[2] + ", w4 : "+ w[3]);
+			
 			if(llh<this.minllh)
 			{
 				this.minllh = llh;
 				this.optimumomega = w;
 
-				
-
-
-				System.out.println("minllh "+minllh +", min w1 : "+w[0]+", w2 : "+ w[1]+ " w3 : "+w[2] + ", w4 : "+ w[3]);
+				System.out.println("Thread "+this.threadName+", minllh "+minllh +", min w1 : "+w[0]+", w2 : "+ w[1]+ " w3 : "+w[2] + ", w4 : "+ w[3]);
 			}
 
 		}
@@ -374,7 +382,7 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 
 
 
-			SUQRTreeGeneratorParallel.llval += llvalsum;
+			this.llval += llvalsum;
 			//System.out.println("llval : "+ (-SUQRTreeGeneratorParallel.llval));
 
 			/**
@@ -1193,7 +1201,6 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 
 
 		double[] success = new double[naction];
-
 		double[] attackcount= new double[naction];
 		double[] successcount = new double[naction];
 		double[] failcount = new double[naction];

@@ -81,11 +81,11 @@ public class Main {
 		
 		int personlaity = 0;//Integer.parseInt(args[1]); // 0 mac, 1 narc, 2 psyc, 3 medium
 		
-		int depthlimit = 10;//Integer.parseInt(args[1]);
+		int depthlimit = 6;//Integer.parseInt(args[1]);
 		
 		int pointslevel = 0;//Integer.parseInt(args[1]);
 		
-		int gametype = 1;//Integer.parseInt(args[1]); // 0 noinfo 1 fullinfo
+		int gametype = 1;//Integer.parseInt(args[2]); // 0 noinfo 1 fullinfo
 		
 		// 0 bhv 1 DT
 		
@@ -93,7 +93,9 @@ public class Main {
 		
 		int featureset = 0;//Integer.parseInt(args[1]); 
 		
-		AdversaryModel.suqrw4 = Integer.parseInt(args[0]);
+		AdversaryModel.suqrw4 = 0;//Integer.parseInt(args[3]);
+		
+		int gameinsforcluster = 1;
 		
 		
 		///***************** SUQR********************///
@@ -111,12 +113,12 @@ public class Main {
 		int gameins0 = 1; // 1,2,3,4,5,6
 		
 		
-		AdversaryModelExps.computeOmegaSUQR(k, depthlimit, def_order, gameins0, gametype);
+		//AdversaryModelExps.computeOmegaSUQR(k, depthlimit, def_order, gameins0, gametype);
 		
 		//trending, modify it for SUQR
-		//AdversaryModelExps.computeLambdaForAdaptivenessQR(k, def_order, depthlimit, featureset); 
+		AdversaryModelExps.computeOmegaForAdaptivenessSUQR(k, def_order, depthlimit, featureset, gametype); 
 		//tracking
-		//AdversaryModelExps.trackUsersPerformanceSUQR(k, def_order, depthlimit, featureset);
+		//AdversaryModelExps.trackUsersPerformanceSUQR(k, def_order, depthlimit, featureset, gameinsforcluster);
 		
 		
 		////*********************//////
@@ -129,7 +131,8 @@ public class Main {
 		//AdversaryModelExps.computeLambdaForAdaptivenessQR(k, def_order, depthlimit, featureset, gametype); 
 		
 		//check which data is used first to cluster before runnig the method
-		//AdversaryModelExps.trackUsersPerformanceQR(k, def_order, depthlimit, featureset, gametype);
+		//int gameinsforcluster = Integer.parseInt(args[3]); // 1,2,3,..,6
+		//AdversaryModelExps.trackUsersPerformanceQR(k, def_order, depthlimit, featureset, gametype, gameinsforcluster);
 		
 		// whether users switched or stayed
 		//AdversaryModelExps.trackIndivUsersSwitchingQR(k, def_order, depthlimit, featureset);
