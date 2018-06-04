@@ -24,7 +24,7 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 	public double[][] omega;
 	
 	public double minllh;
-	public double[] optimumomega = new double[4];
+	public double[] optimumomega = new double[5];
 	
 	public HashMap<String, HashMap<String, Double>> defstrategy = new HashMap<String, HashMap<String, Double>>();
 	public HashMap<String, int[]> attackfrequency = new HashMap<String, int[]>();
@@ -70,10 +70,10 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 				}
 			}
 			
-			for(double w[] : this.omega)
+			/*for(double w[] : this.omega)
 			{
 				System.out.println("Thread "+this.threadName+",  w1 : "+w[0]+", w2 : "+ w[1]+ " w3 : "+w[2] + ", w4 : "+ w[3]);
-			}
+			}*/
 			
 			
 		//}
@@ -117,7 +117,7 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 				this.minllh = llh;
 				this.optimumomega = w;
 
-				System.out.println("Thread "+this.threadName+", minllh "+minllh +", min w1 : "+w[0]+", w2 : "+ w[1]+ " w3 : "+w[2] + ", w4 : "+ w[3]);
+				//System.out.println("Thread "+this.threadName+", minllh "+minllh +", min w1 : "+w[0]+", w2 : "+ w[1]+ " w3 : "+w[2] + ", w4 : "+ w[3]);
 			}
 
 		}
@@ -127,7 +127,7 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 
 	public void start () 
 	{
-		System.out.println("Starting " +  threadName );
+		//System.out.println("Starting " +  threadName );
 		if (t == null) 
 		{
 			t = new Thread (this, threadName);
@@ -316,29 +316,73 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 
 			int boost = 1;
 			double[] suqrpref = new double[naction];
+			double[] suqrpref2 = new double[naction];
+			
+			/**
+			 * How to include recency/time ????
+			 * 
+			 * 
+			 * 
+			 */
+			
+			
+			//String testseq = "0,1,0,1,2,1,2,1,0,1";
+			
+			//suqrpref = computeAttackSuccessWithTime(testseq, naction, noderewards, boost); 
+			
+			
 			if(this.suqrmodel==0)
 			{
 				//int sboost = 5;
+				
+				
+				
+				
+				/**
+				 * How many times the attacker attacked one node, and how many times he was successful
+				 */
+				
+				//suqrpref = computeAttackSuccessWithTime(seq, naction, noderewards, boost); 
+				
 				suqrpref = computeAttackSuccess(seq, naction, noderewards, boost); 
+				/**
+				 * How many times the attacker attacked one node, and how many times he was unsuccessful
+				 */
+				//suqrpref2 = computeAttackFailure(seq, naction, noderewards, boost); 
+				
+				//suqrpref2 = computeAttackFailure(seq, naction, noderewards, boost);
+				
 			}
 			else if(this.suqrmodel==1)
 			{
 				//int fboost = 5;
+				/**
+				 * How many times the attacker attacked one node, and how many times he was unsuccessful
+				 */
 				suqrpref = computeAttackFailure(seq, naction, noderewards, boost); 
 			}
 			else if(this.suqrmodel==2)
 			{
 				//int ipboost = 5;
+				/**
+				 * whether attacker received points immediately after attacking the node
+				 */
 				suqrpref = computeImmediatePointPercentage(seq, naction, noderewards, boost); 
 			}
 			else if(this.suqrmodel==3)
 			{
 				//int tpboost = 5;
+				/**
+				 * how much points are from one node
+				 */
 				suqrpref = computeTotalPointPercentage(seq, naction, noderewards, boost); 
 			}
 			else if(this.suqrmodel==4)
 			{
 				//int ppboost = 5;
+				/**
+				 * how much penalties are from one node
+				 */
 				suqrpref = computeTotalPenaltyPercentage(seq, naction, noderewards, boost); 
 			}
 
@@ -550,7 +594,7 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 	
 	
 	private double[] computeAttackerSUQBR(String key, double[] defstrat, int naction, double lambda, HashMap<Integer, 
-			double[]> rewrdsmap, HashMap<Integer,double[]> penaltysmap, double[] omega, double[] attacksuccess) throws Exception {
+			double[]> rewrdsmap, HashMap<Integer,double[]> penaltysmap, double[] omega, double[] attacksuccess, double[] attackfailure) throws Exception {
 
 
 		HashMap<Integer, Double> attsu = new HashMap<Integer, Double>();
@@ -576,7 +620,7 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 				 * use a linear combination of features
 				 */
 
-				double linearcombutiltiy = omega[0]*defstrat[defaction] + omega[1]*attrwd + omega[2]*attpnlty + omega[3]*attacksuccess[attaction]; 
+				double linearcombutiltiy = omega[0]*defstrat[defaction] + omega[1]*attrwd + omega[2]*attpnlty + omega[3]*attacksuccess[attaction] + omega[4]*attackfailure[attaction]; 
 				sum += linearcombutiltiy;
 
 				//sum += (attrwd* defstrat[defaction]);
@@ -645,6 +689,105 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 		return recentattstrat;
 
 	}
+	
+	
+	private double[] computeAttackerSUQBR(String key, double[] defstrat, int naction, double lambda, HashMap<Integer, 
+			double[]> rewrdsmap, HashMap<Integer,double[]> penaltysmap, double[] omega, double[] attacksuccess) throws Exception {
+
+
+		HashMap<Integer, Double> attsu = new HashMap<Integer, Double>();
+
+
+		double exponnentsum = 0.0;
+
+		for(int attaction = 0; attaction<naction; attaction++)
+		{
+			double sum = 0.0;
+			for(int defaction = 0; defaction<naction; defaction++)
+			{
+				double atttmprwrd[] = rewrdsmap.get(defaction); // get the rewards of attacker for dfenders  action
+				double atttmppnlty[] = penaltysmap.get(defaction);
+				// now get the reward for attacker;s action
+				double attrwd = atttmprwrd[attaction];
+				double attpnlty = atttmppnlty[attaction];
+
+
+
+				/**
+				 * TODO
+				 * use a linear combination of features
+				 */
+
+				double linearcombutiltiy = omega[0]*defstrat[defaction] + omega[1]*attrwd + omega[2]*attpnlty + omega[3]*attacksuccess[attaction] ; 
+				sum += linearcombutiltiy;
+
+				//sum += (attrwd* defstrat[defaction]);
+
+			}
+			attsu.put(attaction, sum);
+			exponnentsum += Math.exp(lambda*sum);
+		}
+
+		double [] recentattstrat = new double[naction];
+
+
+		double sm = 0.0;
+		
+		//System.out.println(" exponnentsum "+ exponnentsum);
+
+		//System.out.println("atatcker strategy: ");
+		for(int attaction = 0; attaction<naction; attaction++)
+		{
+			double prob = Math.exp(lambda*attsu.get(attaction))/exponnentsum; 
+			recentattstrat[attaction] = prob;
+			sm += prob;
+			
+			//System.out.println("attsu.get(attaction) "+ attsu.get(attaction));
+
+			//System.out.println("attaction "+attaction+" : "+recentattstrat[attaction] + ", lambda "+ lambda);
+
+		}
+		
+		if(sm==0 || sm<(1-0.001))
+		{
+			//System.out.println("problem in attaacker strategy, sum(prob) != 1 sm = "+sm);
+			//System.out.println("playing default strategy pass for attacker");
+			for(int attaction = 0; attaction<naction; attaction++)
+			{
+				double prob = Math.exp(lambda*attsu.get(attaction))/exponnentsum; 
+				recentattstrat[attaction] = prob;
+				//System.out.println("attsu.get(attaction) "+ attsu.get(attaction));
+				//System.out.println("attaction "+attaction+" : "+recentattstrat[attaction] + ", lambda "+ lambda);
+				//System.out.println("w0 "+omega[0] +", w1 "+ omega[1]+" , w2 " + omega[2]+" w3  " + omega[3] );
+
+			}
+			
+			recentattstrat = new double[naction];
+			recentattstrat[5] = 1;
+		}
+
+		/*if(sm<(1-0.001))
+		{
+
+			System.out.println("problem in attaacker strategy, sum(prob) != 1 sm = "+sm);
+			System.out.println(" exponnentsum "+ exponnentsum);
+			for(int attaction = 0; attaction<naction; attaction++)
+			{
+				double prob = Math.exp(lambda*attsu.get(attaction))/exponnentsum; 
+				recentattstrat[attaction] = prob;
+				System.out.println("attsu.get(attaction) "+ attsu.get(attaction));
+				System.out.println("attaction "+attaction+" : "+recentattstrat[attaction] + ", lambda "+ lambda);
+				System.out.println("w0 "+omega[0] +", w1 "+ omega[1]+" , w2 " + omega[2]+" w3  " + omega[3] );
+
+			}
+			
+			//throw new Exception("problem with prob sum");
+		}*/
+
+		return recentattstrat;
+
+	}
+	
 	
 	
 	private double[] buildDefStrat(String key, HashMap<String, HashMap<String, Double>> defstrategy, int naction) {
@@ -1303,6 +1446,169 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 
 		return success;
 	}
+	
+	
+	public double[] computeAttackSuccessWithTime(String seq, int naction, HashMap<Integer, Integer[]> noderewards, int boost) {
+
+
+		double[] success = new double[naction];
+		double[] attackcount= new double[naction];
+		double[] successcount = new double[naction];
+		double[] failcount = new double[naction];
+		
+		
+		double s = .9;
+		
+		/*for(int i=0; i<t.length; i++)
+		{
+			t[i] = -1;
+		}*/
+
+
+
+		//seq = "0,1,1,0,5,3,1,3,5,0";
+
+		int[] controllers = new int[noderewards.size()];
+
+		//int attpoints = 0;
+
+		int attrwrd = 0;
+		int attckpenlty = 0;
+
+		int defpoints = 0;
+
+		String[] splittedseq = seq.split(",");
+		double[][] t = new double[splittedseq.length/2][naction]; // last attack
+		
+		for(int i=0; i<t.length; i++)
+		{
+			for(int j=0; j<t[i].length; j++)
+			{
+				t[i][j] = -1;
+			}
+		}
+
+		/*//System.out.print("");
+
+		for(int i= 0; i<seq.size(); i++)
+		{
+			System.out.print(seq.get(i) + ", ");
+		}
+		 */
+		//System.out.println();
+		
+		int timeformemory = splittedseq.length/2 - 1;
+		
+		for(int i= 0; i<(splittedseq.length/2); i++)
+		{
+
+			int defaction = Integer.parseInt(splittedseq[2*i]);
+			int attaction = Integer.parseInt(splittedseq[2*i+1]);
+			attackcount[attaction]++; // increase counter when attacker attacked it
+			
+
+
+			int attcost = noderewards.get(attaction)[1];
+			int defcost = noderewards.get(defaction)[1];
+			// cost for action
+
+			//attpoints -= attcost;
+			attckpenlty += (-attcost);
+
+
+			defpoints -= defcost;
+			//reward for current action
+			if(defaction != attaction)
+			{
+				int attreward = noderewards.get(attaction)[0];
+
+				//attpoints += attreward;
+
+				attrwrd += attreward;
+
+				controllers[attaction] = 1;
+				controllers[defaction] = 0;
+
+				successcount[attaction]++; // successful attack
+				
+				t[i][attaction] = timeformemory;
+
+
+			}
+			else if((defaction == attaction) && (controllers[attaction]==1)) // when def==att
+			{
+				int attreward = noderewards.get(attaction)[0];
+
+				//attpoints += attreward;
+				attrwrd += attreward;
+
+				successcount[attaction]++;
+				t[i][attaction] = timeformemory;
+
+
+			}
+			else
+			{
+				// failed attack for attackaction
+				failcount[attaction]++;
+			}
+			// now reward for other controlled nodes
+			for(int j=0; j<controllers.length; j++)
+			{
+				if((j != attaction) && (controllers[j]==1))
+				{
+					int attreward = noderewards.get(j)[0];
+					//attpoints += attreward;
+					attrwrd += attreward;
+				}
+			}
+			timeformemory--;
+		}
+		//System.out.print( attpoints+", ");
+
+
+		for(int a=0; a<naction; a++)
+		{
+			//System.out.println("action "+ a);
+			
+			double memsuccess = 0;
+			
+			for(int i=0; i<t.length; i++)
+			{
+
+				
+				//System.out.println(" round " + i);
+				if(attackcount[a] != 0 && t[i][a] != -1)
+				{
+					
+					double k = .105;
+					
+					//System.out.println("k " + k);
+					//System.out.println("t[i][j] " + t[i][a]);
+					double eqn = -(k*t[i][a]/2);
+					//System.out.println("eqn " + eqn);
+					
+					double r = Math.exp(eqn);
+					//System.out.println("R " + r);
+					//System.out.println("a: "+ a + ", round "+ i + ", R "+ r);
+					memsuccess += r;
+					//System.out.println("memsuccess " + memsuccess);
+					//System.out.println("success " + success[a]);
+				}
+			}
+			
+			if(attackcount[a] != 0)
+			{
+			
+				success[a] = boost*( (memsuccess)/attackcount[a]);
+				//System.out.println("a: "+ a + ", attackcuont "+ attackcount[a] + ", successcount "+ successcount[a] + ", success "+ success[a]);
+			}
+		}
+
+		return success;
+	}
+	
+	
 	
 	public int[] computeAttackerUtilities(String seq, HashMap<Integer, Integer[]> noderewards) {
 

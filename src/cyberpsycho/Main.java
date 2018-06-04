@@ -75,17 +75,14 @@ public class Main {
 		 */
 		
 		
-		int k = 2;//Integer.parseInt(args[0]);
 		
-		int def_order = 1;//Integer.parseInt(args[0]); // def order 0 strategic last. def order 1 strategic def first
 		
 		int personlaity = 0;//Integer.parseInt(args[1]); // 0 mac, 1 narc, 2 psyc, 3 medium
 		
-		int depthlimit = 6;//Integer.parseInt(args[1]);
+		
 		
 		int pointslevel = 0;//Integer.parseInt(args[1]);
 		
-		int gametype = 1;//Integer.parseInt(args[2]); // 0 noinfo 1 fullinfo
 		
 		// 0 bhv 1 DT
 		
@@ -93,9 +90,15 @@ public class Main {
 		
 		int featureset = 0;//Integer.parseInt(args[1]); 
 		
-		AdversaryModel.suqrw4 = 0;//Integer.parseInt(args[3]);
+		
+		
+		
 		
 		int gameinsforcluster = 1;
+		
+		
+		
+		
 		
 		
 		///***************** SUQR********************///
@@ -108,15 +111,71 @@ public class Main {
 		 * 4. compute SUQR for all users
 		 */
 		
+		int k = 2;//Integer.parseInt(args[0]);
+		
+		int def_order = Integer.parseInt(args[0]); // def order 0 strategic last. def order 1 strategic def first
+		int depthlimit = Integer.parseInt(args[1]);
+		int gametype = 1;//Integer.parseInt(args[2]); // 0 noinfo, 1 fullinfo
+		int gameins0 = Integer.parseInt(args[2]);
+		
+		double wlimit = 2;
 		
 		
-		int gameins0 = 1; // 1,2,3,4,5,6
+		/*double minw1 = -10;//Integer.parseInt(args[3]);
+		double maxw1 = -8;//minw1 + wlimit;// Integer.parseInt(args[2]);
+		
+		double minw2 = -2;//Integer.parseInt(args[4]);
+		double maxw2 = 2;//minw2 + wlimit;;//Integer.parseInt(args[4]);
+		
+		double minw3 = -2;//Integer.parseInt(args[5]);
+		double maxw3 = 2;//minw3 + wlimit;;//Integer.parseInt(args[6]);
+		
+		double minw4 = -10;//Integer.parseInt(args[6]);
+		double maxw4 = 10;//minw4 + wlimit;;//Integer.parseInt(args[8]);
+		
+		double minw5 = 1;//Integer.parseInt(args[9]);
+		double maxw5 = 2;//Integer.parseInt(args[10]);
+*/		
+		
+		
+		double minw1 = -Integer.parseInt(args[3]);
+		double maxw1 = minw1 + wlimit;// Integer.parseInt(args[2]);
+		
+		double minw2 = Integer.parseInt(args[4]);
+		double maxw2 = minw2 + wlimit;;//Integer.parseInt(args[4]);
+		
+		double minw3 = Integer.parseInt(args[5]);
+		double maxw3 = minw3 + wlimit;;//Integer.parseInt(args[6]);
+		
+		double minw4 = Integer.parseInt(args[6]);
+		double maxw4 = minw4 + wlimit;;//Integer.parseInt(args[8]);
+		
+		double minw5 = 1;//Integer.parseInt(args[9]);
+		double maxw5 = 2;//Integer.parseInt(args[10]);
+		
+		double w1step = 1;
+		double w2step = .5;
+		double w3step = .5;
+		double w4step = 1;
+		
+		double w5step = 1;
+		
+		
+		
+		AdversaryModel.suqrw4 = Integer.parseInt(args[7]);
+		
 		
 		
 		//AdversaryModelExps.computeOmegaSUQR(k, depthlimit, def_order, gameins0, gametype);
 		
-		//trending, modify it for SUQR
-		AdversaryModelExps.computeOmegaForAdaptivenessSUQR(k, def_order, depthlimit, featureset, gametype); 
+		//trending for SUQR
+		//AdversaryModelExps.computeOmegaForAdaptivenessSUQR(k, def_order, depthlimit, featureset, gametype); 
+		
+		//trending, for batch job
+		AdversaryModelExps.computeOmegaSUQRBatchJobTrending(k, def_order, depthlimit, featureset, gametype, gameins0, 
+				minw1, maxw1, minw2, maxw2, minw3, maxw3, minw4, maxw4, minw5, maxw5, w1step, w2step, w3step, w4step, w5step); 
+		
+		
 		//tracking
 		//AdversaryModelExps.trackUsersPerformanceSUQR(k, def_order, depthlimit, featureset, gameinsforcluster);
 		

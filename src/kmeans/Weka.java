@@ -60,7 +60,7 @@ public class Weka {
 		System.out.println(dc);
 		for(int i=0; i<newinstance.size(); i++)
 		{
-			System.out.println("instance  "+i +", cluster "+ (dc.clusterInstance(newinstance.get(i))+1));
+			//System.out.println("instance  "+i +", cluster "+ (dc.clusterInstance(newinstance.get(i))+1));
 			int clusterid = dc.clusterInstance(newinstance.get(i));
 			int tid = (int)newinstance.get(i).value(0);
 			clusters[clusterid].add(tid);
@@ -87,10 +87,10 @@ public class Weka {
 			clusters[i] = new ArrayList<Integer>();
 		}
 		
-		System.out.println(dc);
+		//System.out.println(dc);
 		for(int i=0; i<newinstance.size(); i++)
 		{
-			System.out.println("instance  "+i +", cluster "+ (dc.clusterInstance(newinstance.get(i))+1));
+			//System.out.println("instance  "+i +", cluster "+ (dc.clusterInstance(newinstance.get(i))+1));
 			int clusterid = dc.clusterInstance(newinstance.get(i));
 			int tid = (int)newinstance.get(i).value(0);
 			clusters[clusterid].add(tid);

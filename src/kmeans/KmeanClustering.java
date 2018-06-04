@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-import Log.Logger;
+/*import Log.Logger;
 import Main.Main;
 import games.EmpiricalMatrixGame;
 import games.Game;
@@ -25,7 +25,7 @@ import solvers.QRESolver;
 import solvers.SolverUtils;
 import subgame.Parameters;
 import subgame.StrategyMapping;
-import util.GamutModifier;
+import util.GamutModifier;*/
 
 public class KmeanClustering {
 
@@ -94,7 +94,7 @@ public class KmeanClustering {
 
 
 
-	public static void doExPeriemnt(int numberofclusters)
+/*	public static void doExPeriemnt(int numberofclusters)
 	{
 
 		Logger.log("\n Clustering with: ", false);
@@ -128,12 +128,12 @@ public class KmeanClustering {
 
 
 
-			/*
+			
 			 * reset time before iterations. 
-			 */
+			 
 
 
-			Main.percremovedstrategy =0;
+			//Main.percremovedstrategy =0;
 
 
 			for(int i=1; i<=ITERATION; i++)
@@ -228,7 +228,7 @@ public class KmeanClustering {
 		} // for loop for cluster number
 
 
-	}
+	}*/
 
 
 
@@ -768,13 +768,13 @@ public class KmeanClustering {
 					break;
 
 				}
-				Logger.log("\nAction "+ randomtarget+"'s payoffs are assigned to cluster "+ clusterindex, false);
+				//Logger.log("\nAction "+ randomtarget+"'s payoffs are assigned to cluster "+ clusterindex, false);
 				for(int j =0; j<INDEX_LIMIT; j++)
 				{
 					double reward = gamedata[randomtarget][j];  //mg.getPayoff(outcome, player);
 					clusterpoints[clusterindex][j] = reward;
 				}
-				Logger.log("\n cluster: "+ clusterindex + " is empty, points after reassignment:\n", false);
+				//Logger.log("\n cluster: "+ clusterindex + " is empty, points after reassignment:\n", false);
 
 
 			}
@@ -832,13 +832,13 @@ public class KmeanClustering {
 					break;
 
 				}
-				Logger.log("\nAction "+ randomtarget+"'s payoffs are assigned to cluster "+ clusterindex, false);
+				////Logger.log("\nAction "+ randomtarget+"'s payoffs are assigned to cluster "+ clusterindex, false);
 				for(int j =0; j<INDEX_LIMIT; j++)
 				{
 					double reward = gamedata[randomtarget][j];  //mg.getPayoff(outcome, player);
 					clusterpoints[clusterindex][j] = reward;
 				}
-				Logger.log("\n cluster: "+ clusterindex + " is empty, points after reassignment:\n", false);
+				//Logger.log("\n cluster: "+ clusterindex + " is empty, points after reassignment:\n", false);
 
 
 			}
@@ -907,7 +907,7 @@ public class KmeanClustering {
 
 	}
 
-	public static List<Integer>[] clusterActions(int numberofclusters, int player, MatrixGame mg )
+	/*public static List<Integer>[] clusterActions(int numberofclusters, int player, MatrixGame mg )
 	{
 
 		int opponent = 1^player;
@@ -931,7 +931,7 @@ public class KmeanClustering {
 		}
 		if(KmeanClustering.isRandPointsFromObservation()) // implemented only for two players
 		{
-			//Logger.log("\n entered RandPointsFromObservation() ", false);
+			////Logger.log("\n entered RandPointsFromObservation() ", false);
 			ArrayList<Integer> points = new ArrayList<Integer>();
 			int actionforclusterpoint =0;
 			for(int i=0; i< numberofclusters; i++)
@@ -956,11 +956,11 @@ public class KmeanClustering {
 					}
 				}
 
-				/*
+				
 				 * create an iterator to generate the outcomes,
 				 *  then match the randomly generated chosen action in the outcome.
 				 *   if match, then get the payoff, and assign it to the cluster point
-				 */
+				 
 
 				OutcomeIterator iterator = mg.iterator();
 				int[] outcomegame = new int[mg.getNumPlayers()];
@@ -977,17 +977,17 @@ public class KmeanClustering {
 
 			}
 		}
-		/*
+		
 		 * assigns random actions to each clusters
-		 */
+		 
 		if(KmeanClustering.isRandActionInitToClusters())
 		{
 
-			//	Logger.log("\n entered RandActionInitToClusters() ", false);
-			/*
+			//	//Logger.log("\n entered RandActionInitToClusters() ", false);
+			
 			 * pick an action and randomly assign it to a cluster.  
 			 * then calculate the mean
-			 */
+			 
 			ArrayList<Integer> unassignedactions = new ArrayList<Integer>();
 
 			for(int i=0;i<numberofactions[player];i++)
@@ -1006,23 +1006,23 @@ public class KmeanClustering {
 						int chosenactionindex = randInt(1, unassignedactions.size()) -1;
 						int z = unassignedactions.get(chosenactionindex);
 						assignToCluster(clusters, unassignedactions.get(chosenactionindex), i, numberofactions[player], player, mg);
-						//	Logger.log("\n random paritiion<<<>>>>> Action "+ z+ " of player "+ player+" is assigned to cluster "+i, false);
+						//	//Logger.log("\n random paritiion<<<>>>>> Action "+ z+ " of player "+ player+" is assigned to cluster "+i, false);
 						unassignedactions.remove(chosenactionindex);
 					}
 					else if(unassignedactions.size() ==1)
 					{
 						assignToCluster(clusters, unassignedactions.get(0), i, numberofactions[player], player, mg);
 						int x = unassignedactions.get(0);
-						//	Logger.log("\n random paritiion<<<>>>>> Action "+x + " of player "+ player+" is assigned to cluster "+i, false);
+						//	//Logger.log("\n random paritiion<<<>>>>> Action "+x + " of player "+ player+" is assigned to cluster "+i, false);
 						unassignedactions.remove(0); //remove the last element
 						break;
 					}
 
 				}
-				/*
+				
 				 * minindex has the index for cluster
 				 * make a tuple like (action, payoffs1, payoff2,...)
-				 */
+				 
 
 			}  // end of for loop
 
@@ -1033,23 +1033,23 @@ public class KmeanClustering {
 				{
 					int a = numberofclusters-1;
 					assignToCluster(clusters, x, numberofclusters-1, numberofactions[player], player, mg); // assign all the remainning actions to the last cluster.
-					//	Logger.log("\n random paritiion<<<>>>>> Action "+ x+ " of player "+ player+" is assigned to cluster "+a, false);
+					//	//Logger.log("\n random paritiion<<<>>>>> Action "+ x+ " of player "+ player+" is assigned to cluster "+a, false);
 
 				}
 
 			}
 			// print the clusters..
-			//Logger.log("\n\nInitialization to clusters for player "+ player + ":\n", false);
-			/*for(int i=0; i<clusters.length; i++)
+			////Logger.log("\n\nInitialization to clusters for player "+ player + ":\n", false);
+			for(int i=0; i<clusters.length; i++)
 			{
-				Logger.log("Cluster "+ i, false);
+				//Logger.log("Cluster "+ i, false);
 
 				for(Double[] x: clusters[i])
 				{
-					Logger.log(x[0]+", ", false);
+					//Logger.log(x[0]+", ", false);
 				}
-				Logger.log("\n", false);
-			}*/
+				//Logger.log("\n", false);
+			}
 			calculateClusterMean(clusters, clusterpoints, numberofactions[player], numberofclusters, player, mg);
 
 		}
@@ -1099,32 +1099,32 @@ public class KmeanClustering {
 			}
 
 			//	System.out.print("\n\nIteration: "+ runningInstance + " ");
-			/*Logger.log("\n\nK-mean Iteration: "+ runningInstance  +" plauer "+player+"  cluster points\n", false);
+			//Logger.log("\n\nK-mean Iteration: "+ runningInstance  +" plauer "+player+"  cluster points\n", false);
 			for(int i =0; i< numberofclusters; i++)
 			{
 
 				//	System.out.print("Cluster: "+ i + " ");
-				Logger.log("Cluster: "+ i + " ", false);
+				//Logger.log("Cluster: "+ i + " ", false);
 				for(int j =0; j< numberofactions[opponent]; j++){
 
 					//	System.out.print(" "+oldclusterpoints[i][j]); 
-					Logger.log(" "+oldclusterpoints[i][j], false);
+					//Logger.log(" "+oldclusterpoints[i][j], false);
 
 				}
 				//	System.out.print("\n");
-				Logger.log("\n", false);
-			}*/
+				//Logger.log("\n", false);
+			}
 			// now clear/create e cluster object the new cluster for a new iteration. 
 			for(int i=0; i< numberofclusters; i++)
 			{
 				clusters[i]= new ArrayList<Double[]>(); //.clear();
 			}
-			/*
+			
 			 * Now iterate over all the possible action touples for player 1. 
 			 * calclate the difference from cluster points
 			 * assign to the cluster with the minimum difference.
 			 *  
-			 */
+			 
 			for(int i = 0; i < numberofactions[player]; i++)
 			{
 				for(int j = 0; j < numberofactions[opponent]; j++)
@@ -1143,12 +1143,12 @@ public class KmeanClustering {
 					double tmppayoff = mg.getPayoff(outcome, player); //get the payoff for player 1 or player 2
 					for(int k =0; k<numberofclusters; k++)
 					{
-						/*
+						
 						 * calculate the differences of payoffs for each cluster points 
-						 */
+						 
 						if(KmeanClustering.isDistMetricLine())
 						{
-							//	Logger.log("\n entered DistMetricLine() ", false);
+							//	//Logger.log("\n entered DistMetricLine() ", false);
 
 							if((tmppayoff < 0 && clusterpoints[k][j] < 0) ||  (tmppayoff >=0  && clusterpoints[k][j] >= 0))
 
@@ -1164,12 +1164,12 @@ public class KmeanClustering {
 								distancefromcluster[k][j] = (clusterpoints[k][j]  + Math.abs(tmppayoff));
 							}
 						}
-						/*
+						
 						 * calculate euclidean distance: first take the squares of difference....
-						 */
+						 
 						if(KmeanClustering.isDistMetricEuclidean())
 						{
-							//	Logger.log("\n entered DistMetricEuclidean() ", false);
+							//	//Logger.log("\n entered DistMetricEuclidean() ", false);
 							distancefromcluster[k][j] = (clusterpoints[k][j]  - (tmppayoff));
 							distancefromcluster[k][j] = distancefromcluster[k][j] * distancefromcluster[k][j];
 						}
@@ -1184,13 +1184,13 @@ public class KmeanClustering {
 				{
 
 					//
-					//Logger.log("\n entered SumDist() ", false);
-					/*
+					////Logger.log("\n entered SumDist() ", false);
+					
 					 * Here you have all the differences for action i 
 					 * calculate the sum of the differences
 					 * Then find the minimum sum
 					 * 
-					 */
+					 
 					for(int l =0; l< numberofclusters; l++)
 					{
 						sumofdifferences[l] = 0;
@@ -1199,7 +1199,7 @@ public class KmeanClustering {
 							sumofdifferences[l] += distancefromcluster[l][m];
 						}
 						int a = i+1;
-						//Logger.log("\n Action "+ a+"'s sum distance from cluster "+l+" is : "+sumofdifferences[l] , false);
+						////Logger.log("\n Action "+ a+"'s sum distance from cluster "+l+" is : "+sumofdifferences[l] , false);
 
 					}
 					for(int n =0; n< sumofdifferences.length; n++)
@@ -1215,11 +1215,11 @@ public class KmeanClustering {
 				if(KmeanClustering.isMaxDist())
 				{
 
-					//Logger.log("\n entered MaxDist() ", false);
+					////Logger.log("\n entered MaxDist() ", false);
 
-					/*
+					
 					 * calculate the max difference instead of summing them
-					 */
+					 
 					for(int l =0; l< numberofclusters; l++)
 					{
 
@@ -1235,12 +1235,12 @@ public class KmeanClustering {
 
 						maxdifference[l] = maxdiff;
 						int a = i+1;
-						//Logger.log("\n Action "+ a+"'s max distance from cluster "+l+" is : "+maxdifference[l] , false);
+						////Logger.log("\n Action "+ a+"'s max distance from cluster "+l+" is : "+maxdifference[l] , false);
 
 					}
-					/*
+					
 					 * find the minimum difference among the maximum differences
-					 */
+					 
 					for(int n =0; n< maxdifference.length; n++)
 					{
 						if(min > maxdifference[n])
@@ -1254,10 +1254,10 @@ public class KmeanClustering {
 				{
 					//System.out.println("\nIteration: "+ runningInstance + "entered DistMetricEuclidean() ");
 
-					//Logger.log("\n entered DistMetricEuclidean() ", false);
-					/*
+					////Logger.log("\n entered DistMetricEuclidean() ", false);
+					
 					 * find the squared root distances
-					 */
+					 
 
 					for(int l =0; l< numberofclusters; l++)
 					{
@@ -1282,10 +1282,10 @@ public class KmeanClustering {
 					}
 
 				}
-				/*
+				
 				 * 
 				 * assign the action i+1 to minindex cluster
-				 */
+				 
 				int a = i+1;
 				//Logger.log("\nAction "+ a+" is assigned to cluster :"+minindex , false);
 				//System.out.println("\nIteration: "+ runningInstance + "Assigning cluster points ");
@@ -1293,7 +1293,7 @@ public class KmeanClustering {
 
 			}  // end of outer for loop
 
-			/*Logger.log("\nActions in clusters for the mean\n", false);
+			Logger.log("\nActions in clusters for the mean\n", false);
 			for(int i=0; i< numberofclusters; i++)
 			{
 				//	System.out.print("Cluster: " + i + " "+ "Actions: ");
@@ -1307,10 +1307,10 @@ public class KmeanClustering {
 				//clusters[i].clear();
 				//	System.out.print("\n");
 				Logger.log("\n", false);
-			}*/
-			/*
+			}
+			
 			 * now recalculate the cluster points
-			 */
+			 
 			//	System.out.println("\nIteration: "+ runningInstance + "Calculating mean ");
 			calculateClusterMean(clusters, clusterpoints, numberofactions[player], numberofclusters, player, mg);
 			//	System.out.print("\n\nIteration: "+ runningInstance + " ");
@@ -1404,7 +1404,7 @@ public class KmeanClustering {
 		return finalcluster;
 
 
-	}
+	}*/
 	
 	
 	/**
@@ -1569,7 +1569,7 @@ public class KmeanClustering {
 
 		while(true)
 		{
-			System.out.println("\nIteration: "+ runningInstance);
+			//System.out.println("\nIteration: "+ runningInstance);
 
 			runningInstance++;
 
@@ -1942,7 +1942,7 @@ public class KmeanClustering {
 	}
 
 
-
+	/*
 
 	public static void assignToCluster(List<Double[]>[] clusters, int actiontoassign,
 			int assignedcluster, int numberofactions, int player, MatrixGame mg )
@@ -1952,11 +1952,11 @@ public class KmeanClustering {
 		int oppnumaction = mg.getNumActions(opponent);
 		Double[] tupleincluster = new Double[oppnumaction+1]; // +1 for the action
 		tupleincluster[0] = (double)actiontoassign; //the action in the first index
-		/*
+		
 
 		 * now assign the payoffs
 
-		 */
+		 
 		int[] tmpoutcome = new int[2];
 		for(int p = 0; p< oppnumaction; p++)
 		{
@@ -1977,7 +1977,7 @@ public class KmeanClustering {
 		}
 		clusters[assignedcluster].add(tupleincluster); 
 	}
-	
+	*/
 	
 	public static void assignToCluster(List<Double[]>[] clusters, int exampletoassign,
 			int assignedcluster, int numberoffeatures, double[][] examples)
@@ -2005,15 +2005,15 @@ public class KmeanClustering {
 
 
 
-	public static  void calculateClusterMean(List<Double[]>[] clusters, 
+	/*public static  void calculateClusterMean(List<Double[]>[] clusters, 
 			double[][] clusterpoints, int numberofactions, 
 			int numberofclusters, int player, MatrixGame mg)
 	{
-		/*
+		
 
 		 * now recalculate the cluster mean
 
-		 */
+		 
 		int opponent = 1^player;
 		double average = 0;
 		for(int i = 0; i< numberofclusters; i++)
@@ -2022,10 +2022,10 @@ public class KmeanClustering {
 			if(clustersize==0)
 			{
 				System.out.println("\n\nEmpty cluster: "+ i + " ");
-				Logger.log("\n cluster: "+ i + " is empty, points before reassignment:\n", false);
+				//Logger.log("\n cluster: "+ i + " is empty, points before reassignment:\n", false);
 				for(int k=0; k<mg.getNumActions(opponent); k++)
 				{
-					Logger.log(" "+clusterpoints[i][k], false);
+					//Logger.log(" "+clusterpoints[i][k], false);
 
 				}
 				int randomaction;
@@ -2048,7 +2048,7 @@ public class KmeanClustering {
 
 
 
-					/*// if cluster is empty, assign random points from the strategy
+					// if cluster is empty, assign random points from the strategy
 					randomaction = randInt(1,numberofactions );
 					System.out.println(".....");
 					if((alreadychecked.size()==0) || (alreadychecked.size()>0 && !alreadychecked.contains(randomaction)))
@@ -2062,7 +2062,7 @@ public class KmeanClustering {
 						}
 					}
 					//check if the payoffs are same as centroid of another cluster
-					 */
+					 
 
 				}
 				Logger.log("\nAction "+ randomaction+"'s payoffs are assigned to cluster "+ i, false);
@@ -2121,7 +2121,7 @@ public class KmeanClustering {
 
 		}
 
-	}
+	}*/
 	
 	
 	/*public static  void calculateClusterMean(List<Double[]>[] clusters, 
@@ -2247,7 +2247,7 @@ public class KmeanClustering {
 */
 
 
-	public static boolean checkIfActionIsOkToBeACentroid(Game mg, double[][] clusterpoints, 
+	/*public static boolean checkIfActionIsOkToBeACentroid(Game mg, double[][] clusterpoints, 
 			int actiontocheck, int emptycluster, int player)
 
 	{
@@ -2292,7 +2292,7 @@ public class KmeanClustering {
 		return true;
 
 	}
-
+*/
 	/**
 	 * 
 	 * @param game
@@ -2301,7 +2301,7 @@ public class KmeanClustering {
 	 * @param max max or average delta
 	 * @return
 	 */
-	public static double calculateDelta(Game game, List<Integer>[][] cluster, int player, boolean max)
+	/*public static double calculateDelta(Game game, List<Integer>[][] cluster, int player, boolean max)
 	{
 
 		//	System.out.println("Staring epsilon calcl**************");
@@ -2311,9 +2311,9 @@ public class KmeanClustering {
 		int opponent =0;
 		if(player==0)
 			opponent =1;
-		/*
+		
 		 * for each cluster take the actions and calcualte the delta
-		 */
+		 
 		for(int i=0; i< cluster[player].length; i++) // can be improved, i<cluster.length-1
 		{
 
@@ -2413,7 +2413,7 @@ public class KmeanClustering {
 		else
 		{
 
-			/*int worstcluster =-1;
+			int worstcluster =-1;
 			double maximum = Double.NEGATIVE_INFINITY;
 
 			for(int i=0; i< deltas.length; i++)
@@ -2425,7 +2425,7 @@ public class KmeanClustering {
 				}
 			}
 
-			 */
+			 
 			double sum = 0.0;
 
 			for(int i=0; i< deltas.length; i++)
@@ -2445,16 +2445,16 @@ public class KmeanClustering {
 
 	}
 
+*/
 
 
 
-
-	public static double[][] doKmean(int numberofclusters, MatrixGame mg, String gamename)
+	/*public static double[][] doKmean(int numberofclusters, MatrixGame mg, String gamename)
 	{
 
-		/*
+		
 		 * for random restart we need to save the clusterings... and deltas...
-		 */
+		 
 		HashMap<Integer,List<Integer>[]> clustersplayer1 = new HashMap<Integer, List<Integer>[]>();
 		HashMap<Integer,List<Integer>[]> clustersplayer2 = new HashMap<Integer, List<Integer>[]>();
 		HashMap <Integer, Double> deltasplayer1 = new HashMap<Integer, Double>();
@@ -2467,11 +2467,11 @@ public class KmeanClustering {
 		GamutModifier gmforIED = new GamutModifier(game);
 		//test
 		//	GamutModifier gmforIED = new GamutModifier("game");
-		/*
+		
 		 * print the original game in logfile
-		 */
+		 
 		Logger.logit("\n\n Original Game\n\n");
-		/*	String logfile = Parameters.GAME_FILES_PATH+"logfile"+".log";
+			String logfile = Parameters.GAME_FILES_PATH+"logfile"+".log";
        // String gmname = "k"+this.numberofclusters[0]+"-"+this.gamename;
 
 		 try{
@@ -2483,7 +2483,7 @@ public class KmeanClustering {
 	        catch(Exception ex){
 	            System.out.println("GAmutMOdifier class :something went terribly wrong during log file creation ");
 	        }
-		 */
+		 
 		////////////////////
 		int[] actionsbeforeied = gmforIED.returnGame().getNumActions();
 
@@ -2619,13 +2619,13 @@ public class KmeanClustering {
 
 
 
-				/*
+				
 				 * calculate the delta, for random restarts
-				 */
+				 
 
 
 
-				/*
+				
 				Logger.log("\n\n Player 0 clusters after CAA\n", false);
 
 
@@ -2664,7 +2664,7 @@ public class KmeanClustering {
 				 * do the code for max delta
 				 * 
 
-				 */
+				 
 				if( KmeanClustering.isMaxDelta())
 				{
 
@@ -2702,9 +2702,9 @@ public class KmeanClustering {
 
 
 
-					/*
+					
 					 * also need to calculate the max delta to show in the graph
-					 */
+					 
 
 
 					double maxdelta1 = KmeanClustering.calculateDelta(mg, clusterforplayers, 0, true);
@@ -2714,9 +2714,9 @@ public class KmeanClustering {
 
 
 
-					/*
+					
 					 * now put the max deltas in a hashmap
-					 */
+					 
 					maxdeltasplayer1.put(randomitr, maxdelta1);
 					maxdeltasplayer2.put(randomitr, maxdelta2);
 
@@ -2729,7 +2729,7 @@ public class KmeanClustering {
 
 
 
-				/*System.out.print("\n\n");
+				System.out.print("\n\n");
 			for(int i=0; i<gm.returnGame().getNumActions(0); i++)
 			{
 				for(int j=0; j< gm.returnGame().getNumActions(1); j++)
@@ -2738,13 +2738,13 @@ public class KmeanClustering {
 					System.out.print(" "+ gm.returnGame().getPayoff(outcome, 0));
 				}
 				System.out.print("\n");
-			}*/
+			}
 
 
 
-				/*
+				
 				 * save the clusterings and deltas
-				 */
+				 
 
 
 				clustersplayer1.put(randomitr, clusterforplayers[0]);
@@ -2758,9 +2758,9 @@ public class KmeanClustering {
 
 
 
-			/*
+			
 			 * now find the best delta. minimum one. 
-			 */
+			 
 
 
 			Logger.log("\n Selecting minimum delta", false);
@@ -2885,11 +2885,11 @@ public class KmeanClustering {
 			}
 
 
-			/* For the strategy map
+			 For the strategy map
 			 * 1. give the constructor appropriate variables.
 			 * 2. pass the cluster mapping to the strategy map or pass the array, which contain the cluster number for each actions, for each player
 
-			 */	
+			 	
 			//		System.out.println("Staring strategy mapping%%%%%%%%%%%%%%");
 
 			StrategyMapping strategymap = new StrategyMapping(mg.getNumPlayers(), mg.getNumActions(), numberofclustersforeachplayer,mg, gamename);
@@ -2919,13 +2919,13 @@ public class KmeanClustering {
 
 
 
-			/*
+			
 			 * 
 			 * print the abstract game in logfile
-			 */
+			 
 
 
-			/*	Logger.logit("\n\nAbstract Game\n\n");
+				Logger.logit("\n\nAbstract Game\n\n");
 
 
 			 try{
@@ -2937,13 +2937,13 @@ public class KmeanClustering {
 		        catch(Exception ex){
 		            System.out.println("GAmutMOdifier class :something went terribly wrong during log file creation ");
 		        }
-			 */
+			 
 
 
 
-			/*
+			
 			 * use the qre solver 
-			 */
+			 
 
 			EmpiricalMatrixGame emg = new EmpiricalMatrixGame(absgm.returnGame());
 			qre.setDecisionMode(QRESolver.DecisionMode.RAW);
@@ -2960,7 +2960,7 @@ public class KmeanClustering {
 
 
 
-			/*double[] orgqreprbpl1 = new double[originalqreprofile1.length+1];
+			double[] orgqreprbpl1 = new double[originalqreprofile1.length+1];
 
 			orgqreprbpl1[0] =0;
 			int index0 =1;
@@ -2977,17 +2977,17 @@ public class KmeanClustering {
 			for(double x: originalqreprofile2)
 			{
 				orgqreprbpl2[index01++] = x;
-			}*/
+			}
 
 
-			/*MixedStrategy origqreprofile1 = new MixedStrategy(orgqreprbpl1);
+			MixedStrategy origqreprofile1 = new MixedStrategy(orgqreprbpl1);
 			MixedStrategy origqreprofile2 = new MixedStrategy(orgqreprbpl2);
-			 */
+			 
 
 			List<MixedStrategy> originalqrelist = new ArrayList<MixedStrategy>();
-			/*originalqrelist.add(origqreprofile1);
+			originalqrelist.add(origqreprofile1);
 			originalqrelist.add(origqreprofile2);
-			 */
+			 
 
 
 			//MatrixGame g = new MatrixGame(GamutParser.readGamutGame(Parameters.GAME_FILES_PATH+ abstractedgamename+Parameters.GAMUT_GAME_EXTENSION));
@@ -3016,14 +3016,14 @@ public class KmeanClustering {
 
 
 
-			/*
+			
 			 * SUbgame NE
 			 * 1. Build the abstract game. 
 			 * 2. Use the method for subgame NE
-			 */
+			 
 
 
-			/*	Game abstractsubgame = strategymap.recAbstract(numberofclusters);
+				Game abstractsubgame = strategymap.recAbstract(numberofclusters);
 
 
 			// some method needs to be used to find the eqlbrm strategy in abstract game
@@ -3075,7 +3075,7 @@ public class KmeanClustering {
 			Logger.logit("\n Final EPsilon for sbgame profile "+ sbgmepsilon);
 
 
-			 */
+			 
 
 
 
@@ -3091,19 +3091,19 @@ public class KmeanClustering {
 
 
 
-			/*
+			
 			 * USe the CalcEpsilonBuondedEquilibrium class to calculate most robust strategy
 			 * 1. call the constructor
 			 * 
-			 */
+			 
 
-			/*
+			
 			CalcEpsilonBuondedEquilibrium solverBuondedEquilibrium = new CalcEpsilonBuondedEquilibrium(strategymap, absgm.returnGame());
 			solverBuondedEquilibrium.calcMaxEpsilon();
 			MixedStrategy abstractgamemixedstrategy1 =  solverBuondedEquilibrium.getEpsilonBoundedEq(0);
 			MixedStrategy abstractgamemixedstrategy2 = solverBuondedEquilibrium.getEpsilonBoundedEq(1);
 
-			 */
+			 
 
 
 
@@ -3115,7 +3115,7 @@ public class KmeanClustering {
 
 
 
-			/*	
+				
 
 			Game gmwithmaxexpectedpayoff = GamutModifier.getGameWithMaxExpectedPayoff(absgm.returnGame(), strategymap);
 
@@ -3124,11 +3124,11 @@ public class KmeanClustering {
 			MixedStrategy abstractgamemixedstrategy2 =  MinEpsilonBoundSolver.getMinEpsilonBoundProfile(absgm.returnGame(), gmwithmaxexpectedpayoff).get(1);;
 
 
-			 */
+			 
 
 
 
-			/*
+			
 
 			String strategy1 = abstractgameneprofile1+"";
 			String strategy2 = abstractgameneprofile2+"";
@@ -3152,14 +3152,14 @@ public class KmeanClustering {
 
 			Logger.log("\n Expected Payoff abstract game player 0 : "+ expectedpayoff[0]+ "Expected Payoff abstract game player 1 : "+ expectedpayoff[1], false);
 
-			 */
+			 
 
 
 
 
-			/*
+			
 			 * calculate epsilon bounded original profile
-			 */
+			 
 
 
 
@@ -3169,13 +3169,13 @@ public class KmeanClustering {
 
 
 
-			/*
+			
 			 * print the max epsilon bounded game
-			 */
+			 
 
 
 
-			/*Logger.logit("\n\nAbstract EPsilon bounded Game\n\n");
+			Logger.logit("\n\nAbstract EPsilon bounded Game\n\n");
 
 
 			 try{
@@ -3192,9 +3192,9 @@ public class KmeanClustering {
 
 			 Logger.logit("\n Deviaitons for Upper bounded profile ");
 
-			 */
+			 
 
-			/*	MixedStrategy minepsilonprofile1 =  MinEpsilonBoundSolver.getMinEpsilonBoundProfile(absgm.returnGame(), gmwithupperbound).get(0);
+				MixedStrategy minepsilonprofile1 =  MinEpsilonBoundSolver.getMinEpsilonBoundProfile(absgm.returnGame(), gmwithupperbound).get(0);
 			MixedStrategy minepsilonprofile2 =  MinEpsilonBoundSolver.getMinEpsilonBoundProfile(absgm.returnGame(), gmwithupperbound).get(1);;
 
 
@@ -3242,7 +3242,7 @@ public class KmeanClustering {
 			Logger.logit("\n Final EPsilon for Bounded profile "+ epsilonforbounded);
 
 
-			 */
+			 
 
 
 
@@ -3253,24 +3253,24 @@ public class KmeanClustering {
 
 
 
-			/*
+			
 			 * calculate max expected profile
-			 */
+			 
 
 
 
 
-			/*
+			
 			 * for average abstract game, use the abstratc game returned by makeabstractgame()
-			 */
+			 
 
 
 			Game gmwithmaxexpectedpayoff = KmeanClustering.getGameWithMaxExpectedPayoff(absgm.returnGame(), strategymap);
 
 
-			/*
+			
 			 * for subgame build the abstracted game by recAbstract(). then build a game with maxexpectedpayoff
-			 */
+			 
 
 
 
@@ -3284,7 +3284,7 @@ public class KmeanClustering {
 
 
 
-			/*Logger.logit("\n\nAbstract Max Expected payoff bounded Game\n\n");
+			Logger.logit("\n\nAbstract Max Expected payoff bounded Game\n\n");
 
 
 			 try{
@@ -3300,7 +3300,7 @@ public class KmeanClustering {
 
 
 			 Logger.logit("\n Deviaitons for Max abstracted payoff ");
-			 */
+			 
 
 
 			MixedStrategy abstractmaxexpectedprofile1 =  MinEpsilonBoundSolver.getMinEpsilonBoundProfile(absgm.returnGame(), gmwithmaxexpectedpayoff).get(0);
@@ -3308,10 +3308,10 @@ public class KmeanClustering {
 
 
 
-			/*
+			
 			 * use the abstractsubgame for subgame mixedstrategy
-			 */
-			/*
+			 
+			
 			MixedStrategy[] abstractmaxexpectedprofile =  new MixedStrategy[2];
 
 
@@ -3324,18 +3324,18 @@ public class KmeanClustering {
 			System.out.println("abstractmaxexpectedprofile[0].checkIfNormalized() "+ abstractmaxexpectedprofile[0].checkIfNormalized());
 			System.out.println("abstractmaxexpectedprofile[1].checkIfNormalized() "+ abstractmaxexpectedprofile[1].checkIfNormalized());
 
-			 */
+			 
 
-			/*
+			
 			 * build the original strategies for average abstract game
-			 */
+			 
 
 
 			//	double[] originalmaxexpectedprofile1 = buildOriginalStrategyFromAbstractStrategy(strategymap, abstractmaxexpectedprofile1, mg.getNumActions(0), numberofclusters, 0);
 			//	double[] originalmaxexpectedprofile2 = buildOriginalStrategyFromAbstractStrategy(strategymap, abstractmaxexpectedprofile2, mg.getNumActions(1), numberofclusters, 1);
 
 
-			/*
+			
 		//	double[] orgmaxexpectedprbpl1 = new double[originalmaxexpectedprofile1.length+1];
 
 			orgmaxexpectedprbpl1[0] =0;
@@ -3344,8 +3344,8 @@ public class KmeanClustering {
 			{
 				orgmaxexpectedprbpl1[index2++] = x;
 			}
-			 */
-			/*
+			 
+			
 			double[] orgmaxexpectedprbpl2 = new double[originalmaxexpectedprofile2.length+1];
 
 			orgmaxexpectedprbpl2[0] =0;
@@ -3355,30 +3355,30 @@ public class KmeanClustering {
 				orgmaxexpectedprbpl2[index22++] = x;
 			}
 
-			 */
+			 
 
 
 
 
 
-			/*
+			
 			MixedStrategy orginalmaxexpectedprofile1 = new MixedStrategy(orgmaxexpectedprbpl1);
 			MixedStrategy orginalmaxexpectedprofile2 = new MixedStrategy(orgmaxexpectedprbpl2);
 
 
 
-			 *//*
+			 
 			 * build original game strategy for subgame
-			 */
+			 
 
 
-			/*	MixedStrategy[] orginalmaxexpectedprofile = strategymap.getStrategySubgameSols(abstractmaxexpectedprofile);
+				MixedStrategy[] orginalmaxexpectedprofile = strategymap.getStrategySubgameSols(abstractmaxexpectedprofile);
 
 
 			System.out.println("orginalmaxexpectedprofile[0].checkIfNormalized() "+ orginalmaxexpectedprofile[0].checkIfNormalized());
 			System.out.println("orginalmaxexpectedprofile[1].checkIfNormalized() "+ orginalmaxexpectedprofile[1].checkIfNormalized());
 
-			 */
+			 
 
 
 
@@ -3413,11 +3413,11 @@ public class KmeanClustering {
 			MixedStrategy abstractgameneprofile2 = MinEpsilonBoundSolver.getPSNE(absgm.returnGame()).get(1);
 
 
-			/*
+			
 			 * use the abssubgame for subgaame psne
-			 */
+			 
 
-			/*	MixedStrategy[] abstractgameneprofile =  new MixedStrategy[2];
+				MixedStrategy[] abstractgameneprofile =  new MixedStrategy[2];
 
 			abstractgameneprofile[0] = MinEpsilonBoundSolver.getPSNE(absgm.returnGame()).get(0);
 			abstractgameneprofile[1] = MinEpsilonBoundSolver.getPSNE(absgm.returnGame()).get(1);
@@ -3425,7 +3425,7 @@ public class KmeanClustering {
 			System.out.println(" abstractgameneprofile[0].checkIfNormalized() "+ abstractgameneprofile[0].checkIfNormalized());
 			System.out.println(" abstractgameneprofile[1].checkIfNormalized() "+ abstractgameneprofile[1].checkIfNormalized());
 
-			 */
+			 
 
 
 
@@ -3433,9 +3433,9 @@ public class KmeanClustering {
 
 
 
-			/*
+			
 			 * calculate original game expected payoffs for NE profile 
-			 */
+			 
 
 
 
@@ -3478,7 +3478,7 @@ public class KmeanClustering {
 			//	String str1 = originalmixedstrategyplayer1+ " ";
 			//	String str2 = originalmixedstrategyplayer2+ " ";
 
-			/*
+			
 
 			System.out.println( "strategy player 1: "+abstractgameneprofile1);
 			System.out.println("strategy player 2: "+abstractgameneprofile2);
@@ -3511,21 +3511,21 @@ public class KmeanClustering {
 			Logger.log(normalized, false);
 
 
-			 */
+			 
 
 
-			/*
+			
 			 * mixed strategy for subgame
-			 */
+			 
 
 
-			/*	MixedStrategy[] originalmixedstrategyplayer = strategymap.getStrategySubgameSols(abstractgameneprofile);
+				MixedStrategy[] originalmixedstrategyplayer = strategymap.getStrategySubgameSols(abstractgameneprofile);
 
 
 			System.out.println("originalmixedstrategyplayer[0].checkIfNormalized() "+ originalmixedstrategyplayer[0].checkIfNormalized());
 			System.out.println("originalmixedstrategyplayer[1].checkIfNormalized() "+ originalmixedstrategyplayer[1].checkIfNormalized());
 
-			 */
+			 
 
 
 
@@ -3607,8 +3607,8 @@ public class KmeanClustering {
 
 
 	}
-
-
+*/
+/*
 
 	public static Game getGameWithMaxExpectedPayoff(Game game, StrategyMapping strategymap)
 	{
@@ -3626,7 +3626,7 @@ public class KmeanClustering {
 		}
 		return gamewithmaxexpectedpayoff;
 
-	}
+	}*/
 
 
 
@@ -3678,7 +3678,7 @@ public class KmeanClustering {
 	 * @param player
 	 * @return
 	 */
-	public static MixedStrategy buildOriginalStrategyFromAbstractStrategy(StrategyMapping strategymap, 
+	/*public static MixedStrategy buildOriginalStrategyFromAbstractStrategy(StrategyMapping strategymap, 
 			MixedStrategy abstractstrategy, 
 			int originalnumberofactions, int abstractgamenumberofactions, int player)
 	{
@@ -3719,7 +3719,7 @@ public class KmeanClustering {
 		return origprofile;
 
 	}
-
+*/
 
 
 
