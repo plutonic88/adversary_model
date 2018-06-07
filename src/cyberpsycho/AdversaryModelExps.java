@@ -2859,6 +2859,7 @@ public class AdversaryModelExps {
 
 		for(double index: list)
 		{
+			//System.out.println("adding usser index "+ index);
 			users.add(users_refined.get((int)index));
 		}
 
@@ -6461,7 +6462,7 @@ private static double[][] computeAllDTScores(ArrayList<String> users_refined, in
 
 		if(k>1)
 		{
-			clusters = Weka.clusterUsers(k, normalizedexamples);
+			clusters = Weka.clusterUsers(k, normalizedexamples, minw1, minw2, minw3, minw4);
 			//clusters = KmeanClustering.clusterUsersV2(k, normalizedexamples);
 		}
 		else
@@ -6484,10 +6485,12 @@ private static double[][] computeAllDTScores(ArrayList<String> users_refined, in
 
 
 		System.out.println("Result");
+		System.out.println("total users "+ users_refined.size());
+		
 		for(int cluster=0; cluster<clusters.length; cluster++)
 		{
 			ArrayList<String> users_groups = getUserGroup(clusters[cluster], users_refined);
-
+			System.out.println("cluster "+ cluster + ", user number "+ users_groups.size());
 
 			//users_groups = users_refined;
 
@@ -10235,7 +10238,7 @@ private static double[][] computeAllDTScores(ArrayList<String> users_refined, in
 		
 		int combcount = 0;
 		
-		int cores = 1;//Runtime.getRuntime().availableProcessors()-2;
+		int cores = 1;//Runtime.getRuntime().availableProcessors();
 		
 		SUQRTreeGeneratorParallel thrd1 [] = new SUQRTreeGeneratorParallel[cores];
 		

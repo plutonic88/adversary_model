@@ -113,31 +113,38 @@ public class Main {
 		
 		int k = 2;//Integer.parseInt(args[0]);
 		
-		int def_order = Integer.parseInt(args[0]); // def order 0 strategic last. def order 1 strategic def first
-		int depthlimit = Integer.parseInt(args[1]);
-		int gametype = 1;//Integer.parseInt(args[2]); // 0 noinfo, 1 fullinfo
-		int gameins0 = Integer.parseInt(args[2]);
+		/**/
 		
 		double wlimit = 2;
 		
 		
-		/*double minw1 = -10;//Integer.parseInt(args[3]);
-		double maxw1 = -8;//minw1 + wlimit;// Integer.parseInt(args[2]);
 		
-		double minw2 = -2;//Integer.parseInt(args[4]);
-		double maxw2 = 2;//minw2 + wlimit;;//Integer.parseInt(args[4]);
+		int def_order = 1;//Integer.parseInt(args[0]); // def order 0 strategic last. def order 1 strategic def first
+		int depthlimit = 6;//Integer.parseInt(args[1]);
+		int gametype = 1;//Integer.parseInt(args[2]); // 0 noinfo, 1 fullinfo
+		int gameins0 = 1;//Integer.parseInt(args[2]);
+		double minw1 = -10;//Integer.parseInt(args[3]);
+		double maxw1 = 0;//minw1 + wlimit;// Integer.parseInt(args[2]);
 		
-		double minw3 = -2;//Integer.parseInt(args[5]);
-		double maxw3 = 2;//minw3 + wlimit;;//Integer.parseInt(args[6]);
+		double minw2 = -10;//Integer.parseInt(args[4]);
+		double maxw2 = 10;//minw2 + wlimit;;//Integer.parseInt(args[4]);
+		
+		double minw3 = -10;//Integer.parseInt(args[5]);
+		double maxw3 = 10;//minw3 + wlimit;;//Integer.parseInt(args[6]);
 		
 		double minw4 = -10;//Integer.parseInt(args[6]);
 		double maxw4 = 10;//minw4 + wlimit;;//Integer.parseInt(args[8]);
 		
-		double minw5 = 1;//Integer.parseInt(args[9]);
-		double maxw5 = 2;//Integer.parseInt(args[10]);
-*/		
+		AdversaryModel.suqrw4 = Integer.parseInt(args[0]);
 		
 		
+		/*
+		 * 
+		 int def_order = Integer.parseInt(args[0]); // def order 0 strategic last. def order 1 strategic def first
+		int depthlimit = Integer.parseInt(args[1]);
+		int gametype = 1;//Integer.parseInt(args[2]); // 0 noinfo, 1 fullinfo
+		int gameins0 = Integer.parseInt(args[2]);
+		 
 		double minw1 = -Integer.parseInt(args[3]);
 		double maxw1 = minw1 + wlimit;// Integer.parseInt(args[2]);
 		
@@ -150,19 +157,34 @@ public class Main {
 		double minw4 = Integer.parseInt(args[6]);
 		double maxw4 = minw4 + wlimit;;//Integer.parseInt(args[8]);
 		
+		AdversaryModel.suqrw4 = Integer.parseInt(args[7]);
+*/		
+		
+		
+		
+		
 		double minw5 = 1;//Integer.parseInt(args[9]);
 		double maxw5 = 2;//Integer.parseInt(args[10]);
 		
-		double w1step = 1;
+		
+		
+		
+		/*double w1step = 1;
 		double w2step = .5;
 		double w3step = .5;
+		double w4step = 1;*/
+		
+		
+		double w1step = 1;
+		double w2step = 1;
+		double w3step = 1;
 		double w4step = 1;
 		
 		double w5step = 1;
 		
 		
 		
-		AdversaryModel.suqrw4 = Integer.parseInt(args[7]);
+		
 		
 		
 		
