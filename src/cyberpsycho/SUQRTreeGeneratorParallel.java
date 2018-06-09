@@ -106,6 +106,11 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 
 
 			double llh = -this.llval;//computeLogLikeliHoodValue(attackfrequency, attstrategy, naction);
+			
+			if(llh==0)
+			{
+				llh = Double.POSITIVE_INFINITY;
+			}
 
 			//double llh = -likeHoodValue(isets, attackfrequency, naction, defstrategy, root, dEPTH_LIMIT, depthinfoset, lambda[i]);
 
@@ -766,23 +771,23 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 			recentattstrat[5] = 1;
 		}
 
-		/*if(sm<(1-0.001))
+		if(sm<(1-0.001))
 		{
 
-			System.out.println("problem in attaacker strategy, sum(prob) != 1 sm = "+sm);
-			System.out.println(" exponnentsum "+ exponnentsum);
+			//System.out.println("problem in attaacker strategy, sum(prob) != 1 sm = "+sm);
+			//System.out.println(" exponnentsum "+ exponnentsum);
 			for(int attaction = 0; attaction<naction; attaction++)
 			{
 				double prob = Math.exp(lambda*attsu.get(attaction))/exponnentsum; 
 				recentattstrat[attaction] = prob;
-				System.out.println("attsu.get(attaction) "+ attsu.get(attaction));
-				System.out.println("attaction "+attaction+" : "+recentattstrat[attaction] + ", lambda "+ lambda);
-				System.out.println("w0 "+omega[0] +", w1 "+ omega[1]+" , w2 " + omega[2]+" w3  " + omega[3] );
+				//System.out.println("attsu.get(attaction) "+ attsu.get(attaction));
+				//System.out.println("attaction "+attaction+" : "+recentattstrat[attaction] + ", lambda "+ lambda);
+				//System.out.println("w0 "+omega[0] +", w1 "+ omega[1]+" , w2 " + omega[2]+" w3  " + omega[3] );
 
 			}
 			
 			//throw new Exception("problem with prob sum");
-		}*/
+		}
 
 		return recentattstrat;
 

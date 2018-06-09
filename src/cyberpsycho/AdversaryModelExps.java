@@ -10238,7 +10238,7 @@ private static double[][] computeAllDTScores(ArrayList<String> users_refined, in
 		
 		int combcount = 0;
 		
-		int cores = 1;//Runtime.getRuntime().availableProcessors();
+		int cores = Runtime.getRuntime().availableProcessors();
 		
 		SUQRTreeGeneratorParallel thrd1 [] = new SUQRTreeGeneratorParallel[cores];
 		
