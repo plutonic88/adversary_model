@@ -77,24 +77,14 @@ public class Main {
 		
 		
 		
-		int personlaity = 0;//Integer.parseInt(args[1]); // 0 mac, 1 narc, 2 psyc, 3 medium
 		
 		
 		
 		int pointslevel = 0;//Integer.parseInt(args[1]);
 		
-		
 		// 0 bhv 1 DT
 		
 		
-		
-		int featureset = 0;//Integer.parseInt(args[1]); 
-		
-		
-		
-		
-		
-		int gameinsforcluster = 1;
 		
 		
 		
@@ -111,7 +101,7 @@ public class Main {
 		 * 4. compute SUQR for all users
 		 */
 		
-		int k = 2;//Integer.parseInt(args[0]);
+		
 		
 		/**/
 		
@@ -119,8 +109,8 @@ public class Main {
 		
 		
 		
-		int def_order = 1;//Integer.parseInt(args[0]); // def order 0 strategic last. def order 1 strategic def first
-		int depthlimit = 8;//Integer.parseInt(args[1]);
+		int def_order = Integer.parseInt(args[0]); // def order 0 strategic last. def order 1 strategic def first
+		int depthlimit = 10;//Integer.parseInt(args[1]);
 		int gametype = 1;//Integer.parseInt(args[2]); // 0 noinfo, 1 fullinfo
 		int gameins0 = 1;//Integer.parseInt(args[2]);
 		double minw1 = -10.0;//Integer.parseInt(args[3]);
@@ -135,7 +125,20 @@ public class Main {
 		double minw4 = -10.0;//Integer.parseInt(args[6]);
 		double maxw4 = 10;//minw4 + wlimit;;//Integer.parseInt(args[8]);
 		
-		AdversaryModel.suqrw4 = Integer.parseInt(args[0]);
+		//AdversaryModel.suqrw4 = Integer.parseInt(args[0]);
+		
+		
+		int k = 2;//Integer.parseInt(args[0]);
+		int gameinsforcluster = 1;//Integer.parseInt(args[1]);
+		int featureset = 0;//Integer.parseInt(args[1]); 
+		//int personality = Integer.parseInt(args[1]); // 0 mac, 1 narc, 2 psyc, 3 medium
+		
+		//use soft max
+		
+		double stddev = 0.0;
+		//xAdversaryModelExps.trackDTStdDevQR(k, def_order, depthlimit, gametype, stddev);
+		
+		AdversaryModelExps.computeLambdaForAdaptivenessQR(k, def_order, depthlimit, featureset, gametype); 
 		
 		
 		/*
@@ -194,9 +197,9 @@ public class Main {
 		//AdversaryModelExps.computeOmegaForAdaptivenessSUQR(k, def_order, depthlimit, featureset, gametype); 
 		
 		//trending, for batch job
-		AdversaryModelExps.computeOmegaSUQRBatchJobTrending(k, def_order, depthlimit, featureset, gametype, gameins0, 
+		/*AdversaryModelExps.computeOmegaSUQRBatchJobTrending(k, def_order, depthlimit, featureset, gametype, gameins0, 
 				minw1, maxw1, minw2, maxw2, minw3, maxw3, minw4, maxw4, minw5, maxw5, w1step, w2step, w3step, w4step, w5step); 
-		
+		*/
 		
 		//tracking
 		//AdversaryModelExps.trackUsersPerformanceSUQR(k, def_order, depthlimit, featureset, gameinsforcluster);
