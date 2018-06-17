@@ -109,8 +109,8 @@ public class Main {
 		
 		
 		
-		int def_order = Integer.parseInt(args[0]); // def order 0 strategic last. def order 1 strategic def first
-		int depthlimit = 10;//Integer.parseInt(args[1]);
+		int def_order = 1;//Integer.parseInt(args[0]); // def order 0 strategic last. def order 1 strategic def first
+		int depthlimit = 6;//Integer.parseInt(args[1]);
 		int gametype = 1;//Integer.parseInt(args[2]); // 0 noinfo, 1 fullinfo
 		int gameins0 = 1;//Integer.parseInt(args[2]);
 		double minw1 = -10.0;//Integer.parseInt(args[3]);
@@ -128,17 +128,147 @@ public class Main {
 		//AdversaryModel.suqrw4 = Integer.parseInt(args[0]);
 		
 		
-		int k = 2;//Integer.parseInt(args[0]);
+		int k = 3;//Integer.parseInt(args[0]);
 		int gameinsforcluster = 1;//Integer.parseInt(args[1]);
+		int alg = -1;//Integer.parseInt(args[0]);
 		int featureset = 0;//Integer.parseInt(args[1]); 
+		
 		//int personality = Integer.parseInt(args[1]); // 0 mac, 1 narc, 2 psyc, 3 medium
 		
 		//use soft max
 		
 		double stddev = 0.0;
-		//xAdversaryModelExps.trackDTStdDevQR(k, def_order, depthlimit, gametype, stddev);
 		
-		AdversaryModelExps.computeLambdaForAdaptivenessQR(k, def_order, depthlimit, featureset, gametype); 
+		/**
+		 * r1 random first
+		 * r2 random second
+		 * s1 strategic first
+		 * s2 strategic second
+		 * 
+		 * r1+r2
+		 * 
+		 * 
+		 * s1+s2
+		 * 
+		 * 
+		 */
+		
+		String algorithm = "s2";
+		
+		//AdversaryModelExps.computeLambdaForAdaptivenessCombinedQR(k, depthlimit, featureset, gametype, algorithm); 
+		
+		algorithm = "s";
+		
+		//AdversaryModelExps.computeLambdaForAdaptivenessWODefOrderQR(k, depthlimit, featureset, gametype, algorithm); 
+		
+		algorithm = "s2";
+		//AdversaryModelExps.trackDTQRCombined(k, depthlimit, gametype, stddev, algorithm);
+		
+		
+		algorithm = "s";
+		
+		//AdversaryModelExps.trackDTQRWOOrder(k, depthlimit, gametype, stddev, algorithm);
+		
+		
+		alg = 0;
+		
+		featureset = 1;
+		
+		
+		if(alg==0)
+		{
+			algorithm = "r1";
+			AdversaryModelExps.trackDTQRCombined(k, depthlimit, gametype, stddev, algorithm);
+		}
+		else if(alg==1)
+		{
+			algorithm = "r2";
+			AdversaryModelExps.trackDTQRCombined(k, depthlimit, gametype, stddev, algorithm);
+		}
+		else if(alg==2)
+		{
+			algorithm = "s1";
+			AdversaryModelExps.trackDTQRCombined(k, depthlimit, gametype, stddev, algorithm); 
+		}
+		else if(alg==3)
+		{
+			algorithm = "s2";
+			AdversaryModelExps.trackDTQRCombined(k, depthlimit, gametype, stddev, algorithm);
+		}
+		else if(alg==4)
+		{
+			algorithm = "r";
+			AdversaryModelExps.trackDTQRWOOrder(k, depthlimit, gametype, stddev, algorithm);
+		}
+		else if(alg==5)
+		{
+			algorithm = "s";
+			AdversaryModelExps.trackDTQRWOOrder(k, depthlimit, gametype, stddev, algorithm);
+		}
+		
+		
+		
+		
+		/**
+		 * verify the algorithms as much as you can
+		 */
+		alg = 4;
+		
+		featureset = 1;
+		
+		
+		/*if(alg==0)
+		{
+			algorithm = "r1";
+			AdversaryModelExps.computeLambdaForAdaptivenessCombinedQR(k, depthlimit, featureset, gametype, algorithm); 
+		}
+		else if(alg==1)
+		{
+			algorithm = "r2";
+			AdversaryModelExps.computeLambdaForAdaptivenessCombinedQR(k, depthlimit, featureset, gametype, algorithm); 
+		}
+		else if(alg==2)
+		{
+			algorithm = "s1";
+			AdversaryModelExps.computeLambdaForAdaptivenessCombinedQR(k, depthlimit, featureset, gametype, algorithm); 
+		}
+		else if(alg==3)
+		{
+			algorithm = "s2";
+			AdversaryModelExps.computeLambdaForAdaptivenessCombinedQR(k, depthlimit, featureset, gametype, algorithm); 
+		}
+		else if(alg==4)
+		{
+			algorithm = "r";
+			AdversaryModelExps.computeLambdaForAdaptivenessWODefOrderQR(k, depthlimit, featureset, gametype, algorithm); 
+		}
+		else if(alg==5)
+		{
+			algorithm = "s";
+			AdversaryModelExps.computeLambdaForAdaptivenessWODefOrderQR(k, depthlimit, featureset, gametype, algorithm); 
+		}
+		*/
+		
+		
+		
+		
+		
+		
+
+		
+		
+		
+		
+		
+		//put ppl at the cluster where they have their high score
+		// AdversaryModelExps.trackDTStdDevQR(k, def_order, depthlimit, gametype, stddev);
+		
+		
+		
+		
+		
+		
+		//AdversaryModelExps.computeLambdaForAdaptivenessQR(k, def_order, depthlimit, featureset, gametype); 
 		
 		
 		/*
