@@ -105,12 +105,12 @@ public class Main {
 		
 		/**/
 		
-		double wlimit = 2;
+		//double wlimit = 2;
 		
 		
 		
-		int def_order = 1;//Integer.parseInt(args[0]); // def order 0 strategic last. def order 1 strategic def first
-		int depthlimit = 6;//Integer.parseInt(args[1]);
+		/*int def_order = 1;//Integer.parseInt(args[0]); // def order 0 strategic last. def order 1 strategic def first
+		int depthlimit = 10;//Integer.parseInt(args[1]);
 		int gametype = 1;//Integer.parseInt(args[2]); // 0 noinfo, 1 fullinfo
 		int gameins0 = 1;//Integer.parseInt(args[2]);
 		double minw1 = -10.0;//Integer.parseInt(args[3]);
@@ -124,13 +124,13 @@ public class Main {
 		
 		double minw4 = -10.0;//Integer.parseInt(args[6]);
 		double maxw4 = 10;//minw4 + wlimit;;//Integer.parseInt(args[8]);
-		
+*/		
 		//AdversaryModel.suqrw4 = Integer.parseInt(args[0]);
 		
 		
-		int k = 3;//Integer.parseInt(args[0]);
+		
 		int gameinsforcluster = 1;//Integer.parseInt(args[1]);
-		int alg = -1;//Integer.parseInt(args[0]);
+		
 		int featureset = 0;//Integer.parseInt(args[1]); 
 		
 		//int personality = Integer.parseInt(args[1]); // 0 mac, 1 narc, 2 psyc, 3 medium
@@ -170,9 +170,9 @@ public class Main {
 		//AdversaryModelExps.trackDTQRWOOrder(k, depthlimit, gametype, stddev, algorithm);
 		
 		
-		alg = 0;
+		/*int alg = Integer.parseInt(args[0]);
 		
-		featureset = 1;
+		//featureset = 1;
 		
 		
 		if(alg==0)
@@ -205,18 +205,20 @@ public class Main {
 			algorithm = "s";
 			AdversaryModelExps.trackDTQRWOOrder(k, depthlimit, gametype, stddev, algorithm);
 		}
-		
+		*/
 		
 		
 		
 		/**
 		 * verify the algorithms as much as you can
 		 */
-		alg = 4;
-		
-		featureset = 1;
+		//alg = 4;
 		
 		
+		/*int alg = 5;//Integer.parseInt(args[0]);
+		featureset = 0;//Integer.parseInt(args[1]);
+		boolean genericgroup = false;
+		*/
 		/*if(alg==0)
 		{
 			algorithm = "r1";
@@ -240,23 +242,62 @@ public class Main {
 		else if(alg==4)
 		{
 			algorithm = "r";
-			AdversaryModelExps.computeLambdaForAdaptivenessWODefOrderQR(k, depthlimit, featureset, gametype, algorithm); 
+			AdversaryModelExps.computeLambdaForAdaptivenessWODefOrderQR(k, depthlimit, featureset, gametype, algorithm, genericgroup); 
 		}
 		else if(alg==5)
 		{
 			algorithm = "s";
-			AdversaryModelExps.computeLambdaForAdaptivenessWODefOrderQR(k, depthlimit, featureset, gametype, algorithm); 
+			AdversaryModelExps.computeLambdaForAdaptivenessWODefOrderQR(k, depthlimit, featureset, gametype, algorithm, genericgroup); 
+		}
+		else if(alg==6)
+		{
+			algorithm = "r";
+			AdversaryModelExps.trackDTQRWOOrder(k, depthlimit, gametype, stddev, algorithm);
+		}
+		else if(alg==7)
+		{
+			algorithm = "s";
+			AdversaryModelExps.trackDTQRWOOrder(k, depthlimit, gametype, stddev, algorithm);
 		}
 		*/
 		
 		
+		/**
+		 * SUQR
+		 */
+		int k = 3;//Integer.parseInt(args[0]);
+		int alg = 0;//Integer.parseInt(args[0]);
+		featureset = 0;//Integer.parseInt(args[1]);
+		boolean genericgroup = false;
+		boolean parallel = false;
+		
+		int depthlimit = 10;//Integer.parseInt(args[1]);
+		int gametype = 1;//Integer.parseInt(args[2]); // 0 noinfo, 1 fullinfo
+		double wlimit = 2;
+		
+		double minw1 = Integer.parseInt(args[0]);
+		double maxw1 = minw1 + wlimit;// Integer.parseInt(args[2]);
+		
+		double minw2 = Integer.parseInt(args[1]);
+		double maxw2 = minw2 + wlimit;;//Integer.parseInt(args[4]);
+		
+		double minw3 = Integer.parseInt(args[2]);
+		double maxw3 = minw3 + wlimit;;//Integer.parseInt(args[6]);
+		
+		double minw4 = Integer.parseInt(args[3]);
+		double maxw4 = minw4 + wlimit;;//Integer.parseInt(args[8]);
+		
+		AdversaryModel.suqrw4 = Integer.parseInt(args[4]);
+		
+		double w1step = .5;
+		double w2step = .5;
+		double w3step = .5;
+		double w4step = .5;
 		
 		
 		
-		
-
-		
-		
+		AdversaryModelExps.computeOmegaWODefOrderSUQR(k, depthlimit, featureset, gametype, algorithm, genericgroup,
+				minw1, maxw1, minw2, maxw2, minw3, maxw3, minw4, maxw4, w1step, w2step, w3step, w4step, parallel);
 		
 		
 		
@@ -308,12 +349,7 @@ public class Main {
 		double w4step = .5;
 		*/
 		
-		double w1step = 1;
-		double w2step = 1;
-		double w3step = 1;
-		double w4step = 1;
 		
-		double w5step = 1;
 		
 		
 		

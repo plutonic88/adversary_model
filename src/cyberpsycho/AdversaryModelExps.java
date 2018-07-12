@@ -32,6 +32,7 @@ import subnet.MonteCarloParallel;*/
 public class AdversaryModelExps {
 
 	public static Random rand = new Random(5);
+	public static int defbr = 0;
 
 
 	public static void doDummyTesting()
@@ -4557,7 +4558,7 @@ public class AdversaryModelExps {
 	
 	
 	
-	public static void computeLambdaForAdaptivenessWODefOrderQR(int k, int depthlimit, int featureset, int game_type, String algorithm) throws Exception {
+	public static void computeLambdaForAdaptivenessWODefOrderQR(int k, int depthlimit, int featureset, int game_type, String algorithm, boolean genericgroup) throws Exception {
 
 
 
@@ -4663,15 +4664,123 @@ public class AdversaryModelExps {
 		
 		
 			//addData(data_refined_second_game, newdata);
-			
+		
+		
+		
 		findLambdaForGroupRangeWOOrder(users_refined, data_refined, ngames,data,
-					noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, k, featureset, algorithm);
+				noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, k, featureset, algorithm);
 
+	
+			
+		/*computeDefBR(users_refined, data_refined, ngames,data,
+					noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, k, featureset, algorithm, genericgroup);
+*/
 			
 		// for each of the user groups compute lambda
 
 
 	}
+	
+	
+	
+	public static void computeOmegaWODefOrderSUQR(int k, int depthlimit, int featureset, int game_type, String algorithm, boolean genericgroup, 
+			double minw1, double maxw1, double minw2, double maxw2, double minw3, double maxw3, double minw4, double maxw4, double w1step, 
+			double w2step, double w3step, double w4step, boolean parallel) throws Exception {
+
+
+
+
+
+
+		int DEPTH_LIMIT = depthlimit; // needs to be 10 for our experiment
+		int naction = 6;
+		
+		
+		double lambda = 1;//generateLambdaArray(minlambda, maxlambda, step);
+
+
+		// how many clusters you want
+		int numberofnodes = 6;
+
+		
+
+		int ngames = -1;
+		int roundlimit = 5;
+
+		ArrayList<ArrayList<String>> data =  Data.readData();
+
+		// gametype 1 full info, 0 noinfo
+		// deforder 0 asc: last 3 games max defender
+		// defeorder 1 desc, 1st 3 games max defender
+
+
+		// get the users who played 1st game instance
+		
+
+
+		
+		
+		int fgi = -1;
+		int lgi = -1;
+		//int def_order=0;
+		int exampleinstances = 15;
+		
+		if(algorithm.equals("r") )
+		{
+			//def_order=0;
+			fgi= 1;
+			lgi= 3;
+			ngames=3;
+
+		}
+		else if(algorithm.equals("s"))
+		{
+			//def_order=1;
+			fgi= 4;
+			lgi=6;
+			ngames=3;
+		}
+		
+		
+		ArrayList<String> users_refined = refineUserAdaptiveWOOrder(data, game_type);
+		
+		
+		
+		
+		
+		ArrayList<ArrayList<String>>  data_refined = refineDataAdaptiveRangeWOOrder(data,game_type, users_refined, algorithm);
+
+
+
+
+
+		/**
+		 * remove users whose points are not consistent
+		 */
+
+		HashMap<Integer, Integer[]> noderewards = EquationGenerator.createNodeRewards(naction);
+
+		
+		//removeIncosistentUsers(users_refined, data_refined, exampleinstances, algorithm);
+		
+
+		sanitizeUsersRangeWOOrder(users_refined, data_refined, ngames, data, noderewards, game_type, roundlimit, exampleinstances, algorithm);
+		
+		
+		
+		
+		
+		findOmega(users_refined, data_refined, ngames,data,
+				noderewards, game_type, roundlimit, numberofnodes, lambda, naction, DEPTH_LIMIT, k, featureset, algorithm, 
+				minw1, maxw1, minw2, maxw2, minw3, maxw3, minw4, maxw4, w1step, w2step, w3step, w4step, genericgroup, parallel);
+
+		
+		
+		
+
+
+	}
+	
 	
 	
 	
@@ -8134,7 +8243,7 @@ private static double[][] computeAllDTScores(ArrayList<String> users_refined, Ar
 			ArrayList<String> users_groups = getUserGroup(clusters[cluster], users_refined);
 
 
-		//	users_groups = users_refined;
+			//users_groups = users_refined;
 
 			/**
 			 * get attack count for different information set
@@ -8231,8 +8340,15 @@ private static double[][] computeAllDTScores(ArrayList<String> users_refined, Ar
 			}
 
 
-
+			/**
+			 * use the int[] version. Divide the sum og llv by the total number of samples
+			 */
+			//double[] estimatedlambdanaive = estimateLambdaNaiveBinaryS(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
+			
+			
 			double[] estimatedlambdanaive = estimateLambdaNaiveBinaryS(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
+			
+			
 			
 			
 			//double[] estimatedlambdanaive = estimateLambdaNaiveBinaryDouble(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
@@ -8307,7 +8423,7 @@ private static double[][] computeAllDTScores(ArrayList<String> users_refined, Ar
 
 
 
-			System.out.println("Cluster "+cluster+", user count "+users_groups.size()+", lambda "+ estimatedlambdanaive);
+			//System.out.println("Cluster "+cluster+", user count "+users_groups.size()+", lambda "+ estimatedlambdanaive);
 
 
 			try
@@ -8340,6 +8456,301 @@ private static double[][] computeAllDTScores(ArrayList<String> users_refined, Ar
 
 
 			//break;
+
+		}
+		
+	}
+	
+	
+	private static void computeDefBR(ArrayList<String> users_refined, ArrayList<ArrayList<String>> data_refined_first_game, 
+			int ngames, ArrayList<ArrayList<String>> data, HashMap<Integer,Integer[]> noderewards, 
+			int game_type, int roundlimit, int numberofnodes, double[] lambda, double step, int naction, int DEPTH_LIMIT,
+			int k, int featureset, String algorithm, boolean genericgroup) throws Exception {
+		
+
+
+
+
+		/**
+		 * cluster based on the first play
+		 * then measure their rationality ? frequency may be
+		 * after that measure their ratinality in second game play
+		 */
+		
+		double[][] examples = null;
+		
+		if(featureset==0)
+		{
+			examples = prepareExamplesNodeCostPointWOOrder(data_refined_first_game, users_refined, ngames, algorithm);
+			
+			//examples = prepareExamplesNodeCostPointAdaptive(data_refined_first_game, users_refined, gameinstance, deforder);
+		}
+		else
+		{
+			examples = prepareExamplesDTScorePointsWOOrder(data_refined_first_game, users_refined, ngames, algorithm);
+		}
+		//double [][] examples = prepareFrquencey(data_refined, users_refined, numberofnodes);
+
+		//printData(users_refined,examples);
+
+		// normalize the data
+
+		double normalizedexamples[][] = normalizeData(examples);
+
+		//System.out.println("Normalized data: ");
+
+		//printData(users_refined, normalizedexamples);
+		
+		List<Integer>[] clusters = null;
+
+		if(k>1)
+		{
+			clusters = Weka.clusterUsers(k, normalizedexamples);
+		}
+		else
+		{
+			clusters = Weka.clusterUsers(normalizedexamples);
+		}
+
+
+
+		//List<Integer>[] clusters = KmeanClustering.clusterUsersV2(k, normalizedexamples);
+
+
+		printClustersInt(clusters);
+
+
+
+
+
+
+
+
+
+		for(int cluster=0; cluster<clusters.length; cluster++)
+		{
+			ArrayList<String> users_groups = getUserGroup(clusters[cluster], users_refined);
+
+			
+			if(genericgroup)
+			{
+
+				users_groups = users_refined;
+			}
+
+			/**
+			 * get attack count for different information set
+			 */
+
+
+
+			HashMap<String, String> user_seq = new HashMap<String, String>();
+
+			int[][] gameplay = createGamePlayRange(ngames, users_groups, data_refined_first_game, roundlimit,user_seq);
+
+
+			/*String u= "\"$2y$10$1.vgQUYwu1DmltOCcbkwt.fTPbViJwq/W4mURkZFKI.Z4zHvenYRq\"";
+
+			String ss= user_seq.get(u);*/
+
+
+
+			// = createGamePlay(ngames, users_groups, data_refined, roundlimit);
+
+
+
+			HashMap<String, Integer> user_reward = new HashMap<String, Integer>();
+
+			double attpoints = EquationGenerator.computeAttackerReward(noderewards, user_seq, user_reward);
+
+
+
+
+			int attackcount[] = getAttackFrequencyAdaptiveWOOrder(users_groups, data_refined_first_game, numberofnodes, algorithm);
+
+
+			
+
+
+
+			//int[][] testgameplay = new int[10][10];
+
+
+			/*for(int t=0; t<testgameplay.length; t++)
+			{
+				for(int u=0; u<testgameplay[t].length; u++)
+				{
+					testgameplay[t][u] = gameplay[t][u];
+					System.out.print(testgameplay[t][u] + " ");
+				}
+				System.out.println();
+
+			}
+			 */
+
+
+			HashMap<String, int[]> attackfrequency = getAttackCountInDataAttacker(gameplay, numberofnodes, 5);
+			
+			
+			//HashMap<String, int[]> defendfrequency = getAttackCountInDataDefender(gameplay, numberofnodes, 5);
+			
+			
+			
+			//HashMap<String, double[]> attackfrequency = getAttackFreqInData(gameplay, numberofnodes, 5);
+			
+			
+			
+
+			// #10*3*5 attackfreq should be 150
+			/*boolean isok = verifyAttackFreq(attackfrequency, users_groups.size());
+
+			if(!isok)
+			{
+				throw new Exception("problem freq....");
+			}*/
+			// TODO remove sequence for which there is no action was played
+
+			//refineAttackFrequency(attackfrequency);
+
+			//printAttackFreq(attackfrequency);
+
+
+
+			// now compute the best response in the tree
+
+
+			HashMap<String, HashMap<String, Double>> defstrategy = null;
+
+
+			if(algorithm.startsWith("s"))
+			{
+				defstrategy = Data.readStrategy("g5d5_FI.txt");
+			}
+			else if(algorithm.startsWith("r"))
+			{
+				HashMap<String, double[]> defendfrequency = getDefFreqInData(gameplay, numberofnodes, 5);
+				defstrategy = convertFormatD(defendfrequency);
+			}
+
+
+			/**
+			 * use the int[] version. Divide the sum og llv by the total number of samples
+			 */
+			//double[] estimatedlambdanaive = estimateLambdaNaiveBinaryS(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
+			
+			
+			double defbestres = defBestResponseValue(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
+			
+			
+			
+			
+			//double[] estimatedlambdanaive = estimateLambdaNaiveBinaryDouble(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
+
+			//System.out.println("Estmiated lambda "+ estimatedlambdanaive[1]);
+
+
+
+
+			//double estimatedlambda = estimateLambda(lambda, isets, attackfrequency, naction, strategy, root, DEPTH_LIMIT, depthinfoset, step);
+
+
+			int p =1;
+
+
+			int sumattackcoutn = 0;
+
+			for(int c: attackcount)
+			{
+				sumattackcoutn += c;
+			}
+
+
+
+
+			double sumscore = 0;
+
+			double sum_mscore =0;
+			double sum_nscore = 0;
+			double sum_pscore = 0;
+
+
+			for(int i=0; i<users_groups.size(); i++)
+			{
+
+
+				String tmpusr = users_groups.get(i);
+
+
+
+
+
+
+				//int tmpscore= getAllUserScoreAdaptive(tmpusr, data_refined_first_game, gameinstance0); // compute score from sequence
+
+				int computedscore = user_reward.get(tmpusr);
+
+				/*if(tmpscore != computedscore)
+				{
+					System.out.println(tmpusr + "   reward not matching");
+					//throw new Exception("reward not matching");
+				}*/
+
+
+				sumscore += computedscore;
+
+
+
+
+				sum_mscore += getPersonalityScore(tmpusr, data_refined_first_game, 0);
+				sum_nscore += getPersonalityScore(tmpusr, data_refined_first_game, 1);
+				sum_pscore += getPersonalityScore(tmpusr, data_refined_first_game, 2);
+
+
+				//System.out.println("kept user "+ tmpusr);
+			}
+
+			sumscore = sumscore/users_groups.size();
+			sum_mscore /= users_groups.size();
+			sum_nscore /= users_groups.size();
+			sum_pscore /= users_groups.size();
+
+
+
+			//System.out.println("Cluster "+cluster+", user count "+users_groups.size()+", lambda "+ estimatedlambdanaive);
+
+
+			try
+			{
+				PrintWriter pw = new PrintWriter(new FileOutputStream(new File("lambda.csv"),true));
+
+				//pw.append("cluster,#users,lambda,score,mscore,nscore,pscore"+ "\n");
+
+				pw.append(algorithm+","+cluster+","+users_groups.size()+","+ defbestres+","+sumscore+","+sum_mscore+","+sum_nscore+","+sum_pscore+",");
+
+				int index=0;
+				for(int c: attackcount)
+				{
+					pw.append(c+"");
+					if(index<(attackcount.length-1))
+					{
+						pw.append(",");
+					}
+
+					index++;
+				}
+				pw.append("\n");
+
+				pw.close();
+			}
+			catch(Exception ex)
+			{
+				System.out.println(" ");
+			}
+
+			if(genericgroup)
+			{
+				break;
+			}
 
 		}
 		
@@ -8763,27 +9174,6 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 
 
 
-		
-		/*double minw1 = -10;
-		double maxw1 = -8;*/
-		//double stepw1 = .5;
-
-
-		/*double minw2 = -2;
-		double maxw2 = 2;*/
-		//double stepw2 = .1;
-
-
-		/*double minw3 = -2;
-		double maxw3 = 2;*/
-		//double stepw3 = .1;
-
-
-		/*double minw4 = -10;
-		double maxw4 = 10;*/
-		//double stepw4 = 0.5;
-
-
 		//step = 0.1;
 
 		double[] w1 = generateAlphaArray(minw1, maxw1, w1step);
@@ -9064,6 +9454,365 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 			//break;
 
 		}
+		
+	}
+	
+	
+	private static void findOmega(ArrayList<String> users_refined, ArrayList<ArrayList<String>> data_refined_first_game, 
+			int ngames, ArrayList<ArrayList<String>> data, HashMap<Integer,Integer[]> noderewards, 
+			int game_type, int roundlimit, int numberofnodes, double lambda, int naction, int DEPTH_LIMIT,
+			int k, int featureset, String algorithm,
+			double minw1, double maxw1, double minw2, double maxw2,
+			double minw3, double maxw3, double minw4, double maxw4, double w1step, double w2step, double w3step, double w4step, boolean genericgroup, boolean parallel) throws Exception {
+		
+
+
+
+		//step = 0.1;
+
+		double[] w1 = generateAlphaArray(minw1, maxw1, w1step);
+
+
+		double[] w2 = generateBetaArray(minw2, maxw2, w2step);
+
+
+		double[] w3 = generateBetaArray(minw3, maxw3, w3step);
+
+
+		double[] w4 = generateGammaArray(minw4, maxw4, w4step);
+		
+		//double[] w5 = generateGammaArray(minw5, maxw5, w5step);
+		
+		
+
+		/**
+		 * cluster based on the first play
+		 * then measure their rationality ? frequency may be
+		 * after that measure their ratinality in second game play
+		 */
+		
+		double[][] examples = null;
+		
+		if(featureset==0)
+		{
+			examples = prepareExamplesNodeCostPointWOOrder(data_refined_first_game, users_refined, ngames, algorithm);
+			
+			//examples = prepareExamplesNodeCostPointAdaptive(data_refined_first_game, users_refined, gameinstance, deforder);
+		}
+		else
+		{
+			examples = prepareExamplesDTScorePointsWOOrder(data_refined_first_game, users_refined, ngames, algorithm);
+		}
+		//double [][] examples = prepareFrquencey(data_refined, users_refined, numberofnodes);
+
+		//printData(users_refined,examples);
+
+		// normalize the data
+
+		double normalizedexamples[][] = normalizeData(examples);
+
+		//System.out.println("Normalized data: ");
+
+		//printData(users_refined, normalizedexamples);
+		
+		List<Integer>[] clusters = null;
+
+		if(k>1)
+		{
+			clusters = Weka.clusterUsers(k, normalizedexamples);
+		}
+		else
+		{
+			clusters = Weka.clusterUsers(normalizedexamples);
+		}
+
+
+
+		//List<Integer>[] clusters = KmeanClustering.clusterUsersV2(k, normalizedexamples);
+
+
+		printClustersInt(clusters);
+
+
+
+
+
+		System.out.println("Result");
+		System.out.println("total users "+ users_refined.size());
+		
+		try {
+		
+		//PrintWriter pw = new PrintWriter(new FileOutputStream(new File("suqr.csv"),true));
+
+		//pw.append("deftype,cluster,#users,llv,w1,w2,w3,w4,score,mscore,nscore,pscore"+ "\n");
+		//pw.close();
+		
+		}
+		catch(Exception ex)
+		{
+			
+		}
+
+
+
+		for(int cluster=0; cluster<clusters.length; cluster++)
+		{
+			ArrayList<String> users_groups = getUserGroup(clusters[cluster], users_refined);
+
+			
+			
+			
+			
+			if(genericgroup)
+			{
+				users_groups = users_refined;
+			}
+			
+			System.out.println("cluster "+ cluster + ", total users "+ users_groups.size());
+			
+
+			
+
+			/**
+			 * get attack count for different information set
+			 */
+
+
+
+			HashMap<String, String> user_seq = new HashMap<String, String>();
+
+			int[][] gameplay = createGamePlayRange(ngames, users_groups, data_refined_first_game, roundlimit,user_seq);
+
+
+			/*String u= "\"$2y$10$1.vgQUYwu1DmltOCcbkwt.fTPbViJwq/W4mURkZFKI.Z4zHvenYRq\"";
+
+			String ss= user_seq.get(u);*/
+
+
+
+			// = createGamePlay(ngames, users_groups, data_refined, roundlimit);
+
+
+
+			HashMap<String, Integer> user_reward = new HashMap<String, Integer>();
+
+			double attpoints = EquationGenerator.computeAttackerReward(noderewards, user_seq, user_reward);
+
+
+
+
+			int attackcount[] = getAttackFrequencyAdaptiveWOOrder(users_groups, data_refined_first_game, numberofnodes, algorithm);
+
+
+			
+
+
+
+			//int[][] testgameplay = new int[10][10];
+
+
+			/*for(int t=0; t<testgameplay.length; t++)
+			{
+				for(int u=0; u<testgameplay[t].length; u++)
+				{
+					testgameplay[t][u] = gameplay[t][u];
+					System.out.print(testgameplay[t][u] + " ");
+				}
+				System.out.println();
+
+			}
+			 */
+
+
+			HashMap<String, int[]> attackfrequency = getAttackCountInDataAttacker(gameplay, numberofnodes, 5);
+			
+			
+			//HashMap<String, int[]> defendfrequency = getAttackCountInDataDefender(gameplay, numberofnodes, 5);
+			
+			
+			
+			//HashMap<String, double[]> attackfrequency = getAttackFreqInData(gameplay, numberofnodes, 5);
+			
+			
+			
+
+			// #10*3*5 attackfreq should be 150
+			/*boolean isok = verifyAttackFreq(attackfrequency, users_groups.size());
+
+			if(!isok)
+			{
+				throw new Exception("problem freq....");
+			}*/
+			// TODO remove sequence for which there is no action was played
+
+			//refineAttackFrequency(attackfrequency);
+
+			//printAttackFreq(attackfrequency);
+
+
+
+			// now compute the best response in the tree
+
+
+			HashMap<String, HashMap<String, Double>> defstrategy = null;
+
+
+			if(algorithm.startsWith("s"))
+			{
+				defstrategy = Data.readStrategy("g5d5_FI.txt");
+			}
+			else if(algorithm.startsWith("r"))
+			{
+				HashMap<String, double[]> defendfrequency = getDefFreqInData(gameplay, numberofnodes, 5);
+				defstrategy = convertFormatD(defendfrequency);
+			}
+
+
+			/**
+			 * use the int[] version. Divide the sum og llv by the total number of samples
+			 */
+			
+			
+			//double[] estimatedw = estimateOmegaNaiveParallel(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, w1, w2, w3, w4);
+			
+			double[] estimatedw = null;
+					
+					
+			if(parallel)
+			{
+				estimatedw = estimateOmegaParallelBatchJob(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, w1, w2, w3, w4);
+			}
+			else
+			{
+				estimatedw = estimateOmegaNaive(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, w1, w2, w3, w4, 1);
+			}
+			
+					
+			
+		
+			
+			
+			//double[] estimatedlambdanaive = estimateLambdaNaiveBinaryDouble(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
+
+			//System.out.println("Estmiated lambda "+ estimatedlambdanaive[1]);
+
+
+
+
+			//double estimatedlambda = estimateLambda(lambda, isets, attackfrequency, naction, strategy, root, DEPTH_LIMIT, depthinfoset, step);
+
+
+			int p =1;
+
+
+			int sumattackcoutn = 0;
+
+			for(int c: attackcount)
+			{
+				sumattackcoutn += c;
+			}
+
+
+
+
+			double sumscore = 0;
+
+			double sum_mscore =0;
+			double sum_nscore = 0;
+			double sum_pscore = 0;
+
+
+			for(int i=0; i<users_groups.size(); i++)
+			{
+
+
+				String tmpusr = users_groups.get(i);
+
+
+
+
+
+
+				//int tmpscore= getAllUserScoreAdaptive(tmpusr, data_refined_first_game, gameinstance0); // compute score from sequence
+
+				int computedscore = user_reward.get(tmpusr);
+
+				/*if(tmpscore != computedscore)
+				{
+					System.out.println(tmpusr + "   reward not matching");
+					//throw new Exception("reward not matching");
+				}*/
+
+
+				sumscore += computedscore;
+
+
+
+
+				sum_mscore += getPersonalityScore(tmpusr, data_refined_first_game, 0);
+				sum_nscore += getPersonalityScore(tmpusr, data_refined_first_game, 1);
+				sum_pscore += getPersonalityScore(tmpusr, data_refined_first_game, 2);
+
+
+				//System.out.println("kept user "+ tmpusr);
+			}
+
+			sumscore = sumscore/users_groups.size();
+			sum_mscore /= users_groups.size();
+			sum_nscore /= users_groups.size();
+			sum_pscore /= users_groups.size();
+
+
+
+			//System.out.println("Cluster "+cluster+", user count "+users_groups.size()+", lambda "+ estimatedlambdanaive);
+
+
+			try
+			{
+				//PrintWriter pw = new PrintWriter(new FileOutputStream(new File("suqr.csv"),true));
+
+				//pw.append("deftype,cluster,#users,llv,w1,w2,w3,w4,score,mscore,nscore,pscore"+ "\n");
+
+				
+				//pw.append(algorithm+","+cluster+","+users_groups.size()+","+ estimatedw[4]/users_groups.size()+","+ estimatedw[0]+","+ estimatedw[1]+","+ estimatedw[2]+","+ estimatedw[3]+","+sumscore+","+sum_mscore+","+sum_nscore+","+sum_pscore+",");
+				System.out.print(algorithm+","+cluster+","+users_groups.size()+","+ estimatedw[4]/users_groups.size()+","+ estimatedw[0]+","+ estimatedw[1]+","+ estimatedw[2]+","+ estimatedw[3]+","+sumscore+","+sum_mscore+","+sum_nscore+","+sum_pscore+",");
+				
+				
+				
+				int index=0;
+				for(int c: attackcount)
+				{
+					//pw.append(c+"");
+					System.out.print(c+"");
+					if(index<(attackcount.length-1))
+					{
+						//pw.append(",");
+						System.out.print(",");
+					}
+
+					index++;
+				}
+				//pw.append("\n");
+				System.out.print("\n");
+				//pw.close();
+
+			}
+			catch(Exception ex)
+			{
+				System.out.println(" ");
+			}
+
+
+			
+			if(genericgroup)
+			{
+				break;
+			}
+
+		}
+		
+
+
 		
 	}
 	
@@ -10324,14 +11073,14 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 			 */
 
 
-			HashMap<String, int[]> attackfrequency = getAttackCountInDataAttacker(gameplay, numberofnodes, 5);
+		//	HashMap<String, int[]> attackfrequency = getAttackCountInDataAttacker(gameplay, numberofnodes, 5);
 			
 			
 			//HashMap<String, int[]> defendfrequency = getAttackCountInDataDefender(gameplay, numberofnodes, 5);
 			
 			
 			
-			//HashMap<String, double[]> attackfrequency = getAttackFreqInData(gameplay, numberofnodes, 5);
+			HashMap<String, double[]> attackfrequency = getAttackFreqInData(gameplay, numberofnodes, 5);
 			
 			
 			
@@ -10369,10 +11118,10 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 
 
 
-			double[] estimatedlambdanaive = estimateLambdaNaiveBinaryS(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
+			//double[] estimatedlambdanaive = estimateLambdaNaiveBinaryS(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
 			
 			
-			//double[] estimatedlambdanaive = estimateLambdaNaiveBinaryDouble(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
+			double[] estimatedlambdanaive = estimateLambdaNaiveBinaryDouble(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
 
 			//System.out.println("Estmiated lambda "+ estimatedlambdanaive[1]);
 
@@ -12853,6 +13602,30 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 	}
 	
 	
+	private static double defBestResponseValue(double[] lambda,
+			HashMap<String, int[]> attackfrequency, int naction, HashMap<String, HashMap<String, Double>> defstrategy, int dEPTH_LIMIT, double step) throws Exception {
+
+
+		double high = lambda[lambda.length-1];
+		
+
+
+		HashMap<String, double[]> attstrategy = new HashMap<String, double[]>();
+
+		AdversaryModelExps.defbr = 0;
+
+		
+		attstrategy = new HashMap<String, double[]>();
+		EquationGenerator.buildGameTreeRecurDefBR(dEPTH_LIMIT, naction, defstrategy, attstrategy, high, attackfrequency);
+		
+
+
+		double  res = AdversaryModelExps.defbr;
+
+		return res;
+	}
+	
+	
 	
 	private static double[] estimateLambdaNaiveBinaryDouble(double[] lambda,
 			HashMap<String, double[]> attackfrequency, int naction, HashMap<String, HashMap<String, Double>> defstrategy, int dEPTH_LIMIT, double step) throws Exception {
@@ -13062,7 +13835,7 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 
 	private static double[] estimateOmegaNaive(double lambda,
 			HashMap<String, int[]> attackfrequency, int naction, HashMap<String, HashMap<String, Double>> defstrategy,
-			int dEPTH_LIMIT, double[] w1, double[] w2, double[] w3, double[] w4) throws Exception {
+			int dEPTH_LIMIT, double[] w1, double[] w2, double[] w3, double[] w4, int nusers) throws Exception {
 
 
 
@@ -13095,7 +13868,7 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 
 
 
-						double llh = -EquationGenerator.llval;//computeLogLikeliHoodValue(attackfrequency, attstrategy, naction);
+						double llh = -EquationGenerator.llval/nusers;//computeLogLikeliHoodValue(attackfrequency, attstrategy, naction);
 
 						//double llh = -likeHoodValue(isets, attackfrequency, naction, defstrategy, root, dEPTH_LIMIT, depthinfoset, lambda[i]);
 
@@ -13109,7 +13882,7 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 							mw4 = w4[l];
 
 
-							System.out.println("minllh "+minllh +", min w1 : "+mw1+", w2 : "+ mw2+ " w3 : "+mw3 + ", w4 : "+ mw4);
+							//System.out.println("minllh "+minllh +", min w1 : "+mw1+", w2 : "+ mw2+ " w3 : "+mw3 + ", w4 : "+ mw4);
 						}
 					}
 
@@ -13120,7 +13893,7 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 
 
 
-		return new double[] {mw1, mw2, mw3, mw4};
+		return new double[] {mw1, mw2, mw3, mw4, minllh};
 	}
 	
 	

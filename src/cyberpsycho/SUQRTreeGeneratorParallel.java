@@ -832,7 +832,7 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 	}
 	
 	
-	private static double[] computeTotalPenaltyPercentage(String seq, int naction, HashMap<Integer, Integer[]> noderewards, int boost) {
+	public static double[] computeTotalPenaltyPercentage(String seq, int naction, HashMap<Integer, Integer[]> noderewards, int boost) {
 
 
 		double perc[] = new double[naction];
@@ -951,7 +951,7 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 	}
 	
 	
-	private double[] computeTotalPointPercentage(String seq, int naction, HashMap<Integer, Integer[]> noderewards, int boost) {
+	public static double[] computeTotalPointPercentage(String seq, int naction, HashMap<Integer, Integer[]> noderewards, int boost) {
 
 
 		double perc[] = new double[naction];
@@ -1071,7 +1071,7 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 	
 	
 	
-	private double[] computeImmediatePointPercentage(String seq, int naction, HashMap<Integer, Integer[]> noderewards, int boost) {
+	public static double[] computeImmediatePointPercentage(String seq, int naction, HashMap<Integer, Integer[]> noderewards, int boost) {
 
 
 		double perc[] = new double[naction];
@@ -1190,7 +1190,7 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 	}
 	
 	
-	private double[] computeAttackFailure(String seq, int naction, HashMap<Integer, Integer[]> noderewards, int boost) {
+	public static double[] computeAttackFailure(String seq, int naction, HashMap<Integer, Integer[]> noderewards, int boost) {
 
 
 		double[] failure = new double[naction];
@@ -1345,7 +1345,7 @@ public class SUQRTreeGeneratorParallel implements Runnable{
 	}
 	
 	
-	public double[] computeAttackSuccess(String seq, int naction, HashMap<Integer, Integer[]> noderewards, int boost) {
+	public static double[] computeAttackSuccess(String seq, int naction, HashMap<Integer, Integer[]> noderewards, int boost) {
 
 
 		double[] success = new double[naction];

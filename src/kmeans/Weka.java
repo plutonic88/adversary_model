@@ -75,7 +75,7 @@ public class Weka {
 			//System.out.println("instance  "+i +", cluster "+ (dc.clusterInstance(newinstance.get(i))+1));
 			int clusterid = dc.clusterInstance(newinstance.get(i));
 			int tid = (int)newinstance.get(i).value(0);
-			System.out.println("adding user "+ tid + " to cluster "+ clusterid);
+			//System.out.println("adding user "+ tid + " to cluster "+ clusterid);
 			clusters[clusterid].add(tid);
 		}
 		return clusters;
