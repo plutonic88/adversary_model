@@ -1018,7 +1018,47 @@ public class EquationGenerator {
 
 		HashMap<Integer, Integer[]> values = new HashMap<Integer, Integer[]>();
 
-		Integer [] v = {10, 8};
+		Integer [] v = {4, 1};
+		values.put(0, v);
+
+		Integer[] v1 = {5, 3};
+		values.put(1, v1);
+
+		Integer [] v2 = {10, 9};
+		values.put(2, v2);
+
+		Integer[] v3 = {8,8};
+		values.put(3, v3);
+
+
+		Integer [] v4 = {15, 20};
+		values.put(4, v4);
+
+		Integer[] v5 = {0, 0};
+		values.put(5, v5);
+		
+		
+		/*Integer [] v = {4, 1};
+		values.put(0, v);
+
+		Integer[] v1 = {5, 3};
+		values.put(1, v1);
+
+		Integer [] v2 = {10, 9};
+		values.put(2, v2);
+
+		Integer[] v3 = {15, 25};
+		values.put(3, v3);
+
+
+		Integer [] v4 = {20, 45};
+		values.put(4, v4);
+
+		Integer[] v5 = {0, 0};
+		values.put(5, v5);*/
+		
+		
+		/*Integer [] v = {10, 8};
 		values.put(0, v);
 
 		Integer[] v1 = {10, 2};
@@ -1035,7 +1075,7 @@ public class EquationGenerator {
 		values.put(4, v4);
 
 		Integer[] v5 = {0, 0};
-		values.put(5, v5);
+		values.put(5, v5);*/
 
 
 
@@ -3277,7 +3317,7 @@ public class EquationGenerator {
 	}
 
 
-	private static double[][] genTreeRecurSUQR(int depth, int naction, int DEPTH_LIMIT, DNode node, 
+	public static double[][] genTreeRecurSUQR(int depth, int naction, int DEPTH_LIMIT, DNode node, 
 			HashMap<Integer,Integer[]> noderewards, String seq, HashMap<String,HashMap<String,Double>> defstrategy, 
 			HashMap<String,double[]> attstrategy, double lambda, HashMap<String,int[]> attackfrequency, double[] omega) throws Exception 
 	{
@@ -3519,6 +3559,240 @@ public class EquationGenerator {
 		return null;
 
 	}
+	
+	
+	
+	public static double[][] attackStrategySUQR(int depth, int naction, int DEPTH_LIMIT, DNode node, 
+			HashMap<Integer,Integer[]> noderewards, String seq, HashMap<String,HashMap<String,Double>> defstrategy, 
+			HashMap<String,double[]> attstrategy, double lambda, double[] omega) throws Exception 
+	{
+
+		if(depth==DEPTH_LIMIT)
+		{
+			//System.out.println("leaf Node " + node.nodeid + ", seq "+ seq);
+			int defreward = 99999;//computeDefenderReward(node, noderewards);
+
+			int[] utility = computeAttackerUtilities(seq, noderewards);
+
+			int reward = 20+utility[0];
+			int cost = utility[1];
+			//System.out.println();
+
+			node.attacker_reward = reward;
+			node.attacker_penalty = cost;
+
+			node.defender_reward = defreward;
+			node.leaf = true;
+
+			double[][] rd = new double[2][naction];
+			rd[0][node.prevaction] = node.attacker_reward;
+			rd[1][node.prevaction] = node.attacker_penalty;
+			//System.out.println("Leafndoe, returning attacker rewards ");
+			/*for(int i=0; i<2; i++)
+			{
+				for(int j=0; j<naction; j++)
+				{
+					System.out.print(rd[i][j] + " ");
+				}
+				System.out.println();
+			}
+			System.out.println("\n");*/
+			return rd;
+		}
+
+
+
+		if(node.player==1) // attacker
+		{
+			//System.out.println("player 1 node, returning all reward from the childs(defnodes) ");
+			double[][] rwrds = new double[2][naction];
+			//double[] costs = new double[naction];
+			for(int action = 0; action<naction; action++)
+			{
+				DNode child = new DNode(treenodecount, depth+1, node.player^1);
+				treenodecount++;
+				child.parent = node;
+				child.prevaction = action;
+				String tmpseq = seq + "," + action;
+				if(seq.equals(""))
+				{
+					tmpseq =  action +"";
+				}
+				double[][] tmprwrd = attackStrategySUQR(depth+1, naction, DEPTH_LIMIT, child, noderewards, 
+						tmpseq, defstrategy, attstrategy, lambda, omega);
+				rwrds[0][action] = tmprwrd[0][action];
+				rwrds[1][action] = tmprwrd[1][action];
+
+			}
+			/*for(int i=0; i<2; i++)
+			{
+				for(int j=0; j<naction; j++)
+				{
+					System.out.print(rwrds[i][j] + " ");
+				}
+				System.out.println();
+			}
+			System.out.println("\n");*/
+			return rwrds;
+		}
+		else if(node.player==0) // defender
+		{
+
+			//System.out.println("player 0 node, received rewards from attacker nodes ");
+
+			HashMap<Integer, double[]> rewrdsmap = new HashMap<Integer, double[]>();
+			HashMap<Integer, double[]> penaltysmap = new HashMap<Integer, double[]>();
+			for(int action = 0; action<naction; action++)
+			{
+				//System.out.println("def action "+ action);
+				DNode child = new DNode(treenodecount, depth+1, node.player^1);
+				treenodecount++;
+				child.parent = node;
+				child.prevaction = action;
+				String tmpseq = seq + "," + action;
+				if(seq.equals(""))
+				{
+					tmpseq =  action +"";
+				}
+				double[][] tmprwrd = attackStrategySUQR(depth+1, naction, DEPTH_LIMIT, 
+						child, noderewards, tmpseq, defstrategy, attstrategy, lambda, omega);
+				/*for(int i=0; i<naction; i++)
+				{
+					System.out.println("attaction "+i+" : "+tmprwrd[i]);
+				}
+				System.out.println("\n");*/
+				rewrdsmap.put(action, tmprwrd[0]); // these are the rewards from attacker
+				penaltysmap.put(action, tmprwrd[1]);
+			}
+			/**
+			 *  1. compute attacker Q-BR
+			 *  2. Need sequence
+			 *  3. defender strategy
+			 */
+
+
+
+
+			String key = getDefAttckrSeq(seq);
+
+
+
+			/**
+			 * attacksuccess: #times attacked and successfully captured it
+			 * 
+			 * value range: 0-1
+			 * 
+			 * compute attack success rate (0-1) then multiply with 10
+			 * 
+			 */
+
+
+			//TODO
+			/**
+			 * attackfailure: #times attacked and failed
+			 * 
+			 * value range: 0-1
+			 * 
+			 * compute attack failre rate (0-1) then multiply with boost
+			 * 
+			 */
+
+			/**
+			 * % ofimmediate  points received from a node
+			 * value range : 0-1
+			 * boost 
+			 */
+
+			int boost = 1;
+			double[] suqrpref = new double[naction];
+			if(AdversaryModel.suqrw4==0)
+			{
+				//int sboost = 5;
+				suqrpref = computeAttackSuccess(seq, naction, noderewards, boost); 
+			}
+			else if(AdversaryModel.suqrw4==1)
+			{
+				//int fboost = 5;
+				suqrpref = computeAttackFailure(seq, naction, noderewards, boost); 
+			}
+			else if(AdversaryModel.suqrw4==2)
+			{
+				//int ipboost = 5;
+				suqrpref = SUQRTreeGeneratorParallel.computeImmediatePointPercentage(seq, naction, noderewards, boost); 
+			}
+			else if(AdversaryModel.suqrw4==3)
+			{
+				//int tpboost = 5;
+				suqrpref = SUQRTreeGeneratorParallel.computeTotalPointPercentage(seq, naction, noderewards, boost); 
+			}
+			else if(AdversaryModel.suqrw4==4)
+			{
+				//int ppboost = 5;
+				suqrpref = SUQRTreeGeneratorParallel.computeTotalPenaltyPercentage(seq, naction, noderewards, boost); 
+			}
+
+
+
+
+
+
+
+
+			double[] defstrat = buildDefStrat(key, defstrategy, naction);
+			/*System.out.println("defender strategy : ");
+			for(int i=0; i<naction; i++)
+			{
+				System.out.println("defaction "+i+" : "+defstrat[i]);
+			}*/
+			/**
+			 * now compute Q-BR
+			 * 
+			 * 1. for every action of attacker
+			 * 		for every action of defender
+			 * 			compute exp
+			 */
+			double[] recentattstrat = computeAttackerSUQBR(key, defstrat, naction, lambda, rewrdsmap, penaltysmap, omega, suqrpref);
+
+			attstrategy.put(key, recentattstrat);
+
+
+
+			/**
+			 * now compute create an empty array and return the expected payoff of attacker for the prev action
+			 */
+
+			double[][] attrerdprevation = computeReturnRewardSUQR(defstrat, naction, rewrdsmap, recentattstrat, node, penaltysmap);
+
+
+
+
+
+			/*System.out.println("Non Leafndoe, returning attacker reward for node******************** ");
+			for(int i=0; i<2; i++)
+			{
+				for(int j=0; j<naction; j++)
+				{
+					System.out.print(attrerdprevation[i][j] + " ");
+				}
+				System.out.println();
+			}
+			System.out.println("\n");*/
+
+			return attrerdprevation;
+
+
+
+
+			// return expected payoff of attacker if attacker plays the action that leads to this node
+
+		}
+
+
+
+		return null;
+
+	}
+	
 	
 	
 	
@@ -4548,7 +4822,8 @@ public class EquationGenerator {
 	}
 
 
-	private static double[] computeAttackerSUQBR(String key, double[] defstrat, int naction, double lambda, HashMap<Integer, double[]> rewrdsmap, HashMap<Integer,double[]> penaltysmap, double[] omega, double[] attacksuccess) throws Exception {
+	private static double[] computeAttackerSUQBR(String key, double[] defstrat, int naction, double lambda, 
+			HashMap<Integer, double[]> rewrdsmap, HashMap<Integer,double[]> penaltysmap, double[] omega, double[] attacksuccess) throws Exception {
 
 
 		HashMap<Integer, Double> attsu = new HashMap<Integer, Double>();

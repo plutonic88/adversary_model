@@ -317,15 +317,26 @@ public class Data {
 								
 								String subs = row.substring(index1, row.lastIndexOf(']'));
 								
+								String[] subarr = subs.split(" ");
+								
 								//System.out.println("Action sequence "+ subs);
+								
+								
+								String[] sb = new String[subarr.length];
+								int strIndex=0;
+								for(String token: subarr)
+								{
+									sb[strIndex++] = token.substring(1).split(":")[0];
+									//sb.append(token.substring(1).split(":")[0]+",");
+								}
 								
 								if(row.charAt(0) == 'D')
 								{
-									def_seq = subs;
+									def_seq = String.join(",", sb);
 								}
 								else if(row.charAt(0) == 'A')
 								{
-									att_seq = subs;
+									att_seq = String.join(",", sb);
 									i++; // move to next row
 									break; // exit from loop
 								}
@@ -372,9 +383,9 @@ public class Data {
 						arr[0] = arr[0].replace("\t", "");
 
 
-						String action = nodes.get(arr[0].substring(0)) ;
+						String action = nodes.get(arr[0].substring(1)) ;
 
-						double prob = Double.parseDouble(arr[1]) ;
+						double prob = Double.parseDouble(arr[2].substring(0, arr[2].length())) ;
 
 						
 						//System.out.println(action+":"+prob);

@@ -1,6 +1,7 @@
 package cyberpsycho;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -8,6 +9,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+
+import com.sun.tools.javac.code.Attribute.Array;
 
 //import cs.Interval.contraction.SecurityGameContraction;
 //import cs.Interval.contraction.TargetNode;
@@ -404,9 +407,13 @@ public class AdversaryModelExps {
 	private static ArrayList<ArrayList<String>> refineDataAdaptiveRangeWOOrder(ArrayList<ArrayList<String>> data, int game_type,
 			ArrayList<String> users_refined, String alg) {
 
+		
+		System.out.println("************Entering  refineDataAdaptiveRangeWOOrder");
 
 		ArrayList<ArrayList<String>> examples = new ArrayList<ArrayList<String>>();
 
+		
+		
 
 		for(ArrayList<String> example: data)
 		{
@@ -424,16 +431,57 @@ public class AdversaryModelExps {
 
 			}*/
 
+			if(tmpuser.equals("\"$2y$10$/kXfM1T.mNbwDiQxSjzFdOILFqbymZ41aFbKzrC6dn00dnLWZ8Asa\""))
+			{
+				System.out.println("user: "+tmpuser+" | attackaction null");
+			}
+			
 
 			//int def_order = Integer.parseInt(example.get(Headers_minimum.pick_def_order.getValue()));
 			//int gameinstance = Integer.parseInt(example.get(Headers_minimum.game_instance.getValue()));
-			//int round =  Integer.parseInt(tmpexample.get(Headers_minimum.round.getValue()));
-			/*String action = example.get(Headers_minimum.attacker_action.getValue());
-			int attackaction = 0;
-			if(!action.equals(" "))
+			int round =  Integer.parseInt(example.get(Headers_minimum.round.getValue()));
+			
+			
+			
+			String action = example.get(Headers_minimum.attacker_action.getValue());
+			String defaction = example.get(Headers_minimum.defender_action.getValue());
+			int attackaction = 5;
+			int defenderaction = 0;
+			
+			
+			//System.out.println("attackaction "+ action);
+			
+			
+			if(!action.equals(" ") && !action.equals(""))
 			{
 				attackaction = Integer.parseInt(action);
-			}*/
+			}
+			else
+			{
+				System.out.println("user: "+tmpuser+" | attackaction null");
+				System.out.println("gameinstance "+ gameinstance);
+				System.out.println("gameplayed "+ gameplayed);
+				System.out.println("round  "+ round);
+				
+			}
+			
+			if(!defaction.equals(" ") && !defaction.equals(""))
+			{
+				defenderaction = Integer.parseInt(defaction);
+			}
+			else
+			{
+				System.out.println("user: "+tmpuser+" | def action null");
+				System.out.println("gameinstance "+ gameinstance);
+				System.out.println("gameplayed "+ gameplayed);
+				System.out.println("round  "+ round);
+			}
+			
+			
+			
+			
+			
+			
 			
 			int fgi = -1;
 			int lgi = -1;
@@ -476,6 +524,9 @@ public class AdversaryModelExps {
 		}
 
 
+		
+		System.out.println("************Exiting  refineDataAdaptiveRangeWOOrder");
+		
 		return examples;
 	}
 	
@@ -3407,7 +3458,7 @@ public class AdversaryModelExps {
 					int gameinstance = Integer.parseInt(tmpexample.get(Headers_minimum.game_instance.getValue()));
 					int round =  Integer.parseInt(tmpexample.get(Headers_minimum.round.getValue()));
 					String action = tmpexample.get(Headers_minimum.attacker_action.getValue());
-					int attackaction = 0;
+					int attackaction = 5;
 					if(!action.equals(" "))
 					{
 						attackaction = Integer.parseInt(action);
@@ -4558,7 +4609,7 @@ public class AdversaryModelExps {
 	
 	
 	
-	public static void computeLambdaForAdaptivenessWODefOrderQR(int k, int depthlimit, int featureset, int game_type, String algorithm, boolean genericgroup) throws Exception {
+	public static void computeLambdaForAdaptivenessWODefOrderQR(int k, int depthlimit, int featureset, int game_type, String algorithm, boolean generic) throws Exception {
 
 
 
@@ -4668,7 +4719,7 @@ public class AdversaryModelExps {
 		
 		
 		findLambdaForGroupRangeWOOrder(users_refined, data_refined, ngames,data,
-				noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, k, featureset, algorithm);
+				noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, k, featureset, algorithm, generic);
 
 	
 			
@@ -6428,7 +6479,7 @@ public class AdversaryModelExps {
 	}
 	
 	
-	public static void trackDTQRWOOrder(int k, int depthlimit, int game_type, double stddev, String algorithm) throws Exception {
+	public static void trackDTQRWOOrder(int k, int depthlimit, int game_type, double stddev, String algorithm, boolean genericgroup) throws Exception {
 
 
 
@@ -6578,10 +6629,21 @@ public class AdversaryModelExps {
 			//int cluster = 0;
 			ArrayList<String> users_groups = (ArrayList<String>)clusters[cluster];
 			
+			
+			if(genericgroup)
+			{
+				users_groups = users_refined;
+			}
+			
+			
 			double la = findLambdaForOneGroupDTWOOrder(users_groups, data_refined, ngames, data,
 					noderewards, game_type, roundlimit, numberofnodes, lambda, step, naction, DEPTH_LIMIT, cluster, algorithm, cluster);
 			
 			//break;
+			if(genericgroup)
+			{
+				break;
+			}
 			
 
 		}
@@ -8176,7 +8238,7 @@ private static double[][] computeAllDTScores(ArrayList<String> users_refined, Ar
 	private static void findLambdaForGroupRangeWOOrder(ArrayList<String> users_refined, ArrayList<ArrayList<String>> data_refined_first_game, 
 			int ngames, ArrayList<ArrayList<String>> data, HashMap<Integer,Integer[]> noderewards, 
 			int game_type, int roundlimit, int numberofnodes, double[] lambda, double step, int naction, int DEPTH_LIMIT,
-			int k, int featureset, String algorithm) throws Exception {
+			int k, int featureset, String algorithm, boolean generic) throws Exception {
 		
 
 
@@ -8243,7 +8305,10 @@ private static double[][] computeAllDTScores(ArrayList<String> users_refined, Ar
 			ArrayList<String> users_groups = getUserGroup(clusters[cluster], users_refined);
 
 
-			//users_groups = users_refined;
+			if(generic) {
+			
+				users_groups = users_refined;
+			}
 
 			/**
 			 * get attack count for different information set
@@ -8276,7 +8341,13 @@ private static double[][] computeAllDTScores(ArrayList<String> users_refined, Ar
 			int attackcount[] = getAttackFrequencyAdaptiveWOOrder(users_groups, data_refined_first_game, numberofnodes, algorithm);
 
 
+			int[][] roundfreq = new int[5][6];
 			
+			
+			getPlayByRound(roundfreq, gameplay);
+			
+			
+			printRoundFreq(roundfreq);
 
 
 
@@ -8296,14 +8367,18 @@ private static double[][] computeAllDTScores(ArrayList<String> users_refined, Ar
 			 */
 
 
-			HashMap<String, int[]> attackfrequency = getAttackCountInDataAttacker(gameplay, numberofnodes, 5);
+			//HashMap<String, int[]> attackfrequency = getAttackCountInDataAttacker(gameplay, numberofnodes, 5);
 			
 			
 			//HashMap<String, int[]> defendfrequency = getAttackCountInDataDefender(gameplay, numberofnodes, 5);
 			
 			
 			
-			//HashMap<String, double[]> attackfrequency = getAttackFreqInData(gameplay, numberofnodes, 5);
+			HashMap<String, double[]> attackfrequency = getAttackFreqInData(gameplay, numberofnodes, 5);
+			
+			//printAttackerStrategy(attackfrequency, cluster);
+			
+			//checkConsistency(attackfrequency);
 			
 			
 			
@@ -8346,7 +8421,7 @@ private static double[][] computeAllDTScores(ArrayList<String> users_refined, Ar
 			//double[] estimatedlambdanaive = estimateLambdaNaiveBinaryS(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
 			
 			
-			double[] estimatedlambdanaive = estimateLambdaNaiveBinaryS(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
+			double[] estimatedlambdanaive = {0,0};//estimateLambdaNaiveBinaryS(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
 			
 			
 			
@@ -8364,7 +8439,7 @@ private static double[][] computeAllDTScores(ArrayList<String> users_refined, Ar
 			int p =1;
 
 
-			int sumattackcoutn = 0;
+			double sumattackcoutn = 0;
 
 			for(int c: attackcount)
 			{
@@ -8437,7 +8512,8 @@ private static double[][] computeAllDTScores(ArrayList<String> users_refined, Ar
 				int index=0;
 				for(int c: attackcount)
 				{
-					pw.append(c+"");
+					double f = (c/sumattackcoutn)*100.0;
+					pw.append(f+"");
 					if(index<(attackcount.length-1))
 					{
 						pw.append(",");
@@ -8453,15 +8529,147 @@ private static double[][] computeAllDTScores(ArrayList<String> users_refined, Ar
 			{
 				System.out.println(" ");
 			}
+			if(generic)
+			{
 
-
-			//break;
+				break;
+			}
 
 		}
 		
 	}
 	
 	
+	private static void checkConsistency(HashMap<String, double[]> attackfrequency) {
+		
+		int count = 0;
+		
+		for(String seq: attackfrequency.keySet())
+		{
+			String [] s = seq.split(" ");
+			String a = s[1];
+			String d = s[0];
+			boolean ok = true;
+			if(a.length()==7)
+			{
+				double str[] = attackfrequency.get(seq);
+				
+				double su= 0;
+				
+				for(double x: str)
+				{
+					su += x;
+				}
+				if(su>0)
+				{
+					count ++;
+				}
+				
+				
+				//check if exists in strat
+				
+				String[] at = a.split(",");
+				String[] df = d.split(",");
+				//System.out.println("\nDef seq "+ d);
+				//System.out.println("Att seq "+ a);
+				for(int i=0; i<at.length; i++)
+				{
+					String subseq = "";
+					String s1 = "";
+					String s2 = "";
+					for(int j=0; j<(i+1); j++)
+					{
+						s1 += df[i];
+						s2 += at[i];
+						if(j!=i)
+						{
+							s1+= ",";
+							s2+= ",";
+						}
+					}
+					subseq = s1 +" "+ s2;
+					//System.out.println("Subseq "+ subseq);
+					if(attackfrequency.containsKey(subseq))
+					{
+						//System.out.println("Subseq exists");
+					}
+					else
+					{
+						ok = false;
+						break;
+						//System.out.println("Subseq does not exist");
+					}
+				}
+				if(!ok)
+				{
+					
+					//System.out.println("\nNot ok\nDef seq "+ d);
+					//System.out.println("Att seq "+ a);
+				}
+				
+			}
+		}
+		System.out.println("count "+ count);
+		
+	}
+
+	private static void printAttackerStrategy(HashMap<String, double[]> attackfrequency, int cluster) {
+		
+		try 
+		{
+			PrintWriter pw = new PrintWriter(new FileOutputStream(new File("attackerstrategy"+cluster+".txt"),true));
+			
+			for(String key: attackfrequency.keySet())
+			{
+				//System.out.println(key);
+				
+				double[] s = attackfrequency.get(key);
+				
+				double sum = 0;
+				
+				
+				for(double x: s)
+				{
+					sum+=x;
+				}
+				
+				if(sum==0)
+				{
+					/*s[5] = 5;
+					pw.append("Sequence: "+key+"\n");
+					int node = 0;
+					pw.append("Strategy:\n");
+					for(double p: s)
+					{
+						pw.append(node+": "+p+"\n");
+						node++;
+					}*/
+				}
+				else if(sum>0)
+				{
+					pw.append("Sequence: "+key+"\n");
+					int node = 0;
+					pw.append("Strategy:\n");
+					for(double p: s)
+					{
+						pw.append(node+": "+p+"\n");
+						node++;
+					}
+				}
+			}
+			
+			
+			pw.close();
+			
+		} 
+		catch (FileNotFoundException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
 	private static void computeDefBR(ArrayList<String> users_refined, ArrayList<ArrayList<String>> data_refined_first_game, 
 			int ngames, ArrayList<ArrayList<String>> data, HashMap<Integer,Integer[]> noderewards, 
 			int game_type, int roundlimit, int numberofnodes, double[] lambda, double step, int naction, int DEPTH_LIMIT,
@@ -11031,6 +11239,11 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 			HashMap<String, String> user_seq = new HashMap<String, String>();
 
 			int[][] gameplay = createGamePlayRange(ngames, users_groups, data_refined_first_game, roundlimit,user_seq);
+			
+			
+			//HashMap<String, double[]> attackfrequency = getAttackFreqInData(gameplay, numberofnodes, 5);
+			
+			
 
 
 			/*String u= "\"$2y$10$1.vgQUYwu1DmltOCcbkwt.fTPbViJwq/W4mURkZFKI.Z4zHvenYRq\"";
@@ -11053,7 +11266,13 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 			int attackcount[] = getAttackFrequencyAdaptiveWOOrder(users_groups, data_refined_first_game, numberofnodes, algorithm);
 
 
+			int[][] roundfreq = new int[5][6];
 			
+			
+			getPlayByRound(roundfreq, gameplay);
+			
+			
+			printRoundFreq(roundfreq);
 
 
 
@@ -11082,7 +11301,7 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 			
 			HashMap<String, double[]> attackfrequency = getAttackFreqInData(gameplay, numberofnodes, 5);
 			
-			
+		//	printAttackerStrategy(attackfrequency, cluster);
 			
 
 			// #10*3*5 attackfreq should be 150
@@ -11121,7 +11340,7 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 			//double[] estimatedlambdanaive = estimateLambdaNaiveBinaryS(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
 			
 			
-			double[] estimatedlambdanaive = estimateLambdaNaiveBinaryDouble(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
+			double[] estimatedlambdanaive = {0.0,0.0};//estimateLambdaNaiveBinaryDouble(lambda, attackfrequency, naction, defstrategy, DEPTH_LIMIT, step);
 
 			//System.out.println("Estmiated lambda "+ estimatedlambdanaive[1]);
 
@@ -11134,7 +11353,7 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 			int p =1;
 
 
-			int sumattackcoutn = 0;
+			double sumattackcoutn = 0;
 
 			for(int c: attackcount)
 			{
@@ -11207,7 +11426,8 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 				int index=0;
 				for(int c: attackcount)
 				{
-					pw.append(c+"");
+					double f = (c/sumattackcoutn)*100.0;
+					pw.append(f+"");
 					if(index<(attackcount.length-1))
 					{
 						pw.append(",");
@@ -11236,6 +11456,68 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 	
 	
 	
+	private static void printRoundFreq(int[][] roundfreq) {
+	
+		
+		try
+		{
+			PrintWriter pw = new PrintWriter(new FileOutputStream(new File("roundfrreq.csv"),true));
+
+			//pw.append("cluster,#users,lambda,score,mscore,nscore,pscore"+ "\n");
+
+			
+			
+			
+			pw.append("\n\n");
+			
+			
+			for(int[] r: roundfreq)
+			{
+				double sm = 0;
+				
+				for(int i: r)
+				{
+					sm+=i;
+				}
+				
+				
+				for(int f: r)
+				{
+					double d = (f/sm)*100.0;;
+					pw.append(d+",");
+				}
+				pw.append("\n");
+			}
+		
+		pw.close();
+	}
+	catch(Exception ex)
+	{
+		System.out.println(" ");
+	}
+		
+		
+	}
+
+	private static void getPlayByRound(int[][] roundfreq, int[][] gameplay) {
+		
+		
+		int round = 1;
+
+		for(int[] g: gameplay)
+		{
+
+			for(int r = 1; r<=5; r++)
+			{
+				int attr = 2*(r-1) + 1;
+				int a = g[attr];
+				roundfreq[r-1][a]++;
+
+			}
+		}
+
+	}
+
 	/**
 	 * 
 	 * @param users_refined
@@ -12198,6 +12480,13 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 
 		for(String usr: users_refined)
 		{
+			
+			
+			if(usr.equals("\"$2y$10$/kXfM1T.mNbwDiQxSjzFdOILFqbymZ41aFbKzrC6dn00dnLWZ8Asa\""))
+			{
+				System.out.println("user: "+usr+" | attackaction null");
+			}
+			
 
 			/*if(usr.equals("\"$2y$10$SIKHlQqLljPY7pjVJDQ86uKHuwdUnXlxpyXm6GrZFLvcvBIavXEhC\""))
 			{
@@ -12232,7 +12521,7 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 		
 		
 
-		data_refined_first_game = refineDataAdaptiveRangeWOOrder(data,game_type, users_refined, alg);
+		data_refined_first_game = refineDataAdaptiveRangeWOOrder(data_refined_first_game,game_type, users_refined, alg);
 
 
 
@@ -14880,7 +15169,7 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 		return gameplay;
 	}
 
-	private static HashMap<String, int[]> getAttackCountInDataAttacker(int[][] gameplay, int numberofnodes, int roundlimit)
+	public static HashMap<String, int[]> getAttackCountInDataAttacker(int[][] gameplay, int numberofnodes, int roundlimit)
 	{
 
 		HashMap<String, int[]> attackfrequency = new HashMap<String, int[]>();
@@ -15108,9 +15397,18 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 				{
 					String key = "EMPTY EMPTY";
 					double[] tmpfreq = new double[numberofnodes];
+					
+					int c=0;
 					for(int[] play: gameplay)
 					{
 						tmpfreq[play[1]]++; // index 1 is attacker's game play in round 1
+						c++;
+					}
+					
+					
+					for(int i=0; i<tmpfreq.length; i++)
+					{
+						tmpfreq[i] = tmpfreq[i]/c;
 					}
 					attackfrequency.put(key, tmpfreq);
 				}
@@ -15129,7 +15427,13 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 							{
 								String key = i + " " + j;
 								double[] tmpfreq = computeFreqD(key, r, gameplay, numberofnodes);
-								attackfrequency.put(key, tmpfreq);
+								
+								double sum = sum(tmpfreq);
+								
+								if(sum>0)
+								{
+									attackfrequency.put(key, tmpfreq);
+								}
 							}
 							else if(r>1)
 							{
@@ -15162,7 +15466,15 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 */
 
 											double[] tmpfreq = computeFreqD(key, r, gameplay, numberofnodes);
-											tmp_attackfrequency.put(key, tmpfreq);
+											
+											double sum = sum(tmpfreq);
+											
+											if(sum>0)
+											{
+												tmp_attackfrequency.put(key, tmpfreq);
+											}
+											
+											//tmp_attackfrequency.put(key, tmpfreq);
 										}
 									}
 								}
@@ -15182,6 +15494,21 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 	}
 	
 	
+	private static double sum(double[] tmpfreq) {
+		// TODO Auto-generated method stub
+		
+		double sum = 0;
+		
+		
+		for(double s: tmpfreq)
+		{
+			sum+=s;
+		}
+		
+		
+		return sum;
+	}
+
 	private static HashMap<String, double[]> getDefFreqInData(int[][] gameplay, int numberofnodes, int roundlimit)
 	{
 
@@ -15378,7 +15705,7 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 		String[] attactions = keys[1].split(",");
 
 
-		int totalplay = 0;
+		double totalplay = 0.0;
 
 		for(int[] play: gameplay)
 		{
@@ -15405,7 +15732,10 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 		
 		for(int i=0; i<freq.length; i++)
 		{
-			freq[i] = freq[i]/totalplay;
+			if(totalplay>0)
+			{
+				freq[i] = freq[i]/totalplay;
+			}
 		}
 
 
@@ -16664,7 +16994,7 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 		    */
 	}
 
-	private static int[] getAttackFrequency(int[][] negameplay, int numberofnodes, int roundlimit) {
+	public static int[] getAttackFrequency(int[][] negameplay, int numberofnodes, int roundlimit) {
 
 
 		int[] count = new int[numberofnodes];
@@ -16683,7 +17013,7 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 	}
 	
 	
-	private static int[] getDefFrequency(int[][] negameplay, int numberofnodes, int roundlimit) {
+	public static int[] getDefFrequency(int[][] negameplay, int numberofnodes, int roundlimit) {
 
 
 		int[] count = new int[numberofnodes];
@@ -16701,7 +17031,7 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 		return count;
 	}
 
-	private static double playGame(HashMap<String, HashMap<String, Double>> defstrategy,
+	public static double playGame(HashMap<String, HashMap<String, Double>> defstrategy,
 			HashMap<String, double[]> attstrategy, int naction, int roundlimit, int[][] negameplay, int nexamples, HashMap<Integer,Integer[]> noderewards, int[][] negameplaydef) {
 
 		double avgpoints = 0;
@@ -16716,7 +17046,7 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 
 			String seq = "";
 
-			for(int r=0; r<roundlimit; r++)
+			for(int r=0; r<roundlimit/2; r++)
 			{
 				if(r==0)
 				{

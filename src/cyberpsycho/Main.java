@@ -5,6 +5,12 @@ public class Main {
 	
 	public static void main(String[] args) throws Exception 
 	{
+		
+		
+		FlipItV12.simulateAttacker();
+		
+		
+		
 		//AdversaryModelExps.doDummyTesting();
 		
 		//AdversaryModelExps.doDummyTest2();
@@ -213,13 +219,24 @@ public class Main {
 		 * verify the algorithms as much as you can
 		 */
 		//alg = 4;
-		
-		
-		/*int alg = 5;//Integer.parseInt(args[0]);
+		int def_order = 1;
+		int k = 3;//Integer.parseInt(args[0]);
+		int alg = 5;//Integer.parseInt(args[0]);
 		featureset = 0;//Integer.parseInt(args[1]);
 		boolean genericgroup = false;
-		*/
-		/*if(alg==0)
+		boolean parallel = false;
+		algorithm = "s";
+		
+		int depthlimit = 10;//Integer.parseInt(args[1]);
+		int gametype = 1;//Integer.parseInt(args[2]); // 0 noinfo, 1 fullinfo
+		double wlimit = 2;
+		
+		
+		//int alg = 4;//Integer.parseInt(args[0]);
+		//featureset = 0;//Integer.parseInt(args[1]);
+		//boolean genericgroup = false;
+		
+	/*	if(alg==0)
 		{
 			algorithm = "r1";
 			AdversaryModelExps.computeLambdaForAdaptivenessCombinedQR(k, depthlimit, featureset, gametype, algorithm); 
@@ -247,64 +264,59 @@ public class Main {
 		else if(alg==5)
 		{
 			algorithm = "s";
+			// c_bhv
+			// c_dt
 			AdversaryModelExps.computeLambdaForAdaptivenessWODefOrderQR(k, depthlimit, featureset, gametype, algorithm, genericgroup); 
 		}
 		else if(alg==6)
 		{
 			algorithm = "r";
-			AdversaryModelExps.trackDTQRWOOrder(k, depthlimit, gametype, stddev, algorithm);
+			AdversaryModelExps.trackDTQRWOOrder(k, depthlimit, gametype, stddev, algorithm, genericgroup);
 		}
 		else if(alg==7)
 		{
 			algorithm = "s";
-			AdversaryModelExps.trackDTQRWOOrder(k, depthlimit, gametype, stddev, algorithm);
-		}
-		*/
+			// c_dtm
+			AdversaryModelExps.trackDTQRWOOrder(k, depthlimit, gametype, stddev, algorithm, genericgroup);
+		}*/
+		
 		
 		
 		/**
 		 * SUQR
 		 */
-		int k = 3;//Integer.parseInt(args[0]);
-		int alg = 0;//Integer.parseInt(args[0]);
-		featureset = 0;//Integer.parseInt(args[1]);
-		boolean genericgroup = false;
-		boolean parallel = false;
 		
-		int depthlimit = 10;//Integer.parseInt(args[1]);
-		int gametype = 1;//Integer.parseInt(args[2]); // 0 noinfo, 1 fullinfo
-		double wlimit = 2;
 		
-		double minw1 = Integer.parseInt(args[0]);
+		double minw1 = -2;//Integer.parseInt(args[0]);
 		double maxw1 = minw1 + wlimit;// Integer.parseInt(args[2]);
 		
-		double minw2 = Integer.parseInt(args[1]);
-		double maxw2 = minw2 + wlimit;;//Integer.parseInt(args[4]);
+		double minw2 = -2;//Integer.parseInt(args[1]);
+		double maxw2 = -2;//minw2 + wlimit;;//Integer.parseInt(args[4]);
 		
-		double minw3 = Integer.parseInt(args[2]);
+		double minw3 = -2;//Integer.parseInt(args[2]);
 		double maxw3 = minw3 + wlimit;;//Integer.parseInt(args[6]);
 		
-		double minw4 = Integer.parseInt(args[3]);
+		double minw4 = -2;//Integer.parseInt(args[3]);
 		double maxw4 = minw4 + wlimit;;//Integer.parseInt(args[8]);
 		
-		AdversaryModel.suqrw4 = Integer.parseInt(args[4]);
+		AdversaryModel.suqrw4 = 0;//Integer.parseInt(args[4]);
 		
 		double w1step = .5;
 		double w2step = .5;
 		double w3step = .5;
 		double w4step = .5;
 		
-		
+		/*
 		
 		AdversaryModelExps.computeOmegaWODefOrderSUQR(k, depthlimit, featureset, gametype, algorithm, genericgroup,
 				minw1, maxw1, minw2, maxw2, minw3, maxw3, minw4, maxw4, w1step, w2step, w3step, w4step, parallel);
-		
+		*/
 		
 		
 		//put ppl at the cluster where they have their high score
 		// AdversaryModelExps.trackDTStdDevQR(k, def_order, depthlimit, gametype, stddev);
 		
-		
+		// AdversaryModelExps.trackDTQRCombined(k, depthlimit, game_type, stddev, algorithm);
 		
 		
 		
