@@ -15806,21 +15806,22 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 		 */
 
 
-		HashMap<String, HashMap<String, Double>> defstrategy = Data.readStrategy("g5d5_FI.txt");
+		HashMap<String, HashMap<String, Double>> defstrategy = Data.readStrategy("g5d5_FI_v2.txt");
+		//HashMap<String, HashMap<String, Double>> defstrategy = Data.readStrategyv1("g5d5_FI.txt");
 
 
 		//HashMap<String, double[]> attstrategy = new HashMap<String, double[]>();
 
 		//double tmplambda = 0.6;
 
-		double nelambda = 3;//.15;
+		double nelambda = .1;//.15;
 		int DEPTH_LIMIT = 10; // needs to be 10 for our experiment
 		int naction = 6;
-		double minlambda = .13;
-		double maxlambda = .2;
-		double step = .01;
-		int nexamples = 76;
-		double[] lambda = generateLambdaArray(minlambda, maxlambda, step);
+		//double minlambda = .13;
+		//double maxlambda = .2;
+		//double step = .01;
+		int nexamples = 100;
+		//double[] lambda = generateLambdaArray(minlambda, maxlambda, step);
 		int numberofnodes = 6;
 		int roundlimit = 5;
 
@@ -15828,7 +15829,7 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 
 		HashMap<String, double[]> attstrategy = new HashMap<String, double[]>();
 		HashMap<Integer, Integer[]> noderewards = EquationGenerator.createNodeRewards(naction);
-		EquationGenerator.buildGameTreeRecurNE(DEPTH_LIMIT, naction, defstrategy, attstrategy, nelambda);
+		EquationGenerator.buildGameTreeRecurNE(DEPTH_LIMIT, naction, defstrategy, attstrategy, nelambda, noderewards);
 
 
 
@@ -15847,7 +15848,7 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 		int[][] negameplay = new int[nexamples][DEPTH_LIMIT];
 		int[][] negameplaydef = new int[nexamples][DEPTH_LIMIT];
 
-		double points = playGame(defstrategy, attstrategy, naction, DEPTH_LIMIT/2, negameplay, nexamples, noderewards, negameplaydef);
+		double points = playGame(defstrategy, attstrategy, naction, roundlimit, negameplay, nexamples, noderewards, negameplaydef);
 
 
 		//double attpoints = EquationGenerator.computeAttackerReward(noderewards, user_seq, user_reward);
@@ -15878,9 +15879,9 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 
 		try
 		{
-			PrintWriter pw = new PrintWriter(new FileOutputStream(new File("cluster-lambda-att.csv"),true));
+			PrintWriter pw = new PrintWriter(new FileOutputStream(new File("lambda-sim.csv"),true));
 
-			//pw.append("cluster,#users,lambda,score,mscore,nscore,pscore,nodeA(10/8),nodeB(10/2),NodeC(4/2),nodeD(4/8),NodeE(10/5),nodeF(PASS)"+ "\n");
+			pw.append("cluster,#users,lambda,score,mscore,nscore,pscore,nodeA(4/1),nodeB(5/3),NodeC(10/9),nodeD(8/8),NodeE(15/20),nodeF(PASS)"+ "\n");
 
 			//pw.append(cluster+","+users_groups.size()+","+ estimatedlambda+","+sumscore+","+sum_mscore+","+sum_nscore+","+sum_pscore+"\n");
 
@@ -15911,13 +15912,13 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 		
 		try
 		{
-			PrintWriter pw = new PrintWriter(new FileOutputStream(new File("cluster-lambda-def.csv"),true));
+			PrintWriter pw = new PrintWriter(new FileOutputStream(new File("lambda-sim.csv"),true));
 
 			//pw.append("cluster,#users,lambda,score,mscore,nscore,pscore,nodeA(10/8),nodeB(10/2),NodeC(4/2),nodeD(4/8),NodeE(10/5),nodeF(PASS)"+ "\n");
 
 			//pw.append(cluster+","+users_groups.size()+","+ estimatedlambda+","+sumscore+","+sum_mscore+","+sum_nscore+","+sum_pscore+"\n");
 
-			pw.append("0,"+nexamples +","+ estimatedlambdanaive+","+points+","+0+","+0+","+0+",");
+			pw.append("1,"+nexamples +","+ estimatedlambdanaive+","+points+","+0+","+0+","+0+",");
 
 			int index=0;
 			for(int c: defcount)
@@ -16231,7 +16232,7 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 
 		HashMap<String, double[]> attstrategy = new HashMap<String, double[]>();
 		HashMap<Integer, Integer[]> noderewards = EquationGenerator.createNodeRewards(naction);
-		EquationGenerator.buildGameTreeRecurNE(DEPTH_LIMIT, naction, defstrategy, attstrategy, nelambda);
+		EquationGenerator.buildGameTreeRecurNE(DEPTH_LIMIT, naction, defstrategy, attstrategy, nelambda, noderewards);
 
 
 
@@ -17046,7 +17047,7 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 
 			String seq = "";
 
-			for(int r=0; r<roundlimit/2; r++)
+			for(int r=0; r<roundlimit; r++)
 			{
 				if(r==0)
 				{
@@ -17054,6 +17055,12 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 
 					int defaction = makeDefMove(key, defstrategy, naction);
 					int attaction = makeAttMove(key, attstrategy, naction);
+					
+					if(defaction >5 || attaction>5)
+					{
+						int g=1;
+					}
+					
 					negameplay[e][2*r] = defaction;
 					negameplay[e][2*r+1] = attaction;
 					defseq = defaction+"";
@@ -17119,6 +17126,10 @@ private static HashMap<String, HashMap<String, Double>> convertFormatD(HashMap<S
 				}
 
 
+			}
+			if(a>5)
+			{
+				int g=1;
 			}
 			return a;
 		}

@@ -1083,6 +1083,79 @@ public class EquationGenerator {
 
 		return values;
 	}
+	
+	
+	public static HashMap<Integer, Integer[]> createNodeRewardsv1(int naction) {
+
+
+		HashMap<Integer, Integer[]> values = new HashMap<Integer, Integer[]>();
+
+//		Integer [] v = {4, 1};
+//		values.put(0, v);
+//
+//		Integer[] v1 = {5, 3};
+//		values.put(1, v1);
+//
+//		Integer [] v2 = {10, 9};
+//		values.put(2, v2);
+//
+//		Integer[] v3 = {8,8};
+//		values.put(3, v3);
+//
+//
+//		Integer [] v4 = {15, 20};
+//		values.put(4, v4);
+//
+//		Integer[] v5 = {0, 0};
+//		values.put(5, v5);
+		
+		
+		/*Integer [] v = {4, 1};
+		values.put(0, v);
+
+		Integer[] v1 = {5, 3};
+		values.put(1, v1);
+
+		Integer [] v2 = {10, 9};
+		values.put(2, v2);
+
+		Integer[] v3 = {15, 25};
+		values.put(3, v3);
+
+
+		Integer [] v4 = {20, 45};
+		values.put(4, v4);
+
+		Integer[] v5 = {0, 0};
+		values.put(5, v5);*/
+		
+		
+		Integer [] v = {10, 8};
+		values.put(0, v);
+
+		Integer[] v1 = {10, 2};
+		values.put(1, v1);
+
+		Integer [] v2 = {4, 2};
+		values.put(2, v2);
+
+		Integer[] v3 = {4, 8};
+		values.put(3, v3);
+
+
+		Integer [] v4 = {10, 5};
+		values.put(4, v4);
+
+		Integer[] v5 = {0, 0};
+		values.put(5, v5);
+
+
+
+
+
+		return values;
+	}
+
 
 	private static String generateEqnInInformationSet(HashMap<String, InfoSet> iSets, String infosetname, int action, DNode root, String variable, String prob) {
 
@@ -2488,6 +2561,11 @@ public class EquationGenerator {
 
 			double[] recentattstrat = computeAttackerQBR(key, defstrat, naction, lambda, rewrdsmap);
 
+			if(key.equals("EMPTY EMPTY"))
+			{
+				int g=1;
+			}
+			
 			attstrategy.put(key, recentattstrat);
 
 
@@ -4876,7 +4954,7 @@ public class EquationGenerator {
 				 * use a linear combination of features
 				 */
 
-				double linearcombutiltiy = omega[0]*defstrat[defaction] + omega[1]*attrwd + omega[2]*attpnlty + omega[3]*attacksuccess[attaction]; 
+				double linearcombutiltiy = omega[0]*defstrat[defaction] + omega[1]*attrwd - omega[2]*attpnlty + omega[3]*attacksuccess[attaction]; 
 				sum += linearcombutiltiy;
 
 				//sum += (attrwd* defstrat[defaction]);
@@ -6918,9 +6996,9 @@ public class EquationGenerator {
 
 
 	public static void buildGameTreeRecurNE(int DEPTH_LIMIT, int naction, HashMap<String,HashMap<String,Double>> defstrategy,
-			HashMap<String, double[]> attstrategy, double lambda) {
+			HashMap<String, double[]> attstrategy, double lambda, HashMap<Integer, Integer[]> noderewards) {
 
-		HashMap<Integer, Integer[]> noderewards = createNodeRewards(naction);
+		//HashMap<Integer, Integer[]> noderewards = createNodeRewardsv1(naction);
 
 		createGameTreeRecurNE(DEPTH_LIMIT, naction, noderewards, defstrategy, attstrategy, lambda);
 		//System.out.println("Node id "+ root.nodeid + ", parent : "+ null + ", player "+ 0);

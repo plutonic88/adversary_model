@@ -24,12 +24,12 @@ public class FlipItV12 {
 		 * 2. Run simulation 500
 		 * 
 		 */
-		
+		AdversaryModel.suqrw4 = 4;
 		int nexamples=100;
 		int naction=6;
 		int DEPTH_LIMIT = 10;
-		double lambda=1;
-		double[] omega = {0,10,0,0};
+		double lambda=5;
+		double[] omega = {0,5,-10,0};
 		int numberofnodes = 6;
 		int roundlimit = 5;
 		
@@ -50,7 +50,7 @@ public class FlipItV12 {
 		int[][] negameplay = new int[nexamples][DEPTH_LIMIT];
 		int[][] negameplaydef = new int[nexamples][DEPTH_LIMIT];
 
-		double points = AdversaryModelExps.playGame(defstrategy, attstrategy, naction, DEPTH_LIMIT, negameplay, nexamples, noderewards, negameplaydef);
+		double points = AdversaryModelExps.playGame(defstrategy, attstrategy, naction, roundlimit, negameplay, nexamples, noderewards, negameplaydef);
 
 
 		int attackcount[] = AdversaryModelExps.getAttackFrequency(negameplay, numberofnodes, roundlimit);

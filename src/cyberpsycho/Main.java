@@ -7,7 +7,9 @@ public class Main {
 	{
 		
 		
-		FlipItV12.simulateAttacker();
+		
+		AdversaryModelExps.generateApprximateNEPlay();
+		//FlipItV12.simulateAttacker();
 		
 		
 		

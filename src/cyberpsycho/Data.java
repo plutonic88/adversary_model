@@ -234,6 +234,202 @@ public class Data {
 	}
 	
 	
+	public static HashMap<String, HashMap<String, Double>> readStrategyv1(String filename)
+	{
+		HashMap<String, HashMap<String, Double>> strategy = new HashMap<String, HashMap<String, Double>>();
+
+
+		HashMap<String , String> nodes = new HashMap<String , String>();
+		nodes.put("N0", "0");
+		nodes.put("N1", "1");
+		nodes.put("N2", "2");
+		nodes.put("N3", "3");
+		nodes.put("N4", "4");
+		nodes.put("PASS", "5");
+
+
+
+
+
+
+
+		try{
+			FileInputStream fstream = new FileInputStream("data/"+filename);
+			DataInputStream in = new DataInputStream(fstream);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			String strLine;
+			ArrayList<String> unparseddata = new ArrayList<String>();
+
+
+			while ((strLine = br.readLine()) != null)  
+			{
+				unparseddata.add(strLine);
+			}
+
+
+
+			for (int i=0; i<unparseddata.size(); )  
+			{
+
+				if(i==39614)
+				{
+					System.out.println("hi");
+				}
+
+				String def_seq = "";
+				String att_seq = "";
+
+
+				if(unparseddata.get(i).equals(""))
+				{
+					break;
+				}
+
+
+
+					while(true)
+					{
+
+							String row = unparseddata.get(i);
+
+							if(row.charAt(11) == ']') // empty sequence
+							{
+								if(row.charAt(0) == 'D')
+								{
+									def_seq = "";
+								}
+								else if(row.charAt(0) == 'A')
+								{
+									att_seq = "";
+									i++;
+									break;
+								}
+							}
+							else if(row.charAt(10) == '[')
+							{
+								//parse  action sequence
+								int index1 = 11; // starting index for sequence
+
+								String subs = row.substring(index1, row.lastIndexOf(']'));
+
+								//System.out.println("Action sequence "+ subs);
+
+								if(row.charAt(0) == 'D')
+								{
+									def_seq = subs;
+								}
+								else if(row.charAt(0) == 'A')
+								{
+									att_seq = subs;
+									i++; // move to next row
+									break; // exit from loop
+								}
+
+							}
+							i++; // move to next row
+
+					}
+
+
+
+					 def_seq = def_seq.replace(" ", "");
+					 att_seq = att_seq.replace(" ", "");
+
+					// System.out.println("Def Action sequence "+ def_seq);
+					// System.out.println("Att Action sequence "+ att_seq);
+
+					// System.out.println();
+
+
+
+
+					HashMap<String, Double> bhv_strat = new HashMap<String, Double>();
+
+					while(true)
+					{
+						if(i==unparseddata.size())
+						{
+							break;
+						}
+
+						// get the current row
+						String row = unparseddata.get(i);
+
+						if( (row.equals(""))   || (row.charAt(0) == 'D'))
+						{
+							break;
+						}
+
+						row =  row.replace(" ", "");
+
+						String[] arr = row.split(":");
+
+						arr[0] = arr[0].replace("\t", "");
+
+
+						String action = nodes.get(arr[0].substring(0)) ;
+
+						double prob = Double.parseDouble(arr[1]) ;
+
+
+						//System.out.println(action+":"+prob);
+
+						bhv_strat.put(action, prob);
+
+
+						i++;
+						//System.out.println("i :"+ i);
+						//counter++;
+					}
+
+
+					String def_nodes_seq[] = def_seq.split(",");
+					String att_nodes_seq[] = att_seq.split(",");
+
+
+					for(int k=0; k<def_nodes_seq.length; k++)
+					{
+						def_nodes_seq[k] = nodes.get(def_nodes_seq[k]);
+
+					}
+
+					for(int k=0; k<att_nodes_seq.length; k++)
+					{
+						att_nodes_seq[k] = nodes.get(att_nodes_seq[k]);
+
+					}
+
+					def_seq =  String.join(",", def_nodes_seq);
+					att_seq =  String.join(",", att_nodes_seq);
+
+
+					if(def_seq.equals("null") || att_seq.equals("null"))
+					{
+						strategy.put("EMPTY"+" "+"EMPTY", bhv_strat);
+					}
+					else
+					{
+						strategy.put(def_seq+" "+att_seq, bhv_strat);
+					}
+
+
+
+					//System.out.println();
+
+
+
+			}
+			in.close();
+		}catch (Exception e)
+		{
+			System.err.println("Error: " + e.getMessage());
+		}
+
+		return strategy;
+
+	}
+	
+	
 	/**
 	 * 
 	 * @param filename
